@@ -14,6 +14,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/**
+ * Description for this class
+ * RPC生产者启动程序,负责Provider类初始化及调用
+ *
+ * @Author IpMan
+ * @Date 2024/3/9 20:07
+ */
 @Data
 public class ProviderBootstrap implements ApplicationContextAware {
 
@@ -21,41 +28,44 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private Map<String, Object> skeleton = new HashMap<>();
 
-    @PostConstruct  // init-method
-    // PreDestroy
+    @PostConstruct
     public void buildProviders() {
+        // 寻找@Provider的实现类
         Map<String, Object> providers = applicationContext.getBeansWithAnnotation(RpcProvider.class);
-        providers.forEach((x,y) -> System.out.println(x));
-//        skeleton.putAll(providers);
-
-        providers.values().forEach(
-                x -> genInterface(x)
-        );
+        providers.forEach((className, classObject)
+                -> System.out.println("@RpcProvider init, className=" + className + ",classObject=" + classObject));
+        // 初始化接口列表
+        providers.values().forEach(this::genInterface);
 
     }
 
-    private void genInterface(Object x) {
-        Class<?> itfer = x.getClass().getInterfaces()[0];
-        skeleton.put(itfer.getCanonicalName(), x);
+    private void genInterface(Object classObject) {
+        // 获取注入类的实例,并注册到  skeleton <className, classObject>
+        Class<?> itFer = classObject.getClass().getInterfaces()[0];
+        skeleton.put(itFer.getCanonicalName(), classObject);
     }
 
 
-    public RpcResponse invoke(RpcRequest request) {
+    public RpcResponse<?> invoke(RpcRequest request) {
+        // 根据类包名,获取容器的类实例
         Object bean = skeleton.get(request.getService());
         try {
-            Method method = findMethod(bean.getClass(), request.getMethod());
+            Class<?> aClass = bean.getClass();
+            // 根据类和方法名,找到方法实例
+            Method method = findMethod(aClass, request.getMethod());
+            // 传入方法参数,调用目标provider方法
+            assert method != null;
             Object result = method.invoke(bean, request.getArgs());
-            return new RpcResponse(true, result);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+            return new RpcResponse<>(true, result);
+        } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
+
     private Method findMethod(Class<?> aClass, String methodName) {
         for (Method method : aClass.getMethods()) {
-            if(method.getName().equals(methodName)) {  // 有多个重名方法，
+            if (method.getName().equals(methodName)) {
                 return method;
             }
         }

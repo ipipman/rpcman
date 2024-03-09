@@ -1,6 +1,8 @@
 package cn.ipman.rpcman.demo.provider;
 
 import cn.ipman.rpcman.core.annotation.RpcProvider;
+import cn.ipman.rpcman.demo.api.Order;
+import cn.ipman.rpcman.demo.api.OrderService;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;
 import org.springframework.stereotype.Component;
@@ -15,11 +17,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RpcProvider
-public class UserServiceImpl implements UserService {
+public class OrderServiceImpl implements OrderService {
 
     @Override
-    public User findById(int id) {
-        return new User(id, "RpcMan-" + System.currentTimeMillis() + ", id=" + id);
+    public Order findById(int id) {
+        return new Order(id, "RpcMan-" + System.currentTimeMillis() + ", id=" + id);
     }
 
 }
