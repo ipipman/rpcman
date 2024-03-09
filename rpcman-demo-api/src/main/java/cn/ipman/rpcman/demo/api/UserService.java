@@ -1,0 +1,6 @@
+package cn.ipman.rpcman.demo.api;
+
+public interface UserService {
+
+    User findById(int id);
+}

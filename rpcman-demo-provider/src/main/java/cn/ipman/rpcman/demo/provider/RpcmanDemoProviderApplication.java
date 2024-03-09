@@ -1,13 +1,13 @@
-package cn.ipman.rpcman;
+package cn.ipman.rpcman.demo.provider;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class RpcmanApplication {
+public class RpcmanDemoProviderApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RpcmanApplication.class, args);
+        SpringApplication.run(RpcmanDemoProviderApplication.class, args);
     }
 
 }

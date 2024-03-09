@@ -3,28 +3,38 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <groupId>cn.ipman</groupId>
+        <artifactId>rpcman</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+<!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
     </parent>
 
-    <groupId>cn.ipman</groupId>
-    <artifactId>rpcman</artifactId>
+    <artifactId>rpcman-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>rpcman</name>
-    <description>rpcman</description>
-    <packaging>pom</packaging>
+    <name>rpcman-core</name>
+    <description>rpcman-core</description>
+
     <properties>
         <java.version>17</java.version>
     </properties>
 
-    <modules>
-        <module>rpcman-core</module>
-        <module>rpcman-demo-api</module>
-        <module>rpcman-demo-provider</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
