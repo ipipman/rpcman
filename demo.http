@@ -1,0 +1,20 @@
+
+### 获取用户信息
+POST http://localhost:8080/
+Content-Type: application/json
+
+{
+  "service": "cn.ipman.rpcman.demo.api.UserService",
+  "method": "findById",
+  "args": [100]
+}
+
+### 获取订单信息
+POST http://localhost:8080/
+Content-Type: application/json
+
+{
+  "service": "cn.ipman.rpcman.demo.api.OrderService",
+  "method": "findById",
+  "args": [200]
+}
