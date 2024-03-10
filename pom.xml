@@ -23,6 +23,7 @@
         <module>rpcman-core</module>
         <module>rpcman-demo-api</module>
         <module>rpcman-demo-provider</module>
+        <module>rpcman-demo-consumer</module>
     </modules>
 
 
