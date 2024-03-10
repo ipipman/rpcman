@@ -1,16 +1,15 @@
 package cn.ipman.rpcman.core.consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.SimpleThreadScope;
 import org.springframework.core.annotation.Order;
 
 
 /**
  * Description for this class
+ * RPC的Consumer端启动时,根据@RpcConsumer注解找到对应的依赖类,通过Java动态代理实现远程调用,并将代理后的Provider注入到容器种
  *
  * @Author IpMan
  * @Date 2024/3/10 19:49

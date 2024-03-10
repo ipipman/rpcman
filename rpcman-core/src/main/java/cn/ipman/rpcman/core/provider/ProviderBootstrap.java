@@ -50,7 +50,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public RpcResponse<?> invoke(RpcRequest request) {
         // 屏蔽一些Provider接口实现的方法
         String name = request.getMethod();
-        if (name.equals("toString") || name.equals("hashCode")){
+        if (name.equals("toString") || name.equals("hashCode")) {
             return null;
         }
 
@@ -59,7 +59,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
         Object bean = skeleton.get(request.getService());
         try {
             Class<?> aClass = bean.getClass();
-            // 根据类和方法名,找到方法实例
+            // 根据类和方法名,找到对应方法实例
             Method method = findMethod(aClass, request.getMethod());
 
             // 传入方法参数,通过反射 调用目标provider方法
@@ -80,6 +80,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
 
     private Method findMethod(Class<?> aClass, String methodName) {
+        // 根据实现类的方法名字,查找方法实例
+        // TODO: 如果有方法重载,这种实现并不可靠,待完善
         for (Method method : aClass.getMethods()) {
             if (method.getName().equals(methodName)) {
                 return method;

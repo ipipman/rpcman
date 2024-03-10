@@ -30,19 +30,28 @@ public class RpcmanDemoConsumerApplication {
     @Bean
     public ApplicationRunner consumerRunner() {
         return x -> {
+            // 测试返回一个Java Object
             User user = userService.findById(1);
             System.out.println(user);
 
+            // 测试屏幕toString的远程调用
             System.out.println(userService.toString());
 
+            // 测试基础类型 int
             int id = userService.getId(2);
             System.out.println(id);
 
+            // 测试String类型返回
+            String name = userService.getName("ipman");
+            System.out.println(name);
+
+            // 测试多个Provider的调用
             Order order = orderService.findById(2);
             System.out.println(order);
 
-            Order order1 = orderService.findById(404);
-            System.out.println(order1);
+            // 测试异常返回
+//            Order order1 = orderService.findById(404);
+//            System.out.println(order1);
         };
     }
 }

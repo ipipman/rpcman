@@ -26,4 +26,10 @@ public class UserServiceImpl implements UserService {
     public int getId(int id) {
         return id;
     }
+
+    @Override
+    public String getName(String name) {
+        return name;
+    }
 }
+
