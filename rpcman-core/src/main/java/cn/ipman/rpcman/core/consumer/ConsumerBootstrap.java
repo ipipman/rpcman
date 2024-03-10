@@ -78,7 +78,7 @@ public class ConsumerBootstrap implements ApplicationContextAware {
                     result.add(f);
                 }
             }
-            // 找到代理类的父类,避免找不到标记成 @RpcConsumer 的成员
+            // 找到被Spring容器CGLIB代理过的父类,避免找不到标记成 @RpcConsumer 的成员
             aClass = aClass.getSuperclass();
         }
         return result;
