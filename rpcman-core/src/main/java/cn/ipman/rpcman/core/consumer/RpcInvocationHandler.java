@@ -41,8 +41,11 @@ public class RpcInvocationHandler implements InvocationHandler {
         if (rpcResponse.isStatus()) {
             JSONObject jsonResult = (JSONObject) rpcResponse.getData();
             return jsonResult.toJavaObject(method.getReturnType());
+        } else {
+            // 调用异常处理
+            Exception ex = rpcResponse.getEx();
+            throw new RuntimeException(ex);
         }
-        return null;
     }
 
     OkHttpClient client = new OkHttpClient.Builder()

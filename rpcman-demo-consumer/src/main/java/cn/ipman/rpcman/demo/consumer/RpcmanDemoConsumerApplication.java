@@ -35,6 +35,9 @@ public class RpcmanDemoConsumerApplication {
 
             Order order = orderService.findById(2);
             System.out.println(order);
+
+            Order order1 = orderService.findById(404);
+            System.out.println(order1);
         };
     }
 }

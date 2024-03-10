@@ -26,14 +26,12 @@ public class ConsumerBootstrap implements ApplicationContextAware {
     private Map<String, Object> stub = new HashMap<>();
 
     public void start() {
+        // 获取Spring容器中所有的Bean
         String[] names = applicationContext.getBeanDefinitionNames();
         for (String name : names) {
             Object bean = applicationContext.getBean(name);
-
-            if (!name.contains("rpcmanDemoConsumerApplication")) continue;
-
+            // if (!name.contains("rpcmanDemoConsumerApplication")) continue;
             List<Field> fields = findAnnotatedFiled(bean.getClass());
-
             fields.forEach(f -> {
                 Class<?> service = f.getType();
                 String serviceName = service.getCanonicalName();

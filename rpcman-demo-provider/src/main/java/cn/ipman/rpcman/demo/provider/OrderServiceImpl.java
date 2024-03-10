@@ -21,6 +21,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order findById(int id) {
+        // test
+        if (id == 404) {
+            throw new RuntimeException("404 exception");
+        }
         return new Order(id, "RpcMan-" + System.currentTimeMillis() + ", id=" + id);
     }
 

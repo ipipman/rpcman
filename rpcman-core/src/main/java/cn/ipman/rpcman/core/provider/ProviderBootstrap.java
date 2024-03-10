@@ -3,6 +3,7 @@ package cn.ipman.rpcman.core.provider;
 import cn.ipman.rpcman.core.annotation.RpcProvider;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
+import com.sun.jdi.InvocationException;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.springframework.context.ApplicationContext;
@@ -47,19 +48,26 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
 
     public RpcResponse<?> invoke(RpcRequest request) {
+        RpcResponse<Object> rpcResponse = new RpcResponse<>();
         // 根据类包名,获取容器的类实例
         Object bean = skeleton.get(request.getService());
         try {
             Class<?> aClass = bean.getClass();
             // 根据类和方法名,找到方法实例
             Method method = findMethod(aClass, request.getMethod());
-            // 传入方法参数,调用目标provider方法
+            // 传入方法参数,通过反射 调用目标provider方法
             assert method != null;
             Object result = method.invoke(bean, request.getArgs());
-            return new RpcResponse<>(true, result);
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            rpcResponse.setStatus(true);
+            rpcResponse.setData(result);
+        } catch (InvocationTargetException e) {
+            // Provider反射时异常处理, TODO 返回反射目标类的异常
+            rpcResponse.setEx(new RuntimeException(e.getTargetException().getMessage()));
+        } catch (IllegalAccessException e) {
+            // Provider反射调用时异常
+            rpcResponse.setEx(new RuntimeException(e.getMessage()));
         }
+        return rpcResponse;
     }
 
 
