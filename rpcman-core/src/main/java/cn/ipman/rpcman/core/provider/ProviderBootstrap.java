@@ -48,6 +48,12 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
 
     public RpcResponse<?> invoke(RpcRequest request) {
+        // 屏蔽一些Provider接口实现的方法
+        String name = request.getMethod();
+        if (name.equals("toString") || name.equals("hashCode")){
+            return null;
+        }
+
         RpcResponse<Object> rpcResponse = new RpcResponse<>();
         // 根据类包名,获取容器的类实例
         Object bean = skeleton.get(request.getService());
@@ -55,11 +61,13 @@ public class ProviderBootstrap implements ApplicationContextAware {
             Class<?> aClass = bean.getClass();
             // 根据类和方法名,找到方法实例
             Method method = findMethod(aClass, request.getMethod());
+
             // 传入方法参数,通过反射 调用目标provider方法
             assert method != null;
             Object result = method.invoke(bean, request.getArgs());
             rpcResponse.setStatus(true);
             rpcResponse.setData(result);
+
         } catch (InvocationTargetException e) {
             // Provider反射时异常处理, TODO 返回反射目标类的异常
             rpcResponse.setEx(new RuntimeException(e.getTargetException().getMessage()));

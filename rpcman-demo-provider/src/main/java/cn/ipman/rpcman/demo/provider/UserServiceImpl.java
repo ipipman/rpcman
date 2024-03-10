@@ -22,4 +22,8 @@ public class UserServiceImpl implements UserService {
         return new User(id, "RpcMan-" + System.currentTimeMillis() + ", id=" + id);
     }
 
+    @Override
+    public int getId(int id) {
+        return id;
+    }
 }

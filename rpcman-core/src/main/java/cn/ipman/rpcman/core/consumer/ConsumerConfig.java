@@ -24,7 +24,7 @@ public class ConsumerConfig {
     }
 
     @Bean
-    @Order(Integer.MIN_VALUE) //让执行顺序滞后,等consumerBootstrap先注入到容器
+    @Order(Integer.MIN_VALUE) // 让ProviderBootstrap执行顺序提前,避免Consumer依赖时找不到Provider
     public ApplicationRunner consumerBootstrapRunner(@Autowired ConsumerBootstrap consumerBootstrap) {
         return x -> {
             System.out.println("createConsumerBootstrap starting...");

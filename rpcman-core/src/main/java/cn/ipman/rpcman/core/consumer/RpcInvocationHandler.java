@@ -32,22 +32,36 @@ public class RpcInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        // 屏蔽一些Provider接口实现的方法
+        String name = method.getName();
+        if (name.equals("toString") || name.equals("hashCode")) {
+            return null;
+        }
+
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setService(service.getCanonicalName());
         rpcRequest.setMethod(method.getName());
         rpcRequest.setArgs(args);
 
+        // 请求 Provider
         RpcResponse<?> rpcResponse = post(rpcRequest);
         if (rpcResponse.isStatus()) {
-            JSONObject jsonResult = (JSONObject) rpcResponse.getData();
-            return jsonResult.toJavaObject(method.getReturnType());
+            // 需要处理基础类型
+            Object result = rpcResponse.getData();
+            if (result instanceof JSONObject) {
+                JSONObject jsonResult = (JSONObject) rpcResponse.getData();
+                return jsonResult.toJavaObject(method.getReturnType());
+            } else {
+                return result;
+            }
         } else {
-            // 调用异常处理
+            // 调用异常时处理
             Exception ex = rpcResponse.getEx();
             throw new RuntimeException(ex);
         }
     }
 
+    // 用okHttp进行远程传输
     OkHttpClient client = new OkHttpClient.Builder()
             .connectionPool(new ConnectionPool(16, 60, TimeUnit.SECONDS))
             .readTimeout(1, TimeUnit.SECONDS)
@@ -71,8 +85,6 @@ public class RpcInvocationHandler implements InvocationHandler {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-
     }
-
 
 }

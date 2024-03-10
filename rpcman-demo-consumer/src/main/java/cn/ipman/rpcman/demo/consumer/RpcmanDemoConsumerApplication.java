@@ -33,6 +33,11 @@ public class RpcmanDemoConsumerApplication {
             User user = userService.findById(1);
             System.out.println(user);
 
+            System.out.println(userService.toString());
+
+            int id = userService.getId(2);
+            System.out.println(id);
+
             Order order = orderService.findById(2);
             System.out.println(order);
 
