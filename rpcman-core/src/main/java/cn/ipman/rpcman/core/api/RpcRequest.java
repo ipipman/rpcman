@@ -15,7 +15,7 @@ import lombok.Data;
 public class RpcRequest {
 
     private String service; // 接口, 如: cn.ipman.rpcman.demo.api.UserService
-    private String method; // 方法名
+    private String methodSign; // 方法签名
     private Object[] args; // 方法参数
 
 }

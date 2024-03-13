@@ -23,6 +23,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findById(int id, String name) {
+        return new User(id, "RpcMan-" + System.currentTimeMillis() + ", id=" + id + ", name=" + name);
+    }
+
+    @Override
     public int getId(int id) {
         return id;
     }

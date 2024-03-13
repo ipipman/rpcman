@@ -2,6 +2,7 @@ package cn.ipman.rpcman.core.consumer;
 
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
+import cn.ipman.rpcman.core.util.MethodUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
@@ -33,14 +34,13 @@ public class RpcInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         // 屏蔽一些Provider接口实现的方法
-        String name = method.getName();
-        if (name.equals("toString") || name.equals("hashCode")) {
+        if (MethodUtils.checkLocalMethod(method.getName())) {
             return null;
         }
 
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setService(service.getCanonicalName());
-        rpcRequest.setMethod(method.getName());
+        rpcRequest.setMethodSign(method.getName());
         rpcRequest.setArgs(args);
 
         // 请求 Provider

@@ -3,7 +3,6 @@ package cn.ipman.rpcman.core.provider;
 import cn.ipman.rpcman.core.annotation.RpcProvider;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
-import com.sun.jdi.InvocationException;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.springframework.context.ApplicationContext;
@@ -49,7 +48,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     public RpcResponse<?> invoke(RpcRequest request) {
         // 屏蔽一些Provider接口实现的方法
-        String name = request.getMethod();
+        String name = request.getMethodSign();
         if (name.equals("toString") || name.equals("hashCode")) {
             return null;
         }
@@ -60,7 +59,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
         try {
             Class<?> aClass = bean.getClass();
             // 根据类和方法名,找到对应方法实例
-            Method method = findMethod(aClass, request.getMethod());
+            Method method = findMethod(aClass, request.getMethodSign());
 
             // 传入方法参数,通过反射 调用目标provider方法
             assert method != null;

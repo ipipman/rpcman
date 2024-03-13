@@ -34,6 +34,9 @@ public class RpcmanDemoConsumerApplication {
             User user = userService.findById(1);
             System.out.println(user);
 
+//            User user1 = userService.findById(1, "ipman");
+//            System.out.println(user1);
+
             // 测试屏幕toString的远程调用
             System.out.println(userService.toString());
 
@@ -49,7 +52,7 @@ public class RpcmanDemoConsumerApplication {
             Order order = orderService.findById(2);
             System.out.println(order);
 
-            // 测试异常返回
+//            // 测试异常返回
 //            Order order1 = orderService.findById(404);
 //            System.out.println(order1);
         };

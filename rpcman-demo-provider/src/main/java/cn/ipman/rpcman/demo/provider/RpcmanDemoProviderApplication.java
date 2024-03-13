@@ -6,7 +6,6 @@ import cn.ipman.rpcman.core.provider.ProviderBootstrap;
 import cn.ipman.rpcman.core.provider.ProviderConfig;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -39,7 +38,7 @@ public class RpcmanDemoProviderApplication {
         return x -> {
             RpcRequest request = new RpcRequest();
             request.setService("cn.ipman.rpcman.demo.api.UserService");
-            request.setMethod("findById");
+            request.setMethodSign("findById");
             request.setArgs(new Object[]{100});
 
             // 根据接口描述,调用接口
