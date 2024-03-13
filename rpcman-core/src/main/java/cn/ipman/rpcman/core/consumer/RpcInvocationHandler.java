@@ -40,7 +40,7 @@ public class RpcInvocationHandler implements InvocationHandler {
 
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setService(service.getCanonicalName());
-        rpcRequest.setMethodSign(method.getName());
+        rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
         // 请求 Provider

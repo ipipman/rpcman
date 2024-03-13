@@ -9,4 +9,6 @@ public interface UserService {
     int getId(int id);
 
     String getName(String name);
+
+    String getName(int id);
 }
