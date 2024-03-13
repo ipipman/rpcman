@@ -1,5 +1,8 @@
 package cn.ipman.rpcman.core.util;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+
 /**
  * Description for this class
  *
@@ -19,5 +22,21 @@ public class MethodUtils {
                 "notify".equals(method);
     }
 
+    public static boolean checkLocalMethod(final Method method) {
+        return method.getDeclaringClass().equals(Object.class);
+    }
+
+    public static String methodSign(Method method) {
+        StringBuffer sb = new StringBuffer(method.getName());
+        sb.append("@").append(method.getParameterCount());
+        Arrays.stream(method.getParameterTypes()).forEach(
+                t -> sb.append("_").append(t.getName())
+        );
+        return sb.toString();
+    }
+
+    public static String methodSign(Method method, Class<?> clazz) {
+        return null;
+    }
 
 }

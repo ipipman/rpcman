@@ -38,13 +38,24 @@ public class RpcmanDemoProviderApplication {
         return x -> {
             RpcRequest request = new RpcRequest();
             request.setService("cn.ipman.rpcman.demo.api.UserService");
-            request.setMethodSign("findById");
+            request.setMethodSign("findById@1_int");
             request.setArgs(new Object[]{100});
 
             // 根据接口描述,调用接口
             RpcResponse<?> rpcResponse = invoke(request);
             System.out.println("return : " + rpcResponse.getData());
+
+            RpcRequest request1 = new RpcRequest();
+            request1.setService("cn.ipman.rpcman.demo.api.UserService");
+            request1.setMethodSign("findById@2_int_java.lang.String");
+            request1.setArgs(new Object[]{100, "ipman"});
+
+            // 根据接口描述,调用接口
+            RpcResponse<?> rpcResponse1 = invoke(request1);
+            System.out.println("return : " + rpcResponse1.getData());
         };
+
+
     }
 
 }
