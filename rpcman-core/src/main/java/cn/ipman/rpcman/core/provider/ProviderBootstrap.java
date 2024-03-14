@@ -102,7 +102,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
     }
 
     private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
-        if (args.length == 0) return args;
+        if (args == null || args.length == 0) return args;
+        // 参数类型转换
         Object[] actualArgs = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
             actualArgs[i] = TypeUtils.cast(args[i], parameterTypes[i]);
