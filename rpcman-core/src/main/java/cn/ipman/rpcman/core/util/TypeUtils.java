@@ -1,5 +1,10 @@
 package cn.ipman.rpcman.core.util;
 
+import com.alibaba.fastjson.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Description for this class
  *
@@ -16,6 +21,12 @@ public class TypeUtils {
         if (type.isAssignableFrom(aClass)) {
             return origin;
         }
+
+        if (origin instanceof HashMap map) {
+            JSONObject jsonObject = new JSONObject(map);
+            return jsonObject.toJavaObject(type);
+        }
+
         if (type.equals(Long.class) || type.equals(Long.TYPE)) {
             return Long.valueOf(origin.toString());
         } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {

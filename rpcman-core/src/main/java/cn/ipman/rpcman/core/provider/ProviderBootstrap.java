@@ -5,6 +5,7 @@ import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.meta.ProviderMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
+import cn.ipman.rpcman.core.util.TypeUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.springframework.context.ApplicationContext;
@@ -81,8 +82,12 @@ public class ProviderBootstrap implements ApplicationContextAware {
             // 从元数据里获取类方法
             ProviderMeta meta = findProviderMeta(providerMetas, methodSign);
             Method method = meta.getMethod();
+
+            // 参数类型转换
+            Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
+
             // 传入方法参数,通过反射 调用目标provider方法
-            Object result = method.invoke(meta.getServiceImpl(), request.getArgs());
+            Object result = method.invoke(meta.getServiceImpl(), args);
             rpcResponse.setStatus(true);
             rpcResponse.setData(result);
 
@@ -94,6 +99,15 @@ public class ProviderBootstrap implements ApplicationContextAware {
             rpcResponse.setEx(new RuntimeException(e.getMessage()));
         }
         return rpcResponse;
+    }
+
+    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
+        if (args.length == 0) return args;
+        Object[] actualArgs = new Object[args.length];
+        for (int i = 0; i < args.length; i++) {
+            actualArgs[i] = TypeUtils.cast(args[i], parameterTypes[i]);
+        }
+        return actualArgs;
     }
 
     private ProviderMeta findProviderMeta(List<ProviderMeta> providerMetas, String methodSign) {

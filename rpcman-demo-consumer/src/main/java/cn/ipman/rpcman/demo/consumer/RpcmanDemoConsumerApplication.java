@@ -40,9 +40,13 @@ public class RpcmanDemoConsumerApplication {
 //            // 测试屏幕toString的远程调用
 //            System.out.println(userService.toString());
 
-            // 测试基础类型 int
-            long id = userService.getId(2L);
-            System.out.println(id);
+//            // 测试基础类型 int
+//            long id = userService.getId(2L);
+//            System.out.println(id);
+
+            System.out.println("userService.getId(User)" + userService.getId(new User(1, "ipman")));
+
+            System.out.println("userService.getId(float)" + userService.getId(1.2f));
 //
 //            // 测试String类型返回
 //            String name = userService.getName("ipman");

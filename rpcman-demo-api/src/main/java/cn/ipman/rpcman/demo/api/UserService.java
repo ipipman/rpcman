@@ -12,5 +12,9 @@ public interface UserService {
 
     String getName(int id);
 
+    long getId(User user);
+
+    long getId(float id);
+
 
 }
