@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * Description for this class
@@ -24,29 +27,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(int id) {
-        return new User(id,
-                environment.getProperty("server.port")
-                        + " _ RpcMan-" + System.currentTimeMillis() + ", id=" + id);
+        return new User(id, environment.getProperty("server.port") + " ipman-" + System.currentTimeMillis());
     }
 
     @Override
     public User findById(int id, String name) {
-        return new User(id, "RpcMan-" + System.currentTimeMillis() + ", id=" + id + ", name=" + name);
+        return new User(id, "ipman-" + name + "_" + System.currentTimeMillis());
     }
 
     @Override
     public long getId(long id) {
         return id;
-    }
-
-    @Override
-    public String getName(String name) {
-        return name;
-    }
-
-    @Override
-    public String getName(int id) {
-        return "ipman -> " + id;
     }
 
     @Override
@@ -56,27 +47,47 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public long getId(float id) {
-        return (long) id;
+        return 1L;
+    }
+
+    @Override
+    public String getName() {
+        return "ipman123";
+    }
+
+    @Override
+    public String getName(int id) {
+        return "ipman-" + id;
     }
 
     @Override
     public int[] getIds() {
-        return new int[]{1, 2, 3};
+        return new int[]{100, 200, 300};
     }
 
     @Override
     public long[] getLongIds() {
-        return new long[]{100L, 200L, 300L};
-    }
-
-    @Override
-    public long[] getLongIds(long[] ids) {
-        return ids;
+        return new long[]{1, 2, 3};
     }
 
     @Override
     public int[] getIds(int[] ids) {
         return ids;
+    }
+
+    @Override
+    public List<User> getList(List<User> userList) {
+        return userList;
+    }
+
+    @Override
+    public Map<String, User> getMap(Map<String, User> userMap) {
+        return userMap;
+    }
+
+    @Override
+    public Boolean getFlag(boolean flag) {
+        return !flag;
     }
 }
 

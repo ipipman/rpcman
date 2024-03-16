@@ -65,6 +65,8 @@ public class TypeUtils {
             return Short.valueOf(origin.toString());
         } else if (type.equals(Character.class) || type.equals(Character.TYPE)) {
             return origin.toString().charAt(0);
+        } else if(type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
+            return Boolean.valueOf(origin.toString());
         }
 
         return null;
