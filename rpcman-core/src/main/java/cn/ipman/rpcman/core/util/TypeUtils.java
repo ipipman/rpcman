@@ -45,6 +45,7 @@ public class TypeUtils {
             return jsonObject.toJavaObject(type);
         }
 
+        // 序列换, Object -> Pojo
         if (origin instanceof JSONObject jsonObject) {
             return jsonObject.toJavaObject(type);
         }

@@ -2,9 +2,9 @@ package cn.ipman.rpcman.core.api;
 
 import java.util.List;
 
-public interface Router {
+public interface Router<T> {
 
-    List<String> route(List<String> providers);
+    List<T> route(List<T> providers);
 
-    Router Default = p -> p;
+    Router<?> Default = p -> p;
 }

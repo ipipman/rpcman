@@ -2,14 +2,27 @@ package cn.ipman.rpcman.core.api;
 
 import java.util.List;
 
-public interface LoadBalancer {
+/**
+ * 负载均衡, weightedRR, autoRR-自适应
+ * 8081, w= 100, 25次
+ * 8082, w= 300, 75次
+ * <p>
+ * 0-99, random, <25, -8081, else 8082
+ * <p>
+ * UseService 10...
+ * 8081, 10ms
+ * 8082, 100ms
+ * <p>
+ * avg * 0.3  + last * 0.7 = w* ~
+ */
+public interface LoadBalancer<T> {
 
     /**
      * 选择provider
      */
-    String choose(List<String> providers);
+    T choose(List<T> providers);
 
-    LoadBalancer Default = p -> (p == null || p.isEmpty()) ? null : p.get(0);
+    LoadBalancer<?> Default = p -> (p == null || p.isEmpty()) ? null : p.get(0);
 
 
 }

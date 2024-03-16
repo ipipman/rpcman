@@ -1,9 +1,6 @@
 package cn.ipman.rpcman.core.consumer;
 
-import cn.ipman.rpcman.core.api.LoadBalancer;
-import cn.ipman.rpcman.core.api.Router;
-import cn.ipman.rpcman.core.api.RpcRequest;
-import cn.ipman.rpcman.core.api.RpcResponse;
+import cn.ipman.rpcman.core.api.*;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import cn.ipman.rpcman.core.util.TypeUtils;
 import com.alibaba.fastjson.JSON;
@@ -28,16 +25,13 @@ public class RpcInvocationHandler implements InvocationHandler {
     final static MediaType JSON_TYPE = MediaType.get("application/json; charset=utf-8");
 
     Class<?> service;
-    Router router;
-    LoadBalancer loadBalancer;
-    String[] providers;
+    RpcContext rpcContext;
+    List<String> providers;
 
 
-    public RpcInvocationHandler(Class<?> service, Router router,
-                                LoadBalancer loadBalancer, String[] providers) {
+    public RpcInvocationHandler(Class<?> service, RpcContext rpcContext, List<String> providers) {
         this.service = service;
-        this.router = router;
-        this.loadBalancer = loadBalancer;
+        this.rpcContext = rpcContext;
         this.providers = providers;
     }
 
@@ -54,8 +48,8 @@ public class RpcInvocationHandler implements InvocationHandler {
         rpcRequest.setArgs(args);
 
         // 获取路由,通过负载均衡选取一个代理的url
-        List<String> urls = router.route(List.of(this.providers));
-        String url = loadBalancer.choose(urls);
+        List<String> urls = rpcContext.getRouter().route(this.providers);
+        String url = (String) rpcContext.getLoadBalancer().choose(urls);
         System.out.println("loadBalancer.choose(urls) ==> " + url);
 
         // 请求 Provider
