@@ -16,5 +16,5 @@ public interface UserService {
 
     long getId(float id);
 
-
+    int[] getIds();
 }

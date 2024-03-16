@@ -5,10 +5,13 @@ import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import cn.ipman.rpcman.core.util.TypeUtils;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
 
+import javax.print.attribute.standard.JobKOctets;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -50,8 +53,21 @@ public class RpcInvocationHandler implements InvocationHandler {
             // 需要处理基础类型
             Object data = rpcResponse.getData();
             if (data instanceof JSONObject) {
+                // 反序列化,json对象类型,如:Map -> Object
                 JSONObject jsonResult = (JSONObject) rpcResponse.getData();
                 return jsonResult.toJavaObject(method.getReturnType());
+
+            } else if (data instanceof JSONArray jsonArray) {
+                // 反序列化,json数组类型,如:List -> int[]
+                Object[] array = jsonArray.toArray();
+                Class<?> componentType = method.getReturnType().getComponentType();
+                //System.out.println("componentType => " + componentType);
+                Object resultArray = Array.newInstance(componentType, array.length);
+                for (int i = 0; i < array.length; i++) {
+                    Array.set(resultArray, i, array[i]);
+                }
+                return resultArray;
+
             } else {
                 return TypeUtils.cast(data, method.getReturnType());
             }

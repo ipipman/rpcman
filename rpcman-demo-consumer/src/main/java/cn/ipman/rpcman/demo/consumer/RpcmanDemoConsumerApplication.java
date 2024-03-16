@@ -13,6 +13,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
+import java.util.Arrays;
+
 @SpringBootApplication
 @Import({ConsumerConfig.class})
 public class RpcmanDemoConsumerApplication {
@@ -30,34 +32,37 @@ public class RpcmanDemoConsumerApplication {
     @Bean
     public ApplicationRunner consumerRunner() {
         return x -> {
-            // 测试返回一个Java Object
-            User user = userService.findById(1);
-            System.out.println(user);
+//            // 测试返回一个Java Object
+//            User user = userService.findById(1);
+//            System.out.println(user);
+//
+//            User user1 = userService.findById(1, "ipman");
+//            System.out.println(user1);
+//
+//            // 测试屏幕toString的远程调用
+//            System.out.println(userService.toString());
+//
+//            // 测试基础类型 int
+//            long id = userService.getId(2L);
+//            System.out.println(id);
+//
+//            System.out.println("userService.getId(User) ->" + userService.getId(new User(1, "ipman")));
+//
+//            System.out.println("userService.getId(float) ->" + userService.getId(1.2f));
+//
+//            // 测试String类型返回
+//            String name = userService.getName("ipman");
+//            System.out.println(name);
+//
+//            // 测试多个Provider的调用
+//            Order order = orderService.findById(2);
+//            System.out.println(order);
+//
+//            String user2 = userService.getName(12);
+//            System.out.println(user2);
 
-            User user1 = userService.findById(1, "ipman");
-            System.out.println(user1);
+            System.out.println("userService.getId() ->" + Arrays.toString(userService.getIds()));
 
-            // 测试屏幕toString的远程调用
-            System.out.println(userService.toString());
-
-            // 测试基础类型 int
-            long id = userService.getId(2L);
-            System.out.println(id);
-
-            System.out.println("userService.getId(User)" + userService.getId(new User(1, "ipman")));
-
-            System.out.println("userService.getId(float)" + userService.getId(1.2f));
-
-            // 测试String类型返回
-            String name = userService.getName("ipman");
-            System.out.println(name);
-
-            // 测试多个Provider的调用
-            Order order = orderService.findById(2);
-            System.out.println(order);
-
-            String user2 = userService.getName(12);
-            System.out.println(user2);
 
 //            // 测试异常返回
 //            Order order1 = orderService.findById(404);

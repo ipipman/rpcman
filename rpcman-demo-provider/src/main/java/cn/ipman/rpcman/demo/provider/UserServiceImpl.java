@@ -51,5 +51,10 @@ public class UserServiceImpl implements UserService {
     public long getId(float id) {
         return (long) id;
     }
+
+    @Override
+    public int[] getIds() {
+        return new int[]{1, 2, 3};
+    }
 }
 
