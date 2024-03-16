@@ -19,6 +19,7 @@ public class TypeUtils {
     public static Object cast(Object origin, Class<?> type) {
         if (origin == null) return null;
         Class<?> aClass = origin.getClass();
+
         // 如果要转换的类型,已经是它的原始类型,就直接返回
         if (type.isAssignableFrom(aClass)) {
             return origin;
@@ -41,6 +42,10 @@ public class TypeUtils {
         // 参数序列化,Map -> Object
         if (origin instanceof HashMap map) {
             JSONObject jsonObject = new JSONObject(map);
+            return jsonObject.toJavaObject(type);
+        }
+
+        if (origin instanceof JSONObject jsonObject) {
             return jsonObject.toJavaObject(type);
         }
 
