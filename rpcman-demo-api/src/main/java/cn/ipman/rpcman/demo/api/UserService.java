@@ -17,4 +17,10 @@ public interface UserService {
     long getId(float id);
 
     int[] getIds();
+
+    long[] getLongIds();
+
+    long[] getLongIds(long[] ids);
+
+    int[] getIds(int[] ids);
 }

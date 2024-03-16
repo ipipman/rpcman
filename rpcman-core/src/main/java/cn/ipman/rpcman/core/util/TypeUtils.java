@@ -2,7 +2,9 @@ package cn.ipman.rpcman.core.util;
 
 import com.alibaba.fastjson.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,11 +24,27 @@ public class TypeUtils {
             return origin;
         }
 
+        // 参数序列化, List -> int[]
+        if (type.isArray()) {
+            if (origin instanceof List<?> list) {
+                origin = list.toArray();
+            }
+            int length = Array.getLength(origin);
+            Class<?> componentType = type.getComponentType();
+            Object resultArray = Array.newInstance(componentType, length);
+            for (int i = 0; i < length; i++) {
+                Array.set(resultArray, i, Array.get(origin, i));
+            }
+            return resultArray;
+        }
+
+        // 参数序列化,Map -> Object
         if (origin instanceof HashMap map) {
             JSONObject jsonObject = new JSONObject(map);
             return jsonObject.toJavaObject(type);
         }
 
+        // 基础类型解析
         if (type.equals(Long.class) || type.equals(Long.TYPE)) {
             return Long.valueOf(origin.toString());
         } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {

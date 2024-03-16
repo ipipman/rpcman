@@ -56,5 +56,20 @@ public class UserServiceImpl implements UserService {
     public int[] getIds() {
         return new int[]{1, 2, 3};
     }
+
+    @Override
+    public long[] getLongIds(){
+        return new long[]{100L, 200L, 300L};
+    }
+
+    @Override
+    public long[] getLongIds(long[] ids){
+        return ids;
+    }
+
+    @Override
+    public int[] getIds(int[] ids){
+        return ids;
+    }
 }
 
