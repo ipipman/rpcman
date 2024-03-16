@@ -6,7 +6,6 @@ import cn.ipman.rpcman.demo.api.Order;
 import cn.ipman.rpcman.demo.api.OrderService;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

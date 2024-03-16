@@ -3,8 +3,6 @@ package cn.ipman.rpcman.demo.provider;
 import cn.ipman.rpcman.core.annotation.RpcProvider;
 import cn.ipman.rpcman.demo.api.Order;
 import cn.ipman.rpcman.demo.api.OrderService;
-import cn.ipman.rpcman.demo.api.User;
-import cn.ipman.rpcman.demo.api.UserService;
 import org.springframework.stereotype.Component;
 
 

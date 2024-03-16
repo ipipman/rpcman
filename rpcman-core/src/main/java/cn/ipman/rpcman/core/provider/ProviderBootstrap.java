@@ -15,7 +15,6 @@ import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,14 +48,16 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private void genInterface(Object classObject) {
         // 获取注入类的实例,并注册到  skeleton <className, classObject>
-        Class<?> itFer = classObject.getClass().getInterfaces()[0];
-        Method[] methods = itFer.getMethods();
-        for (Method method : methods) {
-            if (MethodUtils.checkLocalMethod(method)) {
-                continue;
+        Class<?>[] itFers = classObject.getClass().getInterfaces();
+        for (Class<?> itFer : itFers) {
+            Method[] methods = itFer.getMethods();
+            for (Method method : methods) {
+                if (MethodUtils.checkLocalMethod(method)) {
+                    continue;
+                }
+                // 创建 skeleton
+                createProvider(itFer, classObject, method);
             }
-            // 创建 skeleton
-            createProvider(itFer, classObject, method);
         }
     }
 
@@ -76,7 +77,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
         List<ProviderMeta> providerMetas = skeleton.get(request.getService());
 
         // 根据类包名,获取容器的类实例
-        Object bean = skeleton.get(request.getService());
+        //Object bean = skeleton.get(request.getService());
         try {
             String methodSign = request.getMethodSign();
             // 从元数据里获取类方法
