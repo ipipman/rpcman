@@ -1,14 +1,18 @@
 package cn.ipman.rpcman.core.consumer;
 
 import cn.ipman.rpcman.core.api.LoadBalancer;
+import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.api.Router;
 import cn.ipman.rpcman.core.cluster.RandomLoadBalancer;
 import cn.ipman.rpcman.core.cluster.RoundRibonLoadBalancer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+
+import java.util.List;
 
 
 /**
@@ -20,6 +24,9 @@ import org.springframework.core.annotation.Order;
  */
 @Configuration
 public class ConsumerConfig {
+
+    @Value("${rpcman.providers}")
+    String services;
 
     @Bean
     public ConsumerBootstrap createConsumerBootstrap() {
@@ -46,6 +53,11 @@ public class ConsumerConfig {
     @Bean
     public Router loadRouter() {
         return Router.Default;
+    }
+
+    @Bean(initMethod = "start", destroyMethod = "stop")
+    public RegistryCenter consumerRc() {
+        return new RegistryCenter.StaticRegistryCenter(List.of(services.split(",")));
     }
 
 }
