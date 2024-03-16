@@ -3,6 +3,8 @@ package cn.ipman.rpcman.demo.provider;
 import cn.ipman.rpcman.core.annotation.RpcProvider;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 
@@ -17,9 +19,14 @@ import org.springframework.stereotype.Component;
 @RpcProvider
 public class UserServiceImpl implements UserService {
 
+    @Autowired
+    Environment environment;
+
     @Override
     public User findById(int id) {
-        return new User(id, "RpcMan-" + System.currentTimeMillis() + ", id=" + id);
+        return new User(id,
+                environment.getProperty("server.port")
+                        + " _ RpcMan-" + System.currentTimeMillis() + ", id=" + id);
     }
 
     @Override
@@ -58,17 +65,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public long[] getLongIds(){
+    public long[] getLongIds() {
         return new long[]{100L, 200L, 300L};
     }
 
     @Override
-    public long[] getLongIds(long[] ids){
+    public long[] getLongIds(long[] ids) {
         return ids;
     }
 
     @Override
-    public int[] getIds(int[] ids){
+    public int[] getIds(int[] ids) {
         return ids;
     }
 }

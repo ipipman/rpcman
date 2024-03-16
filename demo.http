@@ -1,4 +1,7 @@
 
+GET http://localhost:8088/?id=101
+
+
 ### 获取用户信息
 POST http://localhost:8080/
 Content-Type: application/json

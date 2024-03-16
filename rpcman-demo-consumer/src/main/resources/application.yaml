@@ -1,2 +1,4 @@
 server:
   port: 8088
+rpcman:
+  providers: http://localhost:8080,http://localhost:8081

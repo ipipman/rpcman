@@ -1,5 +1,7 @@
 package cn.ipman.rpcman.core.consumer;
 
+import cn.ipman.rpcman.core.api.LoadBalancer;
+import cn.ipman.rpcman.core.api.Router;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.util.MethodUtils;
@@ -25,11 +27,18 @@ public class RpcInvocationHandler implements InvocationHandler {
 
     final static MediaType JSON_TYPE = MediaType.get("application/json; charset=utf-8");
 
-
     Class<?> service;
+    Router router;
+    LoadBalancer loadBalancer;
+    String[] providers;
 
-    public RpcInvocationHandler(Class<?> service) {
+
+    public RpcInvocationHandler(Class<?> service, Router router,
+                                LoadBalancer loadBalancer, String[] providers) {
         this.service = service;
+        this.router = router;
+        this.loadBalancer = loadBalancer;
+        this.providers = providers;
     }
 
     @Override
@@ -44,15 +53,20 @@ public class RpcInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
+        // 获取路由,通过负载均衡选取一个代理的url
+        List<String> urls = router.route(List.of(this.providers));
+        String url = loadBalancer.choose(urls);
+        System.out.println("loadBalancer.choose(urls) ==> " + url);
+
         // 请求 Provider
-        RpcResponse<?> rpcResponse = post(rpcRequest);
+        RpcResponse<?> rpcResponse = post(rpcRequest, url);
 
         if (rpcResponse.isStatus()) {
             // 需要处理基础类型
             Object data = rpcResponse.getData();
             Class<?> type = method.getReturnType();
             if (data instanceof JSONObject jsonResult) {
-                // 反序列化,json对象类型,如:Map -> Object
+                // 如: Object -> Map<k, v>
                 if (Map.class.isAssignableFrom(type)) {
                     Map resultMap = new HashMap();
                     Type genericReturnType = method.getGenericReturnType();
@@ -72,22 +86,27 @@ public class RpcInvocationHandler implements InvocationHandler {
                     }
                     return resultMap;
                 }
+                // 如: jsonObject -> Pojo
                 return jsonResult.toJavaObject(type);
 
             } else if (data instanceof JSONArray jsonArray) {
                 Object[] array = jsonArray.toArray();
                 if (type.isArray()) {
+                    // 如: array -> int[]{1,2,3}
                     Class<?> componentType = type.getComponentType();
                     Object resultArray = Array.newInstance(componentType, array.length);
                     for (int i = 0; i < array.length; i++) {
                         Array.set(resultArray, i, array[i]);
                     }
                     return resultArray;
+
                 } else if (List.class.isAssignableFrom(type)) {
+                    // 如: List<?>
                     List<Object> resultList = new ArrayList<>(array.length);
                     Type genericReturnType = method.getGenericReturnType();
                     System.out.println(genericReturnType);
                     if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                        // TODO:
                         Type actualType = parameterizedType.getActualTypeArguments()[0];
                         System.out.println(actualType);
                         for (Object o : array) {
@@ -101,7 +120,7 @@ public class RpcInvocationHandler implements InvocationHandler {
                     return null;
                 }
             } else {
-                // 其它基础类型
+                // 其它基础类型, 如: int, string..
                 return TypeUtils.cast(data, method.getReturnType());
             }
         } else {
@@ -120,11 +139,11 @@ public class RpcInvocationHandler implements InvocationHandler {
             .build();
 
 
-    private RpcResponse<?> post(RpcRequest rpcRequest) {
+    private RpcResponse<?> post(RpcRequest rpcRequest, String url) {
         String reqJson = JSON.toJSONString(rpcRequest);
         System.out.println(" ===> reqJson = " + reqJson);
         Request request = new Request.Builder()
-                .url("http://localhost:8080")
+                .url(url)
                 .post(RequestBody.create(reqJson, JSON_TYPE))
                 .build();
         try {

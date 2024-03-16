@@ -1,5 +1,9 @@
 package cn.ipman.rpcman.core.consumer;
 
+import cn.ipman.rpcman.core.api.LoadBalancer;
+import cn.ipman.rpcman.core.api.Router;
+import cn.ipman.rpcman.core.cluster.RandomLoadBalancer;
+import cn.ipman.rpcman.core.cluster.RoundRibonLoadBalancer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +34,18 @@ public class ConsumerConfig {
             consumerBootstrap.start();
             System.out.println("createConsumerBootstrap started...");
         };
+    }
+
+    @Bean
+    public LoadBalancer loadBalancer() {
+        //return LoadBalancer.Default;
+        //return new RandomLoadBalancer();
+        return new RoundRibonLoadBalancer();
+    }
+
+    @Bean
+    public Router loadRouter() {
+        return Router.Default;
     }
 
 }
