@@ -76,6 +76,15 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @Override
     public List<String> fetchAll(String service) {
-        return null;
+        String servicePath = "/" + service;
+        try {
+            // 获取所有子节点
+            List<String> nodes =  client.getChildren().forPath(servicePath);
+            System.out.println(" ===> fetchAll to zk:" + servicePath);
+            nodes.forEach(System.out::println);
+            return nodes;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

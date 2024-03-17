@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Description for this class
@@ -82,7 +83,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createFromRegistry(Class<?> service, RpcContext rpcContext, RegistryCenter rc) {
         String serviceName = service.getCanonicalName();
-        List<String> providers = rc.fetchAll(serviceName);
+        List<String> providers = rc.fetchAll(serviceName).stream()
+                .map(x -> "http://" + x.replace("_", ":")).collect(Collectors.toList());
+        System.out.println("  ===> map to providers");
+        providers.forEach(System.out::println);
         return createConsumer(service, rpcContext, providers);
     }
 
