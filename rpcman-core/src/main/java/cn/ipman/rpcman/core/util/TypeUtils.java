@@ -27,14 +27,19 @@ public class TypeUtils {
 
         // 参数序列化, List -> int[]
         if (type.isArray()) {
-            if (origin instanceof List<?> list) {
+            if (origin instanceof List list) {
                 origin = list.toArray();
             }
             int length = Array.getLength(origin);
             Class<?> componentType = type.getComponentType();
             Object resultArray = Array.newInstance(componentType, length);
             for (int i = 0; i < length; i++) {
-                Array.set(resultArray, i, Array.get(origin, i));
+                if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
+                    Array.set(resultArray, i, Array.get(origin, i));
+                } else {
+                    Object castObject = cast(Array.get(origin, i), componentType);
+                    Array.set(resultArray, i, castObject);
+                }
             }
             return resultArray;
         }
@@ -65,7 +70,7 @@ public class TypeUtils {
             return Short.valueOf(origin.toString());
         } else if (type.equals(Character.class) || type.equals(Character.TYPE)) {
             return origin.toString().charAt(0);
-        } else if(type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
+        } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
             return Boolean.valueOf(origin.toString());
         }
 

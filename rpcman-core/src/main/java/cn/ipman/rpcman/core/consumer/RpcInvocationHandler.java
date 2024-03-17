@@ -13,6 +13,8 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static cn.ipman.rpcman.core.util.TypeUtils.cast;
+
 /**
  * Description for this class
  * 基于Java动态代理,实现Consumer调用Provider
@@ -72,8 +74,8 @@ public class RpcInvocationHandler implements InvocationHandler {
                         System.out.println("valueType: " + valueType);
                         jsonResult.entrySet().stream().forEach(
                                 e -> {
-                                    Object key = TypeUtils.cast(e.getKey(), keyType);
-                                    Object value = TypeUtils.cast(e.getValue(), valueType);
+                                    Object key = cast(e.getKey(), keyType);
+                                    Object value = cast(e.getValue(), valueType);
                                     resultMap.put(key, value);
                                 }
                         );
@@ -90,7 +92,12 @@ public class RpcInvocationHandler implements InvocationHandler {
                     Class<?> componentType = type.getComponentType();
                     Object resultArray = Array.newInstance(componentType, array.length);
                     for (int i = 0; i < array.length; i++) {
-                        Array.set(resultArray, i, array[i]);
+                        if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
+                            Array.set(resultArray, i, array[i]);
+                        } else {
+                            Object castObject = cast(array[i], componentType);
+                            Array.set(resultArray, i, castObject);
+                        }
                     }
                     return resultArray;
 
@@ -104,7 +111,7 @@ public class RpcInvocationHandler implements InvocationHandler {
                         Type actualType = parameterizedType.getActualTypeArguments()[0];
                         System.out.println(actualType);
                         for (Object o : array) {
-                            resultList.add(TypeUtils.cast(o, (Class<?>) actualType));
+                            resultList.add(cast(o, (Class<?>) actualType));
                         }
                     } else {
                         resultList.addAll(Arrays.asList(array));
@@ -115,7 +122,7 @@ public class RpcInvocationHandler implements InvocationHandler {
                 }
             } else {
                 // 其它基础类型, 如: int, string..
-                return TypeUtils.cast(data, method.getReturnType());
+                return cast(data, method.getReturnType());
             }
         } else {
             // 调用异常时处理

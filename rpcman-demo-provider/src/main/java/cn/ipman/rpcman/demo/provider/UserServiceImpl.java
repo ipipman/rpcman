@@ -76,6 +76,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User[] findUsers(User[] users) {
+        return users;
+    }
+
+    @Override
     public List<User> getList(List<User> userList) {
         return userList;
     }

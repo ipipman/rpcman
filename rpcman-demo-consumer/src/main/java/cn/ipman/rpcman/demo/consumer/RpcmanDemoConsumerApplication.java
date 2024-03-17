@@ -111,6 +111,12 @@ public class RpcmanDemoConsumerApplication {
             System.out.println("Case 13. >>===[测试参数和返回值都是Boolean/boolean类型]===");
             System.out.println("userService.getFlag(false) = " + userService.getFlag(false));
 
+            System.out.println("Case 14. >>===[测试参数和返回值都是User[]类型]===");
+            User[] users = new User[]{
+                    new User(100, "ipman100"),
+                    new User(101, "ipman101")};
+            Arrays.stream(userService.findUsers(users)).forEach(System.out::println);
+
 //            // 测试异常返回
 //            Order order1 = orderService.findById(404);
 //            System.out.println(order1);
