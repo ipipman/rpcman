@@ -45,13 +45,6 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         rpcContext.setRouter(router);
         rpcContext.setLoadBalancer(loadBalancer);
 
-//        rc.fetchAll()
-
-//        String urls = environment.getProperty("rpcman.providers", "");
-//        if (Strings.isEmpty(urls)) {
-//            System.out.println("rpcman.providers is empty.");
-//        }
-//        String[] providers = urls.split(",");
 
         // 获取Spring容器中所有的Bean
         String[] names = applicationContext.getBeanDefinitionNames();

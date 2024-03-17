@@ -1,13 +1,17 @@
 package cn.ipman.rpcman.core.provider;
 
 import cn.ipman.rpcman.core.annotation.RpcProvider;
+import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.meta.ProviderMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import cn.ipman.rpcman.core.util.TypeUtils;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.Data;
+import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.LinkedMultiValueMap;
@@ -15,6 +19,8 @@ import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,15 +41,43 @@ public class ProviderBootstrap implements ApplicationContextAware {
     // 方法名 -> [sign1, sign2]
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
+    private String instance;
+
+    @Value("${server.port}")
+    private String port;
+
     @PostConstruct
-    public void buildProviders() {
+    @SneakyThrows
+    public void init() {
         // 寻找@Provider的实现类
         Map<String, Object> providers = applicationContext.getBeansWithAnnotation(RpcProvider.class);
         providers.forEach((className, classObject)
                 -> System.out.println("@RpcProvider init, className=" + className + ",classObject=" + classObject));
         // 初始化接口列表
         providers.values().forEach(this::genInterface);
+    }
 
+    @SneakyThrows
+    public void start(){
+        // 获取provider实例, 注册到 zookeeper
+        String ip = InetAddress.getLocalHost().getHostAddress();
+        this.instance = ip + "_" + port;
+        skeleton.keySet().forEach(this::registerService);
+    }
+
+    @PreDestroy
+    private void stop(){
+        skeleton.keySet().forEach(this::unregisterService);
+    }
+
+    private void unregisterService(String service) {
+        RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
+        rc.unregister(service, this.instance);
+    }
+
+    private void registerService(String service) {
+        RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
+        rc.register(service, this.instance);
     }
 
     private void genInterface(Object classObject) {
@@ -52,6 +86,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
         for (Class<?> itFer : itFers) {
             Method[] methods = itFer.getMethods();
             for (Method method : methods) {
+                // 如果是本地方法,就跳过
                 if (MethodUtils.checkLocalMethod(method)) {
                     continue;
                 }

@@ -10,18 +10,19 @@ import java.util.List;
  */
 public interface RegistryCenter {
 
-    void start();
+    void start(); // provider || consumer
 
-    void stop();
+    void stop(); // provider || consumer
 
     // Provider侧
-    void register(String service, String instance);
+    void register(String service, String instance); // provider
 
-    void unregister(String service, String instance);
+    void unregister(String service, String instance); // provider
 
     // Consumer侧
-    List<String> fetchAll(String service);
-    // void subscribe();
+    List<String> fetchAll(String service); // consumer
+    // void subscribe(); // consumer
+    // heartbeat()
 
     /**
      * 静态的注册中心
