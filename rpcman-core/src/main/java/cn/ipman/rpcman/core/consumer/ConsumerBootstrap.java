@@ -5,6 +5,8 @@ import cn.ipman.rpcman.core.api.LoadBalancer;
 import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.api.Router;
 import cn.ipman.rpcman.core.api.RpcContext;
+import cn.ipman.rpcman.core.registry.ChangedListener;
+import cn.ipman.rpcman.core.registry.Event;
 import lombok.Data;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.ApplicationContext;
@@ -83,11 +85,21 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createFromRegistry(Class<?> service, RpcContext rpcContext, RegistryCenter rc) {
         String serviceName = service.getCanonicalName();
-        List<String> providers = rc.fetchAll(serviceName).stream()
-                .map(x -> "http://" + x.replace("_", ":")).collect(Collectors.toList());
+        List<String> providers = mapUrls(rc.fetchAll(serviceName));
         System.out.println("  ===> map to providers");
         providers.forEach(System.out::println);
+
+        // 新增Provider节点订阅
+        rc.subscribe(serviceName, event -> {
+            providers.clear();
+            providers.addAll(mapUrls(event.getData()));
+        });
         return createConsumer(service, rpcContext, providers);
+    }
+
+    private List<String> mapUrls(List<String> nodes) {
+        return nodes.stream()
+                .map(x -> "http://" + x.replace("_", ":")).collect(Collectors.toList());
     }
 
 

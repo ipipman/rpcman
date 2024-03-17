@@ -1,5 +1,8 @@
 package cn.ipman.rpcman.core.api;
 
+import cn.ipman.rpcman.core.registry.ChangedListener;
+
+import javax.swing.event.ChangeListener;
 import java.util.List;
 
 /**
@@ -21,7 +24,8 @@ public interface RegistryCenter {
 
     // Consumer侧
     List<String> fetchAll(String service); // consumer
-    // void subscribe(); // consumer
+
+    void subscribe(String service, ChangedListener listener); // consumer
     // heartbeat()
 
     /**
@@ -47,6 +51,11 @@ public interface RegistryCenter {
 
         @Override
         public void register(String service, String instance) {
+
+        }
+
+        @Override
+        public void subscribe(String service, ChangedListener listener) {
 
         }
 

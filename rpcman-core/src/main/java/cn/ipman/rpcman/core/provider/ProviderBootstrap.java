@@ -58,7 +58,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     }
 
     @SneakyThrows
-    public void start(){
+    public void start() {
         // 获取provider实例, 注册到 zookeeper
         String ip = InetAddress.getLocalHost().getHostAddress();
         this.instance = ip + "_" + port;
@@ -66,7 +66,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
     }
 
     @PreDestroy
-    private void stop(){
+    private void stop() {
+        System.out.println(" ===> zk PreDestroy stop: " + skeleton);
         skeleton.keySet().forEach(this::unregisterService);
     }
 
