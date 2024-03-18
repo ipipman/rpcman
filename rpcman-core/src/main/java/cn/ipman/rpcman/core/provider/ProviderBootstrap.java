@@ -63,10 +63,11 @@ public class ProviderBootstrap implements ApplicationContextAware {
         String ip = InetAddress.getLocalHost().getHostAddress();
         this.instance = ip + "_" + port;
         skeleton.keySet().forEach(this::registerService);
+
     }
 
     @PreDestroy
-    private void stop() {
+    public void stop() {
         System.out.println(" ===> zk PreDestroy stop: " + skeleton);
         skeleton.keySet().forEach(this::unregisterService);
     }

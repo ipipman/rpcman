@@ -38,8 +38,8 @@ public class ProviderConfig {
         };
     }
 
-    @Bean(initMethod = "start", destroyMethod = "stop")
-    public RegistryCenter consumerRc() {
+    @Bean(initMethod = "start", destroyMethod = "stop") // stop kill -2
+    public RegistryCenter consumer_rc() {
         return new ZkRegistryCenter();
     }
 

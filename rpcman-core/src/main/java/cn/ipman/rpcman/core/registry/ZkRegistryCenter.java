@@ -24,12 +24,24 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @Override
     public void start() {
+        // baseSleepTimeMs：初始的sleep时间，用于计算之后的每次重试的sleep时间，
+        //          计算公式：当前sleep时间=baseSleepTimeMs*Math.max(1, random.nextInt(1<<(retryCount+1)))
+        // maxRetries：最大重试次数
+        // maxSleepMs：最大sleep时间，如果上述的当前sleep计算出来比这个大，那么sleep用这个时间
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+
+        // connectString：zk的server地址，多个server之间使用英文逗号分隔开
+        // connectionTimeoutMs：连接超时时间，如上是30s，默认是15s
+        // sessionTimeoutMs：会话超时时间，如上是50s，默认是60s
+        // retryPolicy：失败重试策略
         client = CuratorFrameworkFactory.builder()
                 .connectString("localhost:2181")
+                .connectionTimeoutMs(2000)
                 .namespace("rpcman")
                 .retryPolicy(retryPolicy)
                 .build();
+
+        // 启动zk实例
         client.start();
         System.out.println(" ===> zk client starting.");
     }
@@ -42,6 +54,7 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @Override
     public void register(String service, String instance) {
+        // servicePath = rpman/cn.ipman.rpcman.demo.api.UserService
         String servicePath = "/" + service;
         try {
             // 创建服务的持久化节点
@@ -49,6 +62,7 @@ public class ZkRegistryCenter implements RegistryCenter {
                 client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, "service".getBytes());
             }
             // 创建实例的临时性节点
+            // instancePath = rpman/cn.ipman.rpcman.demo.api.UserService/127.0.0.1_8081
             String instancePath = servicePath + "/" + instance;
             System.out.println(" ===> register to zk:" + instancePath);
             client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
@@ -66,7 +80,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             if (client.checkExists().forPath(servicePath) == null) {
                 return;
             }
-            // 删除实例节点
+            // 容器关停时,删除实例节点
             String instancePath = servicePath + "/" + instance;
             System.out.println(" ===> unregister to zk:" + instancePath);
             client.delete().quietly().forPath(instancePath);
@@ -80,7 +94,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     public List<String> fetchAll(String service) {
         String servicePath = "/" + service;
         try {
-            // 获取所有子节点
+            // 根据service接口,获取zk下所有子节点
             List<String> nodes = client.getChildren().forPath(servicePath);
             System.out.println(" ===> fetchAll to zk:" + servicePath);
             nodes.forEach(System.out::println);
