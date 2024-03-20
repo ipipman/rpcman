@@ -43,7 +43,7 @@ public class ZkRegistryCenter implements RegistryCenter {
 
         // 启动zk实例
         client.start();
-        System.out.println(" ===> zk client starting.");
+        System.out.println(" ===> zk client starting....");
     }
 
     @Override
