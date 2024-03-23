@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -56,80 +57,18 @@ public class RpcInvocationHandler implements InvocationHandler {
 
         // 请求 Provider
         RpcResponse<?> rpcResponse = post(rpcRequest, url);
-
         if (rpcResponse.isStatus()) {
-            // 需要处理基础类型
+            // 处理方法,返回类型
             Object data = rpcResponse.getData();
-            Class<?> type = method.getReturnType();
-            if (data instanceof JSONObject jsonResult) {
-                // 如: Object -> Map<k, v>
-                if (Map.class.isAssignableFrom(type)) {
-                    Map resultMap = new HashMap();
-                    Type genericReturnType = method.getGenericReturnType();
-                    System.out.println(genericReturnType);
-                    if (genericReturnType instanceof ParameterizedType parameterizedType) {
-                        Class<?> keyType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                        Class<?> valueType = (Class<?>) parameterizedType.getActualTypeArguments()[1];
-                        System.out.println("keyType  : " + keyType);
-                        System.out.println("valueType: " + valueType);
-                        jsonResult.entrySet().stream().forEach(
-                                e -> {
-                                    Object key = cast(e.getKey(), keyType);
-                                    Object value = cast(e.getValue(), valueType);
-                                    resultMap.put(key, value);
-                                }
-                        );
-                    }
-                    return resultMap;
-                }
-                // 如: jsonObject -> Pojo
-                return jsonResult.toJavaObject(type);
-
-            } else if (data instanceof JSONArray jsonArray) {
-                Object[] array = jsonArray.toArray();
-                if (type.isArray()) {
-                    // 如: array -> int[]{1,2,3}
-                    Class<?> componentType = type.getComponentType();
-                    Object resultArray = Array.newInstance(componentType, array.length);
-                    for (int i = 0; i < array.length; i++) {
-                        if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
-                            Array.set(resultArray, i, array[i]);
-                        } else {
-                            Object castObject = cast(array[i], componentType);
-                            Array.set(resultArray, i, castObject);
-                        }
-                    }
-                    return resultArray;
-
-                } else if (List.class.isAssignableFrom(type)) {
-                    // 如: List<?>
-                    List<Object> resultList = new ArrayList<>(array.length);
-                    Type genericReturnType = method.getGenericReturnType();
-                    System.out.println(genericReturnType);
-                    if (genericReturnType instanceof ParameterizedType parameterizedType) {
-                        // TODO:
-                        Type actualType = parameterizedType.getActualTypeArguments()[0];
-                        System.out.println(actualType);
-                        for (Object o : array) {
-                            resultList.add(cast(o, (Class<?>) actualType));
-                        }
-                    } else {
-                        resultList.addAll(Arrays.asList(array));
-                    }
-                    return resultList;
-                } else {
-                    return null;
-                }
-            } else {
-                // 其它基础类型, 如: int, string..
-                return cast(data, method.getReturnType());
-            }
+            return TypeUtils.castMethodResult(method, data);
         } else {
             // 调用异常时处理
             Exception ex = rpcResponse.getEx();
             throw new RuntimeException(ex);
         }
     }
+
+
 
     // 用okHttp进行远程传输
     OkHttpClient client = new OkHttpClient.Builder()
