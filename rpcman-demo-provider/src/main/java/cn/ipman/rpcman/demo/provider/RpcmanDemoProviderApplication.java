@@ -4,6 +4,7 @@ import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.provider.ProviderBootstrap;
 import cn.ipman.rpcman.core.provider.ProviderConfig;
+import cn.ipman.rpcman.core.provider.ProviderInvoker;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -23,11 +24,11 @@ public class RpcmanDemoProviderApplication {
     }
 
     @Setter(onMethod_ = {@Autowired})
-    private ProviderBootstrap providerBootstrap;
+    private ProviderInvoker providerInvoker;
 
     @RequestMapping(value = "/")
     public RpcResponse<?> invoke(@RequestBody RpcRequest request) {
-        return providerBootstrap.invoke(request);
+        return providerInvoker.invoke(request);
     }
 
     /**

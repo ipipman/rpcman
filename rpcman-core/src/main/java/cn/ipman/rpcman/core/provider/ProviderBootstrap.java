@@ -92,8 +92,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private void genInterface(Object classObject) {
         // 获取注入类的实例,并注册到  skeleton <className, classObject>
-        Class<?>[] itFers = classObject.getClass().getInterfaces();
-        for (Class<?> itFer : itFers) {
+        Class<?>[] itFears = classObject.getClass().getInterfaces();
+        for (Class<?> itFer : itFears) {
             Method[] methods = itFer.getMethods();
             for (Method method : methods) {
                 // 如果是本地方法,就跳过
@@ -115,51 +115,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
         this.skeleton.add(itFer.getCanonicalName(), meta);
     }
 
-
-    public RpcResponse<?> invoke(RpcRequest request) {
-
-        RpcResponse<Object> rpcResponse = new RpcResponse<>();
-        // 根据类包名,获取容器的类实例
-        List<ProviderMeta> providerMetas = this.skeleton.get(request.getService());
-        try {
-            String methodSign = request.getMethodSign();
-            // 从元数据里获取类方法
-            ProviderMeta meta = findProviderMeta(providerMetas, methodSign);
-            Method method = meta.getMethod();
-            // 参数类型转换
-            Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
-            // 传入方法参数,通过反射 调用目标provider方法
-            Object result = method.invoke(meta.getServiceImpl(), args);
-            rpcResponse.setStatus(true);
-            rpcResponse.setData(result);
-        } catch (InvocationTargetException e) {
-            // Provider反射时异常处理, TODO 返回反射目标类的异常
-            rpcResponse.setEx(new RuntimeException(e.getTargetException().getMessage()));
-        } catch (IllegalAccessException e) {
-            // Provider反射调用时异常
-            rpcResponse.setEx(new RuntimeException(e.getMessage()));
-        }
-        return rpcResponse;
-    }
-
-    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
-        if (args == null || args.length == 0) return args;
-        // 参数类型转换
-        Object[] actualArgs = new Object[args.length];
-        for (int i = 0; i < args.length; i++) {
-            actualArgs[i] = TypeUtils.cast(args[i], parameterTypes[i]);
-        }
-        return actualArgs;
-    }
-
-    private ProviderMeta findProviderMeta(List<ProviderMeta> providerMetas, String methodSign) {
-        // 寻找方法签名是否存在
-        Optional<ProviderMeta> optional = providerMetas.stream()
-                .filter(x -> x.getMethodSign().equals(methodSign)).findFirst();
-        return optional.orElse(null);
-    }
-
-
+    @Deprecated
     private Method findMethod(Class<?> aClass, String methodName) {
         // 根据实现类的方法名字,查找方法实例
         // TODO: 如果有方法重载,这种实现并不可靠,待完善
