@@ -22,7 +22,7 @@ public class TypeUtils {
         if (data instanceof JSONObject jsonResult) {
             // 如: Object -> Map<k, v>
             if (Map.class.isAssignableFrom(type)) {
-                Map resultMap = new HashMap();
+                Map<Object, Object> resultMap = new HashMap<>();
                 Type genericReturnType = method.getGenericReturnType();
                 System.out.println(genericReturnType);
                 if (genericReturnType instanceof ParameterizedType parameterizedType) {
@@ -30,13 +30,11 @@ public class TypeUtils {
                     Class<?> valueType = (Class<?>) parameterizedType.getActualTypeArguments()[1];
                     System.out.println("keyType  : " + keyType);
                     System.out.println("valueType: " + valueType);
-                    jsonResult.entrySet().stream().forEach(
-                            e -> {
-                                Object key = cast(e.getKey(), keyType);
-                                Object value = cast(e.getValue(), valueType);
-                                resultMap.put(key, value);
-                            }
-                    );
+                    jsonResult.forEach((key1, value1) -> {
+                        Object key = cast(key1, keyType);
+                        Object value = cast(value1, valueType);
+                        resultMap.put(key, value);
+                    });
                 }
                 return resultMap;
             }
@@ -113,7 +111,8 @@ public class TypeUtils {
         }
 
         // 参数序列化,Map -> Object
-        if (origin instanceof HashMap map) {
+        if (origin instanceof @SuppressWarnings("rawtypes") HashMap map) {
+            @SuppressWarnings("unchecked")
             JSONObject jsonObject = new JSONObject(map);
             return jsonObject.toJavaObject(type);
         }

@@ -11,6 +11,7 @@ import java.util.Random;
  * @Author IpMan
  * @Date 2024/3/16 19:53
  */
+@SuppressWarnings("unused")
 public class RandomLoadBalancer<T> implements LoadBalancer<T> {
 
     Random random = new Random();

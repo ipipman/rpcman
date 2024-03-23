@@ -19,7 +19,7 @@ import java.util.Optional;
  */
 public class ProviderInvoker {
 
-    private MultiValueMap<String, ProviderMeta> skeleton;
+    private final MultiValueMap<String, ProviderMeta> skeleton;
 
     public ProviderInvoker(ProviderBootstrap providerBootstrap) {
         this.skeleton = providerBootstrap.getSkeleton();

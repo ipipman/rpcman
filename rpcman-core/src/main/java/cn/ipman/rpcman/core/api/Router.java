@@ -6,5 +6,7 @@ public interface Router<T> {
 
     List<T> route(List<T> providers);
 
-    Router<?> Default = p -> p;
+    @SuppressWarnings("rawtypes")
+    Router Default = p -> p;
+
 }

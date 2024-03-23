@@ -1,5 +1,6 @@
 package cn.ipman.rpcman.core.meta;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.lang.reflect.Method;
@@ -11,6 +12,7 @@ import java.lang.reflect.Method;
  * @Date 2024/3/13 23:22
  */
 @Data
+@Builder
 public class ProviderMeta {
 
     Method method; // 实现类的方法

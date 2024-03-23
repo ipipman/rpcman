@@ -3,10 +3,7 @@ package cn.ipman.rpcman.core.api;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.meta.ServiceMeta;
 import cn.ipman.rpcman.core.registry.ChangedListener;
-
-import javax.swing.event.ChangeListener;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 注册中心
@@ -36,6 +33,7 @@ public interface RegistryCenter {
     /**
      * 静态的注册中心
      */
+    @SuppressWarnings("unused")
     class StaticRegistryCenter implements RegistryCenter {
 
         List<InstanceMeta> providers;
@@ -77,10 +75,6 @@ public interface RegistryCenter {
         @Override
         public List<InstanceMeta> fetchAll(ServiceMeta service) {
             return providers;
-//            return this.providers.stream().map(x -> {
-//                String[] ipPort = x.split("_");
-//                return InstanceMeta.http(ipPort[0], Integer.valueOf(ipPort[1]));
-//            }).collect(Collectors.toList());
         }
     }
 

@@ -3,7 +3,6 @@ package cn.ipman.rpcman.core.cluster;
 import cn.ipman.rpcman.core.api.LoadBalancer;
 
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**

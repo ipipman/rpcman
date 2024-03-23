@@ -56,8 +56,4 @@ public class MethodUtils {
         return sb.toString();
     }
 
-    public static String methodSign(Method method, Class<?> clazz) {
-        return null;
-    }
-
 }

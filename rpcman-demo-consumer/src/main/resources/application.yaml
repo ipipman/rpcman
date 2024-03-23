@@ -1,8 +1,10 @@
 server:
   port: 8088
+
 rpcman:
   providers: http://localhost:8080,http://localhost:8081,http://localhost:8082
-
+  zkServer: localhost:2181
+  zkRoot: rpcman
 
 app:
   id: app1

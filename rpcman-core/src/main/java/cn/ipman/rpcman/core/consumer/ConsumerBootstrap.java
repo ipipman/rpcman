@@ -50,11 +50,12 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     @Value("${app.version}")
     private String version;
 
-
     public void start() {
 
         // 获取路由和负载均衡Bean
+        @SuppressWarnings("unchecked")
         Router<InstanceMeta> router = applicationContext.getBean(Router.class);
+        @SuppressWarnings("unchecked")
         LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
 

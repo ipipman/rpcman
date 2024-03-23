@@ -22,6 +22,7 @@ public interface LoadBalancer<T> {
      */
     T choose(List<T> providers);
 
+    @SuppressWarnings("unused")
     LoadBalancer<?> Default = p -> (p == null || p.isEmpty()) ? null : p.get(0);
 
 

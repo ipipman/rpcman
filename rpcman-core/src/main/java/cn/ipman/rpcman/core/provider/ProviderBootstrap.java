@@ -103,29 +103,28 @@ public class ProviderBootstrap implements ApplicationContextAware {
         rc.register(serviceMeta, this.instance);
     }
 
-    private void genInterface(Object classObject) {
+    private void genInterface(Object impl) {
         // 获取注入类的实例,并注册到  skeleton <className, classObject>
-        Class<?>[] itFears = classObject.getClass().getInterfaces();
-        for (Class<?> itFer : itFears) {
-            Method[] methods = itFer.getMethods();
+        Class<?>[] services = impl.getClass().getInterfaces();
+        for (Class<?> service : services) {
+            Method[] methods = service.getMethods();
             for (Method method : methods) {
                 // 如果是本地方法,就跳过
                 if (MethodUtils.checkLocalMethod(method)) {
                     continue;
                 }
                 // 创建 skeleton
-                createProvider(itFer, classObject, method);
+                createProvider(service, impl, method);
             }
         }
     }
 
-    private void createProvider(Class<?> itFer, Object classObject, Method method) {
-        ProviderMeta meta = new ProviderMeta();
-        meta.setMethod(method);
-        meta.setMethodSign(MethodUtils.methodSign(method));
-        meta.setServiceImpl(classObject);
-        System.out.println("create a provider:" + meta);
-        this.skeleton.add(itFer.getCanonicalName(), meta);
+    private void createProvider(Class<?> service, Object impl, Method method) {
+        ProviderMeta providerMeta = ProviderMeta.builder()
+                .method(method).methodSign(MethodUtils.methodSign(method)).serviceImpl(impl)
+                .build();
+        System.out.println("create a provider:" + providerMeta);
+        this.skeleton.add(service.getCanonicalName(), providerMeta);
     }
 
     @Deprecated

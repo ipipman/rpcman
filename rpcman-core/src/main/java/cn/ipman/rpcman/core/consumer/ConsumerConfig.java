@@ -4,15 +4,14 @@ import cn.ipman.rpcman.core.api.LoadBalancer;
 import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.api.Router;
 import cn.ipman.rpcman.core.cluster.RoundRibonLoadBalancer;
-import cn.ipman.rpcman.core.registry.ZkRegistryCenter;
+import cn.ipman.rpcman.core.meta.InstanceMeta;
+import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-
-import java.util.List;
 
 
 /**
@@ -26,7 +25,7 @@ import java.util.List;
 public class ConsumerConfig {
 
     @Value("${rpcman.providers}")
-    private String services;
+    String services;
 
     @Bean
     public ConsumerBootstrap createConsumerBootstrap() {
@@ -44,13 +43,13 @@ public class ConsumerConfig {
     }
 
     @Bean
-    public LoadBalancer loadBalancer() {
-        // return LoadBalancer.Default;
-        // return new RandomLoadBalancer();
-        return new RoundRibonLoadBalancer();
+    public LoadBalancer<InstanceMeta> loadBalancer() {
+        // return new RandomLoadBalancer<>();
+        return new RoundRibonLoadBalancer<>();
     }
 
     @Bean
+    @SuppressWarnings("rawtypes")
     public Router loadRouter() {
         return Router.Default;
     }

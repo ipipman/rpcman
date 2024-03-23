@@ -1,8 +1,10 @@
-package cn.ipman.rpcman.core.registry;
+package cn.ipman.rpcman.core.registry.zk;
 
 import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.meta.ServiceMeta;
+import cn.ipman.rpcman.core.registry.ChangedListener;
+import cn.ipman.rpcman.core.registry.Event;
 import lombok.SneakyThrows;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -10,7 +12,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +29,14 @@ public class ZkRegistryCenter implements RegistryCenter {
     // zk客户端
     private CuratorFramework client = null;
     // zk监听器
+    @SuppressWarnings("deprecation")
     private TreeCache cache = null;
+
+    @Value("${rpcman.zkServer}")
+    String servers;
+
+    @Value("${rpcman.zkRoot}")
+    String root;
 
     @Override
     public void start() {
@@ -42,21 +51,21 @@ public class ZkRegistryCenter implements RegistryCenter {
         // sessionTimeoutMs：会话超时时间，如上是50s，默认是60s
         // retryPolicy：失败重试策略
         client = CuratorFrameworkFactory.builder()
-                .connectString("localhost:2181")
+                .connectString(servers)
                 .connectionTimeoutMs(2000)
-                .namespace("rpcman")
+                .namespace(root)
                 .retryPolicy(retryPolicy)
                 .build();
 
         // 启动zk实例
         client.start();
-        System.out.println(" ===> zk client starting....");
+        System.out.println(" ===> zk client starting to server[ " + servers + "/" + root + " ]");
     }
 
     @Override
     public void stop() {
         if (cache != null) {
-            unsubscribe(); // 关闭订阅
+           unsubscribe(); // 关闭订阅
         }
         System.out.println(" ===> zk client stopped.");
         client.close();
@@ -123,6 +132,7 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @Override
     @SneakyThrows
+    @SuppressWarnings("deprecation")
     public void subscribe(ServiceMeta service, ChangedListener listener) {
         cache = TreeCache.newBuilder(client, "/" + service.toPath())
                 .setCacheData(true)
@@ -140,6 +150,6 @@ public class ZkRegistryCenter implements RegistryCenter {
     @Override
     public void unsubscribe() {
         System.out.println(" ===> zk unsubscribe ...");
-        cache.close();
+        // cache.close();
     }
 }
