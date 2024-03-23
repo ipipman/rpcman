@@ -26,7 +26,7 @@ import java.util.List;
 public class ConsumerConfig {
 
     @Value("${rpcman.providers}")
-    String services;
+    private String services;
 
     @Bean
     public ConsumerBootstrap createConsumerBootstrap() {

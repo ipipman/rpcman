@@ -45,7 +45,6 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         rpcContext.setRouter(router);
         rpcContext.setLoadBalancer(loadBalancer);
 
-
         // 获取Spring容器中所有的Bean
         String[] names = applicationContext.getBeanDefinitionNames();
         for (String name : names) {
@@ -65,6 +64,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 if (consumer == null) {
                     // 给成员类实例添加Java动态代理
                     consumer = createFromRegistry(service, rpcContext, rc);
+                    stub.put(serviceName, consumer);
                 }
                 // 设置可操作权限
                 f.setAccessible(true);
@@ -76,7 +76,6 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                     throw new RuntimeException(e);
                 }
             });
-
         }
     }
 
