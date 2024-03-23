@@ -27,6 +27,7 @@ public interface RegistryCenter {
 
     void subscribe(String service, ChangedListener listener); // consumer
     // heartbeat()
+    void unsubscribe();
 
     /**
      * 静态的注册中心
@@ -56,6 +57,11 @@ public interface RegistryCenter {
 
         @Override
         public void subscribe(String service, ChangedListener listener) {
+
+        }
+
+        @Override
+        public void unsubscribe() {
 
         }
 

@@ -20,7 +20,10 @@ import java.util.List;
  */
 public class ZkRegistryCenter implements RegistryCenter {
 
+    // zk客户端
     private CuratorFramework client = null;
+    // zk监听器
+    private TreeCache cache = null;
 
     @Override
     public void start() {
@@ -48,6 +51,9 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @Override
     public void stop() {
+        if (cache != null) {
+            unsubscribe(); // 关闭订阅
+        }
         System.out.println(" ===> zk client stopped.");
         client.close();
     }
@@ -107,8 +113,10 @@ public class ZkRegistryCenter implements RegistryCenter {
     @Override
     @SneakyThrows
     public void subscribe(String service, ChangedListener listener) {
-        final TreeCache cache = TreeCache.newBuilder(client, "/" + service)
-                .setCacheData(true).setMaxDepth(2).build();
+        cache = TreeCache.newBuilder(client, "/" + service)
+                .setCacheData(true)
+                .setMaxDepth(2) // 监听节点层级深度为2
+                .build();
         cache.getListenable().addListener((curator, event) -> {
             // 监听zookeeper节点变化
             System.out.println(" ===> zk subscribe event: " + event);
@@ -116,5 +124,11 @@ public class ZkRegistryCenter implements RegistryCenter {
             listener.fire(new Event(nodes));
         });
         cache.start();
+    }
+
+    @Override
+    public void unsubscribe() {
+        System.out.println(" ===> zk unsubscribe ...");
+        cache.close();
     }
 }
