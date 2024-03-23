@@ -1,2 +1,9 @@
 server:
   port: 8080
+
+
+app:
+  id: app1
+  namespace: public
+  env: dev
+  version: 1.0

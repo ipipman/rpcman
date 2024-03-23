@@ -1,6 +1,7 @@
 package cn.ipman.rpcman.core.api;
 
 import cn.ipman.rpcman.core.meta.InstanceMeta;
+import cn.ipman.rpcman.core.meta.ServiceMeta;
 import cn.ipman.rpcman.core.registry.ChangedListener;
 
 import javax.swing.event.ChangeListener;
@@ -20,14 +21,14 @@ public interface RegistryCenter {
     void stop(); // provider || consumer
 
     // Provider侧
-    void register(String service, InstanceMeta instance); // provider
+    void register(ServiceMeta service, InstanceMeta instance); // provider
 
-    void unregister(String service, InstanceMeta instance); // provider
+    void unregister(ServiceMeta service, InstanceMeta instance); // provider
 
     // Consumer侧
-    List<InstanceMeta> fetchAll(String service); // consumer
+    List<InstanceMeta> fetchAll(ServiceMeta service); // consumer
 
-    void subscribe(String service, ChangedListener listener); // consumer
+    void subscribe(ServiceMeta service, ChangedListener listener); // consumer
 
     // heartbeat()
     void unsubscribe();
@@ -37,9 +38,9 @@ public interface RegistryCenter {
      */
     class StaticRegistryCenter implements RegistryCenter {
 
-        List<String> providers;
+        List<InstanceMeta> providers;
 
-        public StaticRegistryCenter(List<String> providers) {
+        public StaticRegistryCenter(List<InstanceMeta> providers) {
             this.providers = providers;
         }
 
@@ -54,12 +55,12 @@ public interface RegistryCenter {
         }
 
         @Override
-        public void register(String service, InstanceMeta instance) {
+        public void register(ServiceMeta service, InstanceMeta instance) {
 
         }
 
         @Override
-        public void subscribe(String service, ChangedListener listener) {
+        public void subscribe(ServiceMeta service, ChangedListener listener) {
 
         }
 
@@ -69,16 +70,17 @@ public interface RegistryCenter {
         }
 
         @Override
-        public void unregister(String service, InstanceMeta instance) {
+        public void unregister(ServiceMeta ServiceMeta, InstanceMeta instance) {
 
         }
 
         @Override
-        public List<InstanceMeta> fetchAll(String service) {
-            return this.providers.stream().map(x -> {
-                String[] ipPort = x.split("_");
-                return InstanceMeta.http(ipPort[0], Integer.valueOf(ipPort[1]));
-            }).collect(Collectors.toList());
+        public List<InstanceMeta> fetchAll(ServiceMeta service) {
+            return providers;
+//            return this.providers.stream().map(x -> {
+//                String[] ipPort = x.split("_");
+//                return InstanceMeta.http(ipPort[0], Integer.valueOf(ipPort[1]));
+//            }).collect(Collectors.toList());
         }
     }
 

@@ -2,6 +2,7 @@ package cn.ipman.rpcman.core.registry;
 
 import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
+import cn.ipman.rpcman.core.meta.ServiceMeta;
 import lombok.SneakyThrows;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -62,9 +63,9 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public void register(String service, InstanceMeta instance) {
+    public void register(ServiceMeta service, InstanceMeta instance) {
         // servicePath = rpman/cn.ipman.rpcman.demo.api.UserService
-        String servicePath = "/" + service;
+        String servicePath = "/" + service.toPath();
         try {
             // 创建服务的持久化节点
             if (client.checkExists().forPath(servicePath) == null) {
@@ -72,7 +73,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             }
             // 创建实例的临时性节点
             // instancePath = rpman/cn.ipman.rpcman.demo.api.UserService/127.0.0.1_8081
-            String instancePath = servicePath + "/" + instance.toPath();
+            String instancePath = servicePath + "/" + instance.toRcPath();
             System.out.println(" ===> register to zk:" + instancePath);
             client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
 
@@ -82,15 +83,15 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public void unregister(String service, InstanceMeta instance) {
-        String servicePath = "/" + service;
+    public void unregister(ServiceMeta service, InstanceMeta instance) {
+        String servicePath = "/" + service.toPath();
         try {
             // 判断服务是否存在
             if (client.checkExists().forPath(servicePath) == null) {
                 return;
             }
             // 容器关停时,删除实例节点
-            String instancePath = servicePath + "/" + instance.toPath();
+            String instancePath = servicePath + "/" + instance.toRcPath();
             System.out.println(" ===> unregister to zk:" + instancePath);
             client.delete().quietly().forPath(instancePath);
 
@@ -100,8 +101,8 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public List<InstanceMeta> fetchAll(String service) {
-        String servicePath = "/" + service;
+    public List<InstanceMeta> fetchAll(ServiceMeta service) {
+        String servicePath = "/" + service.toPath();
         try {
             // 根据service接口,获取zk下所有子节点
             List<String> nodes = client.getChildren().forPath(servicePath);
@@ -122,8 +123,8 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @Override
     @SneakyThrows
-    public void subscribe(String service, ChangedListener listener) {
-        cache = TreeCache.newBuilder(client, "/" + service)
+    public void subscribe(ServiceMeta service, ChangedListener listener) {
+        cache = TreeCache.newBuilder(client, "/" + service.toPath())
                 .setCacheData(true)
                 .setMaxDepth(2) // 监听节点层级深度为2
                 .build();

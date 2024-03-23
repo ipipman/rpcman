@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 /**
- * Description for this class
+ * 描述Provider实例
  *
  * @Author IpMan
  * @Date 2024/3/23 14:08
@@ -32,7 +32,7 @@ public class InstanceMeta {
         this.context = context;
     }
 
-    public String toPath() {
+    public String toRcPath() {
         return String.format("%s_%d", host, port);
     }
 

@@ -4,6 +4,7 @@ import cn.ipman.rpcman.core.annotation.RpcProvider;
 import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.meta.ProviderMeta;
+import cn.ipman.rpcman.core.meta.ServiceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -43,6 +44,18 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @Value("${server.port}")
     private String port;
 
+    @Value("${app.id}")
+    private String app;
+
+    @Value("${app.namespace}")
+    private String namespace;
+
+    @Value("${app.env}")
+    private String env;
+
+    @Value("${app.version}")
+    private String version;
+
     @PostConstruct
     @SneakyThrows
     public void init() {
@@ -72,16 +85,22 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void stop() {
         System.out.println(" ===> zk PreDestroy stop: " + this.skeleton);
         // 取消注册,关闭注册中心连接
-        this.skeleton.keySet().forEach(this::unregisterService);
-        this.rc.stop();
+        skeleton.keySet().forEach(this::unregisterService);
+        rc.stop();
     }
 
     private void unregisterService(String service) {
-        this.rc.unregister(service, this.instance);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .name(service).app(app).namespace(namespace).env(env).version(version)
+                .build();
+        rc.unregister(serviceMeta, this.instance);
     }
 
     private void registerService(String service) {
-        this.rc.register(service, this.instance);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .name(service).app(app).namespace(namespace).env(env).version(version)
+                .build();
+        rc.register(serviceMeta, this.instance);
     }
 
     private void genInterface(Object classObject) {

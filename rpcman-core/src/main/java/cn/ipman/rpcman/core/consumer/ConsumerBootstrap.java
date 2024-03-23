@@ -6,8 +6,10 @@ import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.api.Router;
 import cn.ipman.rpcman.core.api.RpcContext;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
+import cn.ipman.rpcman.core.meta.ServiceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -18,7 +20,6 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Description for this class
@@ -34,11 +35,27 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Map<String, Object> stub = new HashMap<>();
 
+    @Value("${server.port}")
+    private String port;
+
+    @Value("${app.id}")
+    private String app;
+
+    @Value("${app.namespace}")
+    private String namespace;
+
+    @Value("${app.env}")
+    private String env;
+
+    @Value("${app.version}")
+    private String version;
+
+
     public void start() {
 
         // 获取路由和负载均衡Bean
-        Router router = applicationContext.getBean(Router.class);
-        LoadBalancer loadBalancer = applicationContext.getBean(LoadBalancer.class);
+        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
+        LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
 
 
@@ -82,12 +99,15 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createFromRegistry(Class<?> service, RpcContext rpcContext, RegistryCenter rc) {
         String serviceName = service.getCanonicalName();
-        List<InstanceMeta> providers = rc.fetchAll(serviceName);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .name(serviceName).app(app).namespace(namespace).env(env).version(version)
+                .build();
+        List<InstanceMeta> providers = rc.fetchAll(serviceMeta);
         System.out.println("  ===> map to providers");
         providers.forEach(System.out::println);
 
         // 新增Provider节点订阅
-        rc.subscribe(serviceName, event -> {
+        rc.subscribe(serviceMeta, event -> {
             providers.clear();
             providers.addAll(event.getData());
         });

@@ -2,3 +2,10 @@ server:
   port: 8088
 rpcman:
   providers: http://localhost:8080,http://localhost:8081,http://localhost:8082
+
+
+app:
+  id: app1
+  namespace: public
+  env: dev
+  version: 1.0
