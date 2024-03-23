@@ -2,6 +2,7 @@ package cn.ipman.rpcman.core.provider;
 
 import cn.ipman.rpcman.core.annotation.RpcProvider;
 import cn.ipman.rpcman.core.api.RegistryCenter;
+import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.meta.ProviderMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import jakarta.annotation.PostConstruct;
@@ -37,7 +38,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     // 方法名 -> [sign1, sign2]
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
-    private String instance;
+    private InstanceMeta instance;
 
     @Value("${server.port}")
     private String port;
@@ -60,7 +61,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void start() {
         // 获取provider实例, 注册到 zookeeper
         String ip = InetAddress.getLocalHost().getHostAddress();
-        this.instance = ip + "_" + port;
+        this.instance = InstanceMeta.http(ip, Integer.valueOf(port));
         // 启动注册中心连接,开始注册
         this.rc.start();
         this.skeleton.keySet().forEach(this::registerService);

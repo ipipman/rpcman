@@ -2,6 +2,7 @@ package cn.ipman.rpcman.core.consumer;
 
 import cn.ipman.rpcman.core.api.*;
 import cn.ipman.rpcman.core.consumer.http.OkHttpInvoker;
+import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import cn.ipman.rpcman.core.util.TypeUtils;
 import java.lang.reflect.*;
@@ -19,12 +20,12 @@ public class RpcInvocationHandler implements InvocationHandler {
 
     Class<?> service;
     RpcContext rpcContext;
-    List<String> providers;
+    List<InstanceMeta> providers;
 
     HttpInvoker httpInvoker = new OkHttpInvoker();
 
 
-    public RpcInvocationHandler(Class<?> service, RpcContext rpcContext, List<String> providers) {
+    public RpcInvocationHandler(Class<?> service, RpcContext rpcContext, List<InstanceMeta> providers) {
         this.service = service;
         this.rpcContext = rpcContext;
         this.providers = providers;
@@ -43,12 +44,12 @@ public class RpcInvocationHandler implements InvocationHandler {
         rpcRequest.setArgs(args);
 
         // 获取路由,通过负载均衡选取一个代理的url
-        List<String> urls = rpcContext.getRouter().route(this.providers);
-        String url = (String) rpcContext.getLoadBalancer().choose(urls);
-        System.out.println("loadBalancer.choose(urls) ==> " + url);
+        List<InstanceMeta> instances = rpcContext.getRouter().route(this.providers);
+        InstanceMeta instance = rpcContext.getLoadBalancer().choose(instances);
+        System.out.println("loadBalancer.choose(urls) ==> " + instance);
 
         // 请求 Provider
-        RpcResponse<?> rpcResponse = this.httpInvoker.post(rpcRequest, url);
+        RpcResponse<?> rpcResponse = this.httpInvoker.post(rpcRequest, instance.toHttpUrl());
         if (rpcResponse.isStatus()) {
             // 处理方法,返回类型
             Object data = rpcResponse.getData();

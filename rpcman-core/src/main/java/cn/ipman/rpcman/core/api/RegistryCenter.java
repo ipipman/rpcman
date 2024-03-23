@@ -1,9 +1,11 @@
 package cn.ipman.rpcman.core.api;
 
+import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.registry.ChangedListener;
 
 import javax.swing.event.ChangeListener;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 注册中心
@@ -18,14 +20,15 @@ public interface RegistryCenter {
     void stop(); // provider || consumer
 
     // Provider侧
-    void register(String service, String instance); // provider
+    void register(String service, InstanceMeta instance); // provider
 
-    void unregister(String service, String instance); // provider
+    void unregister(String service, InstanceMeta instance); // provider
 
     // Consumer侧
-    List<String> fetchAll(String service); // consumer
+    List<InstanceMeta> fetchAll(String service); // consumer
 
     void subscribe(String service, ChangedListener listener); // consumer
+
     // heartbeat()
     void unsubscribe();
 
@@ -51,7 +54,7 @@ public interface RegistryCenter {
         }
 
         @Override
-        public void register(String service, String instance) {
+        public void register(String service, InstanceMeta instance) {
 
         }
 
@@ -66,13 +69,16 @@ public interface RegistryCenter {
         }
 
         @Override
-        public void unregister(String service, String instance) {
+        public void unregister(String service, InstanceMeta instance) {
 
         }
 
         @Override
-        public List<String> fetchAll(String service) {
-            return this.providers;
+        public List<InstanceMeta> fetchAll(String service) {
+            return this.providers.stream().map(x -> {
+                String[] ipPort = x.split("_");
+                return InstanceMeta.http(ipPort[0], Integer.valueOf(ipPort[1]));
+            }).collect(Collectors.toList());
         }
     }
 

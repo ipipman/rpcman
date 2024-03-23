@@ -5,6 +5,7 @@ import cn.ipman.rpcman.core.api.LoadBalancer;
 import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.api.Router;
 import cn.ipman.rpcman.core.api.RpcContext;
+import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import lombok.Data;
 import org.springframework.context.ApplicationContext;
@@ -81,25 +82,20 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createFromRegistry(Class<?> service, RpcContext rpcContext, RegistryCenter rc) {
         String serviceName = service.getCanonicalName();
-        List<String> providers = mapUrls(rc.fetchAll(serviceName));
+        List<InstanceMeta> providers = rc.fetchAll(serviceName);
         System.out.println("  ===> map to providers");
         providers.forEach(System.out::println);
 
         // 新增Provider节点订阅
         rc.subscribe(serviceName, event -> {
             providers.clear();
-            providers.addAll(mapUrls(event.getData()));
+            providers.addAll(event.getData());
         });
         return createConsumer(service, rpcContext, providers);
     }
 
-    private List<String> mapUrls(List<String> nodes) {
-        return nodes.stream()
-                .map(x -> "http://" + x.replace("_", ":")).collect(Collectors.toList());
-    }
 
-
-    private Object createConsumer(Class<?> service, RpcContext rpcContext, List<String> providers) {
+    private Object createConsumer(Class<?> service, RpcContext rpcContext, List<InstanceMeta> providers) {
         // 通过Java动态代理,实现 Provider 的远程调用
         return Proxy.newProxyInstance(service.getClassLoader(),
                 new Class[]{service}, new RpcInvocationHandler(service, rpcContext, providers));
