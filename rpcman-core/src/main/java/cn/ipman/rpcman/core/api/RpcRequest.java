@@ -1,6 +1,7 @@
 package cn.ipman.rpcman.core.api;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * Description for this class
@@ -12,6 +13,7 @@ import lombok.Data;
  */
 
 @Data
+@ToString
 public class RpcRequest {
 
     private String service; // 接口, 如: cn.ipman.rpcman.demo.api.UserService

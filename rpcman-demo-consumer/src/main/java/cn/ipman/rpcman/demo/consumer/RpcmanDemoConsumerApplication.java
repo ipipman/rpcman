@@ -33,7 +33,7 @@ public class RpcmanDemoConsumerApplication {
     OrderService orderService;
 
     @RequestMapping("/")
-    public User findBy(@RequestParam("id") Integer id) {
+    public User findBy(@RequestParam("id") int id) {
         return userService.findById(id);
     }
 

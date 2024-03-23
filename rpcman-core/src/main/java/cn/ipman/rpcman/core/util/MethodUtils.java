@@ -50,9 +50,10 @@ public class MethodUtils {
     public static String methodSign(Method method) {
         StringBuffer sb = new StringBuffer(method.getName());
         sb.append("@").append(method.getParameterCount());
-        Arrays.stream(method.getParameterTypes()).forEach(
-                t -> sb.append("_").append(t.getName())
-        );
+        Arrays.stream(method.getParameterTypes())
+                .forEach(
+                        t -> sb.append("_").append(t.getName())
+                );
         return sb.toString();
     }
 

@@ -1,10 +1,7 @@
 package cn.ipman.rpcman.core.consumer;
 
 import cn.ipman.rpcman.core.annotation.RpcConsumer;
-import cn.ipman.rpcman.core.api.LoadBalancer;
-import cn.ipman.rpcman.core.api.RegistryCenter;
-import cn.ipman.rpcman.core.api.Router;
-import cn.ipman.rpcman.core.api.RpcContext;
+import cn.ipman.rpcman.core.api.*;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.meta.ServiceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
@@ -60,11 +57,12 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         @SuppressWarnings("unchecked")
         LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
-
+        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
 
         RpcContext rpcContext = new RpcContext();
         rpcContext.setRouter(router);
         rpcContext.setLoadBalancer(loadBalancer);
+        rpcContext.setFilters(filters);
 
         // 获取Spring容器中所有的Bean
         String[] names = applicationContext.getBeanDefinitionNames();
