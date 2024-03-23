@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
@@ -32,7 +33,7 @@ public class RpcmanDemoConsumerApplication {
     OrderService orderService;
 
     @RequestMapping("/")
-    public User findBy(int id) {
+    public User findBy(@RequestParam("id") Integer id) {
         return userService.findById(id);
     }
 

@@ -11,3 +11,8 @@ app:
   namespace: public
   env: dev
   version: 1.0
+
+logging:
+  level:
+    root: info
+    cn.ipman.rpcman: debug

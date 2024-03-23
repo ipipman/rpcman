@@ -6,6 +6,7 @@ import cn.ipman.rpcman.core.provider.ProviderBootstrap;
 import cn.ipman.rpcman.core.provider.ProviderConfig;
 import cn.ipman.rpcman.core.provider.ProviderInvoker;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @SpringBootApplication
 @RestController
 @Import({ProviderConfig.class})
+@Slf4j
 public class RpcmanDemoProviderApplication {
 
     public static void main(String[] args) {
@@ -44,7 +46,7 @@ public class RpcmanDemoProviderApplication {
 
             // 根据接口描述,调用接口
             RpcResponse<?> rpcResponse = invoke(request);
-            System.out.println("return : " + rpcResponse.getData());
+            log.info("return : " + rpcResponse.getData());
 
             RpcRequest request1 = new RpcRequest();
             request1.setService("cn.ipman.rpcman.demo.api.UserService");
@@ -53,7 +55,7 @@ public class RpcmanDemoProviderApplication {
 
             // 根据接口描述,调用接口
             RpcResponse<?> rpcResponse1 = invoke(request1);
-            System.out.println("return : " + rpcResponse1.getData());
+            log.info("return : " + rpcResponse1.getData());
         };
 
 

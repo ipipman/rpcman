@@ -4,6 +4,7 @@ import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.meta.ProviderMeta;
 import cn.ipman.rpcman.core.util.TypeUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
@@ -17,6 +18,7 @@ import java.util.Optional;
  * @Author IpMan
  * @Date 2024/3/23 11:52
  */
+@Slf4j
 public class ProviderInvoker {
 
     private final MultiValueMap<String, ProviderMeta> skeleton;
@@ -26,6 +28,7 @@ public class ProviderInvoker {
     }
 
     public RpcResponse<?> invoke(RpcRequest request) {
+        log.debug("RpcRequest request={}", request);
         RpcResponse<Object> rpcResponse = new RpcResponse<>();
         // 根据类包名,获取容器的类实例
         List<ProviderMeta> providerMetas = this.skeleton.get(request.getService());
@@ -36,6 +39,7 @@ public class ProviderInvoker {
             Method method = meta.getMethod();
             // 参数类型转换
             Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
+
             // 传入方法参数,通过反射 调用目标provider方法
             Object result = method.invoke(meta.getServiceImpl(), args);
             rpcResponse.setStatus(true);
@@ -47,6 +51,7 @@ public class ProviderInvoker {
             // Provider反射调用时异常
             rpcResponse.setEx(new RuntimeException(e.getMessage()));
         }
+        log.debug("RpcResponse rpcResponse={}", request);
         return rpcResponse;
     }
 

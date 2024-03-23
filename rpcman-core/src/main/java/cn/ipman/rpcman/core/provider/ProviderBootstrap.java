@@ -10,6 +10,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.Data;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -29,6 +30,7 @@ import java.util.Map;
  * @Date 2024/3/9 20:07
  */
 @Data
+@Slf4j
 public class ProviderBootstrap implements ApplicationContextAware {
 
     // 容器上下文
@@ -64,7 +66,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
         // 获取注册中心
         this.rc = applicationContext.getBean(RegistryCenter.class);
         providers.forEach((className, classObject)
-                -> System.out.println("@RpcProvider init, className=" + className + ",classObject=" + classObject));
+                -> log.info("@RpcProvider init, className=" + className + ",classObject=" + classObject));
         // 初始化接口列表
         providers.values().forEach(this::genInterface);
 
@@ -83,7 +85,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     @PreDestroy
     public void stop() {
-        System.out.println(" ===> zk PreDestroy stop: " + this.skeleton);
+        log.info(" ===> zk PreDestroy stop: " + this.skeleton);
         // 取消注册,关闭注册中心连接
         skeleton.keySet().forEach(this::unregisterService);
         rc.stop();
@@ -123,11 +125,12 @@ public class ProviderBootstrap implements ApplicationContextAware {
         ProviderMeta providerMeta = ProviderMeta.builder()
                 .method(method).methodSign(MethodUtils.methodSign(method)).serviceImpl(impl)
                 .build();
-        System.out.println("create a provider:" + providerMeta);
+        log.info("create a provider:" + providerMeta);
         this.skeleton.add(service.getCanonicalName(), providerMeta);
     }
 
     @Deprecated
+    @SuppressWarnings("unused")
     private Method findMethod(Class<?> aClass, String methodName) {
         // 根据实现类的方法名字,查找方法实例
         // TODO: 如果有方法重载,这种实现并不可靠,待完善

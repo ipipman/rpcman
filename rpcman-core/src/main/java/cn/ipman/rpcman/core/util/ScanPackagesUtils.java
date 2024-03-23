@@ -1,5 +1,6 @@
 package cn.ipman.rpcman.core.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -23,6 +24,7 @@ import java.util.function.Predicate;
  * @Author IpMan
  * @Date 2024/3/13 23:07
  */
+@Slf4j
 public class ScanPackagesUtils {
 
     static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
@@ -52,7 +54,7 @@ public class ScanPackagesUtils {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("scan package util error:", e);
             }
         }
         return results;

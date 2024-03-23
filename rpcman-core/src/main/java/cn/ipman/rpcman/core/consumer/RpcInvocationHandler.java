@@ -5,6 +5,8 @@ import cn.ipman.rpcman.core.consumer.http.OkHttpInvoker;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import cn.ipman.rpcman.core.util.TypeUtils;
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -16,6 +18,7 @@ import java.util.*;
  * @Author IpMan
  * @Date 2024/3/10 20:03
  */
+@Slf4j
 public class RpcInvocationHandler implements InvocationHandler {
 
     Class<?> service;
@@ -46,7 +49,7 @@ public class RpcInvocationHandler implements InvocationHandler {
         // 获取路由,通过负载均衡选取一个代理的url
         List<InstanceMeta> instances = rpcContext.getRouter().route(this.providers);
         InstanceMeta instance = rpcContext.getLoadBalancer().choose(instances);
-        System.out.println("loadBalancer.choose(urls) ==> " + instance);
+        log.debug("loadBalancer.choose(urls) ==> " + instance);
 
         // 请求 Provider
         RpcResponse<?> rpcResponse = this.httpInvoker.post(rpcRequest, instance.toHttpUrl());

@@ -2,6 +2,7 @@ package cn.ipman.rpcman.core.provider;
 
 import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.core.annotation.Order;
  */
 
 @Configuration
+@Slf4j
 public class ProviderConfig {
 
     @Bean
@@ -34,9 +36,9 @@ public class ProviderConfig {
     @Order(Integer.MIN_VALUE) // 让ProviderBootstrap执行顺序提前,避免Consumer依赖时找不到Provider
     public ApplicationRunner providerBootstrapRunner(@Autowired ProviderBootstrap providerBootstrap) {
         return x -> {
-            System.out.println("createProviderBootstrap starting...");
+            log.info("createProviderBootstrap starting...");
             providerBootstrap.start();
-            System.out.println("createProviderBootstrap started...");
+            log.info("createProviderBootstrap started...");
         };
     }
 

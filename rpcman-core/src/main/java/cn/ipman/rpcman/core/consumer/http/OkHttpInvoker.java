@@ -4,6 +4,7 @@ import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.consumer.HttpInvoker;
 import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @Author IpMan
  * @Date 2024/3/23 12:21
  */
+@Slf4j
 public class OkHttpInvoker implements HttpInvoker {
 
     final static MediaType JSON_TYPE = MediaType.get("application/json; charset=utf-8");
@@ -36,17 +38,17 @@ public class OkHttpInvoker implements HttpInvoker {
     @Override
     public RpcResponse<?> post(RpcRequest rpcRequest, String url) {
         String reqJson = JSON.toJSONString(rpcRequest);
-        System.out.println(" ===> reqJson = " + reqJson);
+        log.debug(" ===> reqJson = " + reqJson);
         Request request = new Request.Builder()
                 .url(url)
                 .post(RequestBody.create(reqJson, JSON_TYPE))
                 .build();
         try {
             String respJson = Objects.requireNonNull(client.newCall(request).execute().body()).string();
-            System.out.println(" ===> respJson = " + respJson);
+            log.debug(" ===> respJson = " + respJson);
             return JSON.parseObject(respJson, RpcResponse.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("okHttp post error:", e);
             throw new RuntimeException(e);
         }
     }

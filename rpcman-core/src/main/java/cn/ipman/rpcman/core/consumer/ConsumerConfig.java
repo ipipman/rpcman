@@ -6,6 +6,7 @@ import cn.ipman.rpcman.core.api.Router;
 import cn.ipman.rpcman.core.cluster.RoundRibonLoadBalancer;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
@@ -22,6 +23,7 @@ import org.springframework.core.annotation.Order;
  * @Date 2024/3/10 19:49
  */
 @Configuration
+@Slf4j
 public class ConsumerConfig {
 
     @Value("${rpcman.providers}")
@@ -36,9 +38,9 @@ public class ConsumerConfig {
     @Order(Integer.MIN_VALUE) // 让ProviderBootstrap执行顺序提前,避免Consumer依赖时找不到Provider
     public ApplicationRunner consumerBootstrapRunner(@Autowired ConsumerBootstrap consumerBootstrap) {
         return x -> {
-            System.out.println("createConsumerBootstrap starting...");
+            log.info("createConsumerBootstrap starting...");
             consumerBootstrap.start();
-            System.out.println("createConsumerBootstrap started...");
+            log.info("createConsumerBootstrap started...");
         };
     }
 

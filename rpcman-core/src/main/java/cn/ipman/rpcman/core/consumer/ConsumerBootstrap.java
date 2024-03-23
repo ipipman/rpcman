@@ -9,6 +9,7 @@ import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.meta.ServiceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -28,6 +29,7 @@ import java.util.Map;
  * @Date 2024/3/10 19:47
  */
 @Data
+@Slf4j
 public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
 
     ApplicationContext applicationContext;
@@ -104,8 +106,8 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 .name(serviceName).app(app).namespace(namespace).env(env).version(version)
                 .build();
         List<InstanceMeta> providers = rc.fetchAll(serviceMeta);
-        System.out.println("  ===> map to providers");
-        providers.forEach(System.out::println);
+        log.debug("  ===> map to providers");
+        providers.forEach(x -> log.debug("InstanceMeta providers={}", x));
 
         // 新增Provider节点订阅
         rc.subscribe(serviceMeta, event -> {
