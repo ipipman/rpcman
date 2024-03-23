@@ -1,7 +1,5 @@
 package cn.ipman.rpcman.core.util;
 
-import cn.ipman.rpcman.core.annotation.RpcConsumer;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -16,7 +14,6 @@ import java.util.List;
  * @Date 2024/3/13 23:07
  */
 public class MethodUtils {
-
 
     public static List<Field> findAnnotatedFiled(Class<?> aClass, Class<? extends Annotation> annotationClass) {
         List<Field> result = new ArrayList<>();

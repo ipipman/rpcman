@@ -1,20 +1,12 @@
 package cn.ipman.rpcman.core.consumer;
 
 import cn.ipman.rpcman.core.api.*;
+import cn.ipman.rpcman.core.consumer.http.OkHttpInvoker;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import cn.ipman.rpcman.core.util.TypeUtils;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import okhttp3.*;
-
-import java.io.IOException;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
-import static cn.ipman.rpcman.core.util.TypeUtils.cast;
 
 /**
  * Description for this class
@@ -25,11 +17,11 @@ import static cn.ipman.rpcman.core.util.TypeUtils.cast;
  */
 public class RpcInvocationHandler implements InvocationHandler {
 
-    final static MediaType JSON_TYPE = MediaType.get("application/json; charset=utf-8");
-
     Class<?> service;
     RpcContext rpcContext;
     List<String> providers;
+
+    HttpInvoker httpInvoker = new OkHttpInvoker();
 
 
     public RpcInvocationHandler(Class<?> service, RpcContext rpcContext, List<String> providers) {
@@ -46,7 +38,7 @@ public class RpcInvocationHandler implements InvocationHandler {
         }
 
         RpcRequest rpcRequest = new RpcRequest();
-        rpcRequest.setService(service.getCanonicalName());
+        rpcRequest.setService(this.service.getCanonicalName());
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
@@ -56,7 +48,7 @@ public class RpcInvocationHandler implements InvocationHandler {
         System.out.println("loadBalancer.choose(urls) ==> " + url);
 
         // 请求 Provider
-        RpcResponse<?> rpcResponse = post(rpcRequest, url);
+        RpcResponse<?> rpcResponse = this.httpInvoker.post(rpcRequest, url);
         if (rpcResponse.isStatus()) {
             // 处理方法,返回类型
             Object data = rpcResponse.getData();
@@ -65,34 +57,6 @@ public class RpcInvocationHandler implements InvocationHandler {
             // 调用异常时处理
             Exception ex = rpcResponse.getEx();
             throw new RuntimeException(ex);
-        }
-    }
-
-
-
-    // 用okHttp进行远程传输
-    OkHttpClient client = new OkHttpClient.Builder()
-            .connectionPool(new ConnectionPool(16, 60, TimeUnit.SECONDS))
-            .readTimeout(1, TimeUnit.SECONDS)
-            .writeTimeout(1, TimeUnit.SECONDS)
-            .connectTimeout(1, TimeUnit.SECONDS)
-            .build();
-
-
-    private RpcResponse<?> post(RpcRequest rpcRequest, String url) {
-        String reqJson = JSON.toJSONString(rpcRequest);
-        System.out.println(" ===> reqJson = " + reqJson);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(RequestBody.create(reqJson, JSON_TYPE))
-                .build();
-        try {
-            String respJson = Objects.requireNonNull(client.newCall(request).execute().body()).string();
-            System.out.println(" ===> respJson = " + respJson);
-            return JSON.parseObject(respJson, RpcResponse.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
         }
     }
 

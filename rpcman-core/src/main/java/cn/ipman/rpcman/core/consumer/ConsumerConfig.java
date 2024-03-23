@@ -3,7 +3,6 @@ package cn.ipman.rpcman.core.consumer;
 import cn.ipman.rpcman.core.api.LoadBalancer;
 import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.api.Router;
-import cn.ipman.rpcman.core.cluster.RandomLoadBalancer;
 import cn.ipman.rpcman.core.cluster.RoundRibonLoadBalancer;
 import cn.ipman.rpcman.core.registry.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;

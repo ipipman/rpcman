@@ -1,7 +1,6 @@
 package cn.ipman.rpcman.core.provider;
 
 import cn.ipman.rpcman.core.api.RegistryCenter;
-import cn.ipman.rpcman.core.consumer.ConsumerBootstrap;
 import cn.ipman.rpcman.core.registry.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
