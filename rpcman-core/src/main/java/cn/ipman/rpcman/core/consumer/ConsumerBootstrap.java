@@ -7,6 +7,7 @@ import cn.ipman.rpcman.core.api.Router;
 import cn.ipman.rpcman.core.api.RpcContext;
 import cn.ipman.rpcman.core.registry.ChangedListener;
 import cn.ipman.rpcman.core.registry.Event;
+import cn.ipman.rpcman.core.util.MethodUtils;
 import lombok.Data;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.context.ApplicationContext;
@@ -58,7 +59,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
             // 通过Java反射获取标记 @RpcConsumer 注解的类成员,
             // 如:cn.ipman.rpcman.demo.consumer.RpcmanDemoConsumerApplication.userService
-            List<Field> fields = findAnnotatedFiled(bean.getClass());
+            List<Field> fields = MethodUtils.findAnnotatedFiled(bean.getClass(), RpcConsumer.class);
             fields.forEach(f -> {
                 // 获取成员类实例
                 Class<?> service = f.getType();
@@ -109,21 +110,5 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 new Class[]{service}, new RpcInvocationHandler(service, rpcContext, providers));
     }
 
-    private List<Field> findAnnotatedFiled(Class<?> aClass) {
-        List<Field> result = new ArrayList<>();
-        while (aClass != null) {
-            // 获取实例的所有成员
-            Field[] fields = aClass.getDeclaredFields();
-            for (Field f : fields) {
-                // 判断成员是否被标记为 @Consumer 注解
-                if (f.isAnnotationPresent(RpcConsumer.class)) {
-                    result.add(f);
-                }
-            }
-            // 找到被Spring容器CGLIB代理过的父类,避免找不到标记成 @RpcConsumer 的成员
-            aClass = aClass.getSuperclass();
-        }
-        return result;
-    }
 
 }
