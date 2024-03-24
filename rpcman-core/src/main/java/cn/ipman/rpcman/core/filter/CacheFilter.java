@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Author IpMan
  * @Date 2024/3/23 20:27
  */
+@SuppressWarnings("all")
 @Order(Integer.MAX_VALUE)
 public class CacheFilter implements Filter {
 

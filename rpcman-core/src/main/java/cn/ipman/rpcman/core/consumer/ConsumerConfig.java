@@ -5,12 +5,9 @@ import cn.ipman.rpcman.core.api.LoadBalancer;
 import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.api.Router;
 import cn.ipman.rpcman.core.cluster.RoundRibonLoadBalancer;
-import cn.ipman.rpcman.core.filter.CacheFilter;
-import cn.ipman.rpcman.core.filter.MockFilter;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
@@ -67,12 +64,18 @@ public class ConsumerConfig {
     }
 
     @Bean
-    public Filter filter_cache() {
-        return new CacheFilter();
+    public Filter filterDefault() {
+        return Filter.Default;
     }
 
+
 //    @Bean
-//    public Filter filter_mock(){
+//    public Filter filterCache() {
+//        return new CacheFilter();
+//    }
+
+//    @Bean
+//    public Filter filterMock(){
 //        return new MockFilter();
 //    }
 

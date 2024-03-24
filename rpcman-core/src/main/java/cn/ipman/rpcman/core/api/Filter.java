@@ -10,6 +10,7 @@ public interface Filter {
     Object postFilter(RpcRequest request, RpcResponse<?> response, Object result);
 
 
+    @SuppressWarnings("unused")
     Filter Default = new Filter() {
         @Override
         public Object preFilter(RpcRequest request) {
