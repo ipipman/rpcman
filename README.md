@@ -12,7 +12,7 @@
 
 从火焰图表现上看,大部分损耗都在IO上,那么就可以得出一个结论 “一个高性能的RPC框架,必须选择一个高性能的IO通信框架”
 
-<img src="/Users/zhanghaili/Library/Application Support/typora-user-images/image-20240324222246295.png" alt="image-20240324222246295" style="zoom:67%;" align="left" />
+<img src="https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-03-24-153134.png" alt="image-20240324222246295" style="zoom:67%;" align="left" />
 
 
 
@@ -41,9 +41,9 @@ Arthas分析工具:
 
 >monitor -c 5 cn.ipman.rpcman.core.consumer.RpcInvocationHandler invoke "#cost>10"
 
-<img src="https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-03-24-140239.png" alt="image-20240324220234729" align="left" />
+<img src="https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-03-24-140239.png" alt="image-20240324220234729" />
 
-压测性能: 24ms/RT
+> 压测性能: 24ms/RT
 
 
 
@@ -70,9 +70,11 @@ Arthas分析工具:
 
 > monitor -c 5 cn.ipman.rpcman.core.consumer.RpcInvocationHandler invoke "#cost>10"
 
-<img src="https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-03-24-140101.png" alt="image-20240324220054409"  align="left" />
+<img src="https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-03-24-140101.png" alt="image-20240324220054409"   />
 
-压测性能: 28ms/RT
+> 压测性能: 28ms/RT
+
+
 
 
 
