@@ -63,6 +63,7 @@ public class NettyInboundHandler extends ChannelInboundHandlerAdapter {
                             Unpooled.wrappedBuffer(result.getBytes(StandardCharsets.UTF_8)));
                     response.headers().set("Content-Type", "application/json");
                     response.headers().setInt("Content-Length", response.content().readableBytes());
+
                 } else {
                     response = new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN);
                 }
@@ -74,7 +75,6 @@ public class NettyInboundHandler extends ChannelInboundHandlerAdapter {
             response = new DefaultFullHttpResponse(HTTP_1_1, NO_CONTENT);
         } finally {
             assert response != null;
-            response.headers().set(CONNECTION, KEEP_ALIVE);
             if (buf != null) {
                 buf.release();
             }
@@ -91,7 +91,7 @@ public class NettyInboundHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
+        log.error("netty server error:", cause);
         ctx.close();
     }
 
