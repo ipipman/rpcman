@@ -1,7 +1,7 @@
 package cn.ipman.rpcman.core.provider;
 
 import cn.ipman.rpcman.core.api.RegistryCenter;
-import cn.ipman.rpcman.core.provider.http.HttpServer;
+import cn.ipman.rpcman.core.provider.http.NettyServer;
 import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class ProviderConfig {
 
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    public HttpServer nettyServer() {
-        return new HttpServer(8888);
+    public NettyServer nettyServer(@Autowired ProviderInvoker providerInvoker) {
+        return new NettyServer(8888, providerInvoker);
     }
 }

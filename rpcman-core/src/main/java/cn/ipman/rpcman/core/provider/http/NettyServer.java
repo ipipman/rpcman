@@ -1,6 +1,6 @@
 package cn.ipman.rpcman.core.provider.http;
 
-import cn.ipman.rpcman.core.meta.InstanceMeta;
+import cn.ipman.rpcman.core.provider.ProviderInvoker;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollChannelOption;
@@ -11,11 +11,9 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.ssl.SslContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
-import java.util.logging.Level;
 
 /**
  * Netty Server
@@ -24,18 +22,32 @@ import java.util.logging.Level;
  * @Date 2024/3/24 16:01
  */
 @Slf4j
-public class HttpServer {
+public class NettyServer {
 
     EventLoopGroup boosGroup = new NioEventLoopGroup(3);
     EventLoopGroup workerGroup = new NioEventLoopGroup(1000);
 
     int port;
 
-    public HttpServer(int port) {
+    ProviderInvoker providerInvoker;
+
+    public NettyServer(int port, ProviderInvoker providerInvoker) {
         this.port = port;
+        this.providerInvoker = providerInvoker;
     }
 
     public void start() throws Throwable {
+        new Thread(() -> {
+            try {
+                // 异步启动
+                runNettyThread();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
+    }
+
+    public void runNettyThread() throws Throwable {
         ServerBootstrap b = new ServerBootstrap();
         b.option(ChannelOption.SO_BACKLOG, 128) // 连接队列大小
                 .option(ChannelOption.TCP_NODELAY, true) // 关闭Nagle,即时传输
@@ -54,18 +66,20 @@ public class HttpServer {
                         ChannelPipeline p = ch.pipeline();
                         p.addLast(new HttpServerCodec()); // request/response HTTP编解码
                         p.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); // 传输内容最大长度
-                        p.addLast(new HttpServerInvoker()); // 请求处理器
+                        p.addLast(new NettyInboundHandler(providerInvoker)); // 请求处理器
                     }
                 });
         String ip = InetAddress.getLocalHost().getHostAddress();
         Channel ch = b.bind(ip, port).sync().channel();
-        log.info("开启netty http服务器，监听地址和端口为 http://" + ip + ":" + port + '/');
+        log.info("open netty http server，listener form http://" + ip + ":" + port + '/');
         ch.closeFuture().sync();
     }
+
 
     public void stop() {
         boosGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
+        log.info("netty server console..");
     }
 
 }
