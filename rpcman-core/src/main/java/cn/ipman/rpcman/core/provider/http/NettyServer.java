@@ -24,8 +24,6 @@ import java.net.InetAddress;
 @Slf4j
 public class NettyServer {
 
-    EventLoopGroup boosGroup = new NioEventLoopGroup(3);
-    EventLoopGroup workerGroup = new NioEventLoopGroup(1000);
 
     int port;
 
@@ -48,38 +46,40 @@ public class NettyServer {
     }
 
     public void runNettyThread() throws Throwable {
-        ServerBootstrap b = new ServerBootstrap();
-        b.option(ChannelOption.SO_BACKLOG, 128) // 连接队列大小
-                .option(ChannelOption.TCP_NODELAY, true) // 关闭Nagle,即时传输
-                .option(ChannelOption.SO_KEEPALIVE, true) // 支持长连接
-                .option(ChannelOption.SO_REUSEADDR, true) // 共享端口
-                .option(ChannelOption.SO_RCVBUF, 32 * 1024) // 操作缓冲区的大小
-                .option(ChannelOption.SO_SNDBUF, 32 * 1024) // 发送缓冲区的大小
-                .option(EpollChannelOption.SO_REUSEPORT, true)
-                .childOption(ChannelOption.SO_KEEPALIVE, true);
+        EventLoopGroup boosGroup = new NioEventLoopGroup(5);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(3000);
+        try {
+            ServerBootstrap b = new ServerBootstrap();
+            b.option(ChannelOption.SO_BACKLOG, 512) // 连接队列大小
+                    .option(ChannelOption.TCP_NODELAY, true) // 关闭Nagle,即时传输
+                    .option(ChannelOption.SO_KEEPALIVE, true) // 支持长连接
+                    .option(ChannelOption.SO_REUSEADDR, true) // 共享端口
+                    .option(ChannelOption.SO_RCVBUF, 32 * 1024) // 操作缓冲区的大小
+                    .option(ChannelOption.SO_SNDBUF, 32 * 1024) // 发送缓冲区的大小
+                    .option(EpollChannelOption.SO_REUSEPORT, true)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-        b.group(boosGroup, workerGroup).channel(NioServerSocketChannel.class)
-                .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ChannelPipeline p = ch.pipeline();
-                        p.addLast(new HttpServerCodec()); // request/response HTTP编解码
-                        p.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); // 传输内容最大长度
-                        p.addLast(new NettyInboundHandler(providerInvoker)); // 请求处理器
-                    }
-                });
-        String ip = InetAddress.getLocalHost().getHostAddress();
-        Channel ch = b.bind(ip, port).sync().channel();
-        log.info("open netty http server，listener form http://" + ip + ":" + port + '/');
-        ch.closeFuture().sync();
+            b.group(boosGroup, workerGroup).channel(NioServerSocketChannel.class)
+                    .handler(new LoggingHandler(LogLevel.INFO))
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            ChannelPipeline p = ch.pipeline();
+                            p.addLast(new HttpServerCodec()); // request/response HTTP编解码
+                            p.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); // 传输内容最大长度
+                            p.addLast(new NettyInboundHandler(providerInvoker)); // 请求处理器
+                        }
+                    });
+            String ip = InetAddress.getLocalHost().getHostAddress();
+            Channel ch = b.bind(ip, port).sync().channel();
+            log.info("open netty http server，listener form http://" + ip + ":" + port + '/');
+            ch.closeFuture().sync();
+        } finally {
+            boosGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+            log.info("netty server console..");
+        }
     }
 
-
-    public void stop() {
-        boosGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
-        log.info("netty server console..");
-    }
 
 }

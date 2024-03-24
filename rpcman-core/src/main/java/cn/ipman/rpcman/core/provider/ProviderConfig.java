@@ -56,7 +56,7 @@ public class ProviderConfig {
     }
 
 
-    @Bean(initMethod = "start", destroyMethod = "stop")
+    @Bean(initMethod = "start")
     public NettyServer nettyServer(@Autowired ProviderInvoker providerInvoker) {
         if (useNetty) {
             return new NettyServer(Integer.parseInt(port) + 1000, providerInvoker);
