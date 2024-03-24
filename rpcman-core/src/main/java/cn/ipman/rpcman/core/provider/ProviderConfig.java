@@ -5,6 +5,7 @@ import cn.ipman.rpcman.core.provider.http.NettyServer;
 import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,12 @@ import org.springframework.core.annotation.Order;
 @Configuration
 @Slf4j
 public class ProviderConfig {
+
+    @Value("${server.port}")
+    private String port;
+
+    @Value("${server.useNetty}")
+    private Boolean useNetty;
 
     @Bean
     ProviderBootstrap providerBootstrap() {
@@ -51,6 +58,10 @@ public class ProviderConfig {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public NettyServer nettyServer(@Autowired ProviderInvoker providerInvoker) {
-        return new NettyServer(8888, providerInvoker);
+        if (useNetty) {
+            return new NettyServer(Integer.parseInt(port) + 1000, providerInvoker);
+        } else {
+            return null;
+        }
     }
 }

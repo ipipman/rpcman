@@ -34,9 +34,6 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Map<String, Object> stub = new HashMap<>();
 
-    @Value("${server.port}")
-    private String port;
-
     @Value("${app.id}")
     private String app;
 

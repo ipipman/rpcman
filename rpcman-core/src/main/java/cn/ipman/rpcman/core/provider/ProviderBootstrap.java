@@ -46,6 +46,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @Value("${server.port}")
     private String port;
 
+    @Value("${server.useNetty}")
+    private Boolean useNetty;
+
     @Value("${app.id}")
     private String app;
 
@@ -76,7 +79,11 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void start() {
         // 获取provider实例, 注册到 zookeeper
         String ip = InetAddress.getLocalHost().getHostAddress();
-        this.instance = InstanceMeta.http(ip, Integer.valueOf(port));
+        if (useNetty) {
+            this.instance = InstanceMeta.http(ip, Integer.parseInt(port) + 1000);
+        } else {
+            this.instance = InstanceMeta.http(ip, Integer.parseInt(port));
+        }
         // 启动注册中心连接,开始注册
         this.rc.start();
         this.skeleton.keySet().forEach(this::registerService);

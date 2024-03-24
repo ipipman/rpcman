@@ -15,4 +15,4 @@ app:
 logging:
   level:
     root: info
-    cn.ipman.rpcman: debug
+    cn.ipman.rpcman: info
