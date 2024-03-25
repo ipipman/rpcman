@@ -1,10 +1,8 @@
 package cn.ipman.rpcman.core.test;
 
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingCluster;
-import org.apache.curator.test.TestingServer;
 import org.apache.curator.utils.CloseableUtils;
 
 /**
@@ -18,7 +16,7 @@ public class TestZKServer {
     TestingCluster cluster;
 
     @SneakyThrows
-    public void start(){
+    public void start() {
         // 模拟ZooKeeper服务端
         InstanceSpec instanceSpec = new InstanceSpec(null, 2182,
                 -1, -1, true,
@@ -31,7 +29,7 @@ public class TestZKServer {
     }
 
     @SneakyThrows
-    public void stop(){
+    public void stop() {
         System.out.println("TestingZooKeeperServer stopping ...");
         cluster.stop();
         CloseableUtils.closeQuietly(cluster);
