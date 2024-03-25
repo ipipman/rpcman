@@ -1,12 +1,12 @@
-##### 从零开始,手写RPC框架
+## 从零开始,手写RPC框架系列
 
 
 
 
 
-#### Provider Server IO框架的选择与性能的评估
+### Provider Server IO框架的选择与性能的评估
 
-##### 1.Provider Server 性能分布火焰图
+#### 1.Provider Server 性能分布火焰图
 
 我的框架本身没有任何业务处理逻辑,由此通过火焰图分析框架性能损耗分布,能更好的帮助我优化Latency.
 
@@ -16,7 +16,7 @@
 
 
 
-##### 2 用SpringBoot做Provider Server的性能
+#### 2 用SpringBoot做Provider Server的性能
 
 wrk压测工具
 
@@ -47,7 +47,7 @@ Arthas分析工具:
 
 
 
-##### 3. 用Netty做Provider Server的性能
+#### 3. 用Netty做Provider Server的性能
 
 wrk压测工具
 
@@ -78,7 +78,7 @@ Arthas分析工具:
 
 
 
-##### 4 总结 Provider Server IO 框架选型
+#### 4 总结 Provider Server IO 框架选型
 
 从压测数据来看,花半小时精力手撸个Netty Server的吞吐量,要比 Spring Boot (内嵌Tomcat) 的性能表现好不少. 准确的说, 这次对比是拿了Tomcat 和 Netty 做了一次对比.
 
@@ -89,7 +89,8 @@ Arthas分析工具:
 - 关于扩展,不用质疑Netty要比Tomcat支持的协议多的多, 因为两者的使命不同, Tomcat主要是作为一个web http容器, 它的战场大部分还是在web开发项目上. 如果我们RPC框架要考虑以下两个问题时,  那么Netty会是首选;
   - 如果我们传输协议不是HTTP, 而是TCP时?
   - 如果我们传输体不是Body, 而是需要自定义编解码时?
-- 关于集成, RPC框架的受众是在业务开发同学,  基本上大家业务同学都用的Spring系列的框架. 往往这些框架本身就已经内嵌了Tomcat容器, 那么我们再选择 Spring Boot (内嵌Tomcat) 作为RPC的IO框架, 就会很容易造成Spring的版本冲突、IOC冲突、Servlet冲突等等问题. 所以在RPC框架里, 选择像Netty这种相对独立的IO框架, 也更能被RPC使用者接受.
+  
+- 关于集成, RPC框架的受众是在业务开发同学,  基本上大家业务同学都用的Spring系列的框架. 往往这些框架本身就已经内嵌了Tomcat容器, 那么我们再选择 Spring Boot (内嵌Tomcat) 作为RPC的IO框架, 就会很容易造成Spring的版本冲突、IOC冲突、Servlet冲突等等问题. 所以在RPC框架里, 选择像Netty这种相对独立的IO框架, 也更能被RPC使用者接受;
 
 
 
