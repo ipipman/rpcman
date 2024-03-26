@@ -5,23 +5,31 @@ import cn.ipman.rpcman.demo.provider.RpcmanDemoProviderApplication;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.ApplicationContext;
 
-@SpringBootTest
-class RpcmanDemoConsumerApplicationTests {
+/**
+ * Description for this class
+ *
+ * @Author IpMan
+ * @Date 2024/3/26 22:22
+ */
+@SpringBootTest(classes = {RpcmanDemoConsumerApplication.class})
+public class MockRpcManDemoConsumerApplicationTests {
 
-    static ConfigurableApplicationContext context;
+    static ApplicationContext context;
 
     static TestZKServer zkServer = new TestZKServer();
 
     @BeforeAll
     static void init() {
-        // 开启 Test ZooKeeper
+        System.out.println(" ================================ ");
+        System.out.println(" ================================ ");
+        System.out.println(" ================================ ");
+        System.out.println(" ================================ ");
+
         zkServer.start();
-        // 开启 Provider
         context = SpringApplication.run(RpcmanDemoProviderApplication.class,
                 "--server.port=8084", "--server.useNetty=true",
                 "--rpcman.server=localhost:2182", "--logging.level.cn.ipman=debug");
@@ -29,18 +37,12 @@ class RpcmanDemoConsumerApplicationTests {
 
     @Test
     void contextLoads() {
-        System.out.println(" ===> RpcmanDemoConsumerApplicationTests ...");
+        System.out.println("consumer running ... ");
     }
 
     @AfterAll
     static void destroy() {
-        SpringApplication.exit(context, new ExitCodeGenerator() {
-            @Override
-            public int getExitCode() {
-                return 1;
-            }
-        });
+        SpringApplication.exit(context, () -> 1);
         zkServer.stop();
     }
-
 }
