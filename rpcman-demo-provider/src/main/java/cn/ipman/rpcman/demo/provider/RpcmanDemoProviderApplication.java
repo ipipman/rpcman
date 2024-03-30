@@ -5,6 +5,7 @@ import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.provider.ProviderBootstrap;
 import cn.ipman.rpcman.core.provider.ProviderConfig;
 import cn.ipman.rpcman.core.provider.ProviderInvoker;
+import cn.ipman.rpcman.demo.api.UserService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,19 @@ public class RpcmanDemoProviderApplication {
     @RequestMapping(value = "/")
     public RpcResponse<?> invoke(@RequestBody RpcRequest request) {
         return providerInvoker.invoke(request);
+    }
+
+
+    @Setter(onMethod_ = {@Autowired})
+    private UserService userService;
+
+    @RequestMapping("/ports")
+    public RpcResponse<String> ports(@RequestParam("ports") String ports) {
+        userService.setTimeoutPorts(ports);
+        RpcResponse<String> response = new RpcResponse<>();
+        response.setStatus(true);
+        response.setData("OK:" + ports);
+        return response;
     }
 
     /**

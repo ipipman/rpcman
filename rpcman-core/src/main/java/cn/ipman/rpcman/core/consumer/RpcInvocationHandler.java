@@ -7,11 +7,15 @@ import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import cn.ipman.rpcman.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
+import okio.Timeout;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
 import java.net.SocketTimeoutException;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -26,13 +30,13 @@ public class RpcInvocationHandler implements InvocationHandler {
 
     Class<?> service;
     RpcContext rpcContext;
-    List<InstanceMeta> providers;
-
-    List<InstanceMeta> isolateProviders;
-
+    final List<InstanceMeta> providers;
+    final List<InstanceMeta> isolateProviders = new ArrayList<>();
+    final List<InstanceMeta> halfOpenProviders = new ArrayList<>();
     HttpInvoker httpInvoker;
+    final Map<String, SlidingTimeWindow> windows = new HashMap<>();
+    ScheduledExecutorService executorService;
 
-    Map<String, SlidingTimeWindow> windows = new HashMap<>();
 
     public RpcInvocationHandler(Class<?> service, RpcContext rpcContext, List<InstanceMeta> providers) {
         this.service = service;
@@ -41,6 +45,9 @@ public class RpcInvocationHandler implements InvocationHandler {
         int timeout = Integer.parseInt(rpcContext.getParameters()
                 .getOrDefault("app.timeout", "1000"));
         this.httpInvoker = new OkHttpInvoker(timeout);
+        // 定时探活Provider的运行状态 , 单线程, 延迟10s执行, 每60s执行一次
+        this.executorService = Executors.newScheduledThreadPool(1);
+        this.executorService.scheduleWithFixedDelay(this::halfOpen, 10, 60, TimeUnit.SECONDS);
     }
 
     @Override
@@ -72,10 +79,19 @@ public class RpcInvocationHandler implements InvocationHandler {
                     }
                 }
 
-                // 获取路由,通过负载均衡选取一个代理的url
-                List<InstanceMeta> instances = rpcContext.getRouter().route(this.providers);
-                InstanceMeta instance = rpcContext.getLoadBalancer().choose(instances);
-                log.debug("loadBalancer.choose(urls) ==> " + instance);
+                InstanceMeta instance;
+                synchronized (halfOpenProviders) {
+                    if (halfOpenProviders.isEmpty()) {
+                        // 获取路由,通过负载均衡选取一个代理的url
+                        List<InstanceMeta> instances = rpcContext.getRouter().route(this.providers);
+                        instance = rpcContext.getLoadBalancer().choose(instances);
+                        log.debug("loadBalancer.choose(urls) ==> {}", instance);
+                    } else {
+                        // 如果有半开的Provider节点, 需要做探活
+                        instance = halfOpenProviders.remove(0);
+                        log.debug("check alive instance ==> {}", instance);
+                    }
+                }
 
                 RpcResponse<?> rpcResponse;
                 Object result;
@@ -84,19 +100,27 @@ public class RpcInvocationHandler implements InvocationHandler {
                     // 请求 Provider
                     rpcResponse = this.httpInvoker.post(rpcRequest, url);
                     result = castResponseToResult(method, rpcResponse);
-
                 } catch (Exception e) {
-
                     // 故障的规则统计和隔离
                     // 每一次异常, 记录一次, 统计30s的异常数.
                     SlidingTimeWindow window = windows.computeIfAbsent(url, k -> new SlidingTimeWindow());
                     window.record(System.currentTimeMillis());
                     log.debug("instance {} in windows with {}", url, window.getSum());
-                    // 发生10次,就做故障隔离
+                    // 规则发生10次, 就做故障隔离, 摘除节点
                     if (window.getSum() >= 10) {
                         isolate(instance);
                     }
                     throw e;
+                }
+
+                synchronized (providers) {
+                    // 如果Provider实例调用成功, 但不在providers里,证明是探活成功了,需要在providers中恢复这个节点
+                    if (!providers.contains(instance)) {
+                        isolateProviders.remove(instance);
+                        providers.add(instance);
+                        log.debug("instance {} is recovered, isolatedProviders={}, providers={}",
+                                instance, isolateProviders, providers);
+                    }
                 }
 
                 // [Filter After] 后置过滤器, 这里拿到的可能不是最终值, 需要再设计一下
@@ -121,12 +145,22 @@ public class RpcInvocationHandler implements InvocationHandler {
 
 
     private void isolate(InstanceMeta instance) {
+        // 故障隔离, 服务拆除
         log.debug(" ==>  providers isolate instance: " + instance);
         providers.remove(instance);
         log.debug(" ==>  providers = {}", providers);
         isolateProviders.add(instance);
         log.debug(" ==>  isolateProviders = {}", isolateProviders);
     }
+
+
+    private void halfOpen() {
+        // 故障半开, 服务探活
+        log.debug(" ==> providers half open isolateProviders:" + isolateProviders);
+        halfOpenProviders.clear();
+        halfOpenProviders.addAll(isolateProviders);
+    }
+
 
     @Nullable
     private static Object castResponseToResult(Method method, RpcResponse<?> rpcResponse) {
