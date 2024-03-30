@@ -207,6 +207,7 @@ public class MockRpcManDemoConsumerApplicationTests {
 
 
 
+
 ##### 3.安装 `jaCoCo` 的依赖和插件, 并运行统计代码覆盖率
 
 添加maven依赖
@@ -246,14 +247,15 @@ public class MockRpcManDemoConsumerApplicationTests {
 
 
 
+
 运行`mvn test`，将生成JaCoCo代码覆盖率报告`target/site/jacoco/*`
 
 $ mvn clean test  启动测试
 
 ![image-20240330125633711](https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-03-30-045640.png)......
 
-<img src="https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-03-30-051111.png" alt="image-20240330131105677" style="width:400px;" />
 
+<img src="https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-03-30-051111.png" alt="image-20240330131105677" style="width:400px;" />
 
 
 
