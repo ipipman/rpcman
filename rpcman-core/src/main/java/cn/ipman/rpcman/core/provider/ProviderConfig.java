@@ -55,13 +55,11 @@ public class ProviderConfig {
         return new ZkRegistryCenter();
     }
 
-
     @Bean(initMethod = "start")
     public NettyServer nettyServer(@Autowired ProviderInvoker providerInvoker) {
-        if (useNetty) {
+        if (useNetty)
             return new NettyServer(Integer.parseInt(port) + 1000, providerInvoker);
-        } else {
-            return null;
-        }
+        return null;
     }
+
 }

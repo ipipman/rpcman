@@ -2,7 +2,6 @@ package cn.ipman.rpcman.demo.consumer;
 
 import cn.ipman.rpcman.core.annotation.RpcConsumer;
 import cn.ipman.rpcman.core.consumer.ConsumerConfig;
-import cn.ipman.rpcman.demo.api.Order;
 import cn.ipman.rpcman.demo.api.OrderService;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;
@@ -11,7 +10,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;

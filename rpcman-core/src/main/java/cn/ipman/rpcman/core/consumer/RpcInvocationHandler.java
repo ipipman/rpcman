@@ -2,6 +2,7 @@ package cn.ipman.rpcman.core.consumer;
 
 import cn.ipman.rpcman.core.api.*;
 import cn.ipman.rpcman.core.consumer.http.OkHttpInvoker;
+import cn.ipman.rpcman.core.governance.SlidingTimeWindow;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import cn.ipman.rpcman.core.util.TypeUtils;
@@ -26,8 +27,12 @@ public class RpcInvocationHandler implements InvocationHandler {
     Class<?> service;
     RpcContext rpcContext;
     List<InstanceMeta> providers;
+
+    List<InstanceMeta> isolateProviders;
+
     HttpInvoker httpInvoker;
 
+    Map<String, SlidingTimeWindow> windows = new HashMap<>();
 
     public RpcInvocationHandler(Class<?> service, RpcContext rpcContext, List<InstanceMeta> providers) {
         this.service = service;
@@ -54,7 +59,7 @@ public class RpcInvocationHandler implements InvocationHandler {
         int retries = Integer.parseInt(rpcContext.getParameters()
                 .getOrDefault("app.retries", "1"));
 
-        while (retries -- > 0) {
+        while (retries-- > 0) {
             log.info(" ===> retries: " + retries);
             try {
                 // [Filter Before] 前置过滤器
@@ -72,9 +77,27 @@ public class RpcInvocationHandler implements InvocationHandler {
                 InstanceMeta instance = rpcContext.getLoadBalancer().choose(instances);
                 log.debug("loadBalancer.choose(urls) ==> " + instance);
 
-                // 请求 Provider
-                RpcResponse<?> rpcResponse = this.httpInvoker.post(rpcRequest, instance.toHttpUrl());
-                Object result = castResponseToResult(method, rpcResponse);
+                RpcResponse<?> rpcResponse;
+                Object result;
+                String url = instance.toHttpUrl();
+                try {
+                    // 请求 Provider
+                    rpcResponse = this.httpInvoker.post(rpcRequest, url);
+                    result = castResponseToResult(method, rpcResponse);
+
+                } catch (Exception e) {
+
+                    // 故障的规则统计和隔离
+                    // 每一次异常, 记录一次, 统计30s的异常数.
+                    SlidingTimeWindow window = windows.computeIfAbsent(url, k -> new SlidingTimeWindow());
+                    window.record(System.currentTimeMillis());
+                    log.debug("instance {} in windows with {}", url, window.getSum());
+                    // 发生10次,就做故障隔离
+                    if (window.getSum() >= 10) {
+                        isolate(instance);
+                    }
+                    throw e;
+                }
 
                 // [Filter After] 后置过滤器, 这里拿到的可能不是最终值, 需要再设计一下
                 for (Filter filter : this.rpcContext.getFilters()) {
@@ -94,6 +117,15 @@ public class RpcInvocationHandler implements InvocationHandler {
             }
         }
         return null;
+    }
+
+
+    private void isolate(InstanceMeta instance) {
+        log.debug(" ==>  providers isolate instance: " + instance);
+        providers.remove(instance);
+        log.debug(" ==>  providers = {}", providers);
+        isolateProviders.add(instance);
+        log.debug(" ==>  isolateProviders = {}", isolateProviders);
     }
 
     @Nullable

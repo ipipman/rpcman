@@ -12,9 +12,9 @@ app:
   env: dev
   version: 1.0
   retries: 2
-  timeout: 100000
+  timeout: 1000
 
 logging:
   level:
-    root: info
-    cn.ipman.rpcman: info
+    root: error
+    cn.ipman.rpcman: debug
