@@ -1,6 +1,7 @@
 package cn.ipman.rpcman.core.registry.zk;
 
 import cn.ipman.rpcman.core.api.RegistryCenter;
+import cn.ipman.rpcman.core.api.RpcException;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.meta.ServiceMeta;
 import cn.ipman.rpcman.core.registry.ChangedListener;
@@ -89,7 +90,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
 
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RpcException(ex);
         }
     }
 
@@ -107,7 +108,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             client.delete().quietly().forPath(instancePath);
 
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RpcException(ex);
         }
     }
 
@@ -121,7 +122,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             nodes.forEach(x -> log.info("fetchAll nodes={}", x));
             return mapInstances(nodes);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new RpcException(ex);
         }
     }
 

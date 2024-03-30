@@ -1,5 +1,6 @@
 package cn.ipman.rpcman.core.consumer.http;
 
+import cn.ipman.rpcman.core.api.RpcException;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.consumer.HttpInvoker;
@@ -49,7 +50,7 @@ public class OkHttpInvoker implements HttpInvoker {
             return JSON.parseObject(respJson, RpcResponse.class);
         } catch (IOException e) {
             log.error("okHttp post error:", e);
-            throw new RuntimeException(e);
+            throw new RpcException(e);
         }
     }
 }

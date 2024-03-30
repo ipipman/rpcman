@@ -1,5 +1,6 @@
 package cn.ipman.rpcman.core.provider.http;
 
+import cn.ipman.rpcman.core.api.RpcException;
 import cn.ipman.rpcman.core.provider.ProviderInvoker;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -40,7 +41,7 @@ public class NettyServer {
                 // 异步启动
                 runNettyThread();
             } catch (Throwable e) {
-                throw new RuntimeException(e);
+                throw new RpcException(e);
             }
         }).start();
     }

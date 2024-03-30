@@ -1,5 +1,6 @@
 package cn.ipman.rpcman.core.provider;
 
+import cn.ipman.rpcman.core.api.RpcException;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.meta.ProviderMeta;
@@ -37,19 +38,20 @@ public class ProviderInvoker {
             // 从元数据里获取类方法
             ProviderMeta meta = findProviderMeta(providerMetas, methodSign);
             Method method = meta.getMethod();
+
             // 参数类型转换
             Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
-
             // 传入方法参数,通过反射 调用目标provider方法
             Object result = method.invoke(meta.getServiceImpl(), args);
+
             rpcResponse.setStatus(true);
             rpcResponse.setData(result);
         } catch (InvocationTargetException e) {
             // Provider反射时异常处理, TODO 返回反射目标类的异常
-            rpcResponse.setEx(new RuntimeException(e.getTargetException().getMessage()));
+            rpcResponse.setEx(new RpcException(e.getTargetException().getMessage()));
         } catch (IllegalAccessException e) {
             // Provider反射调用时异常
-            rpcResponse.setEx(new RuntimeException(e.getMessage()));
+            rpcResponse.setEx(new RpcException(e.getMessage()));
         }
         log.debug("RpcResponse rpcResponse={}", request);
         return rpcResponse;

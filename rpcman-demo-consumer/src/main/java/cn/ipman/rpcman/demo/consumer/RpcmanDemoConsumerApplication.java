@@ -118,9 +118,24 @@ public class RpcmanDemoConsumerApplication {
                     new User(101, "ipman101")};
             Arrays.stream(userService.findUsers(users)).forEach(System.out::println);
 
-//            // 测试异常返回
-//            Order order1 = orderService.findById(404);
-//            System.out.println(order1);
+
+            System.out.println("Case 15. >>===[测试参数为long，返回值是User类型]===");
+            User userLong = userService.findById(10000L);
+            System.out.println(userLong);
+
+            System.out.println("Case 16. >>===[测试参数为boolean，返回值都是User类型]===");
+            User user100 = userService.ex(false);
+            System.out.println(user100);
+
+            System.out.println("Case 17. >>===[测试服务端抛出一个RuntimeException异常]===");
+            try {
+                User userEx = userService.ex(true);
+                System.out.println(userEx);
+            } catch (RuntimeException e) {
+                System.out.println(" ===> exception: " + e.getMessage());
+            }
+
+
         };
     }
 }

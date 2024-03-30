@@ -1,7 +1,6 @@
 server:
   port: 8080
-  useNetty: false # open port = server.port + 1000
-
+  useNetty: true # open port = server.port + 1000
 
 rpcman:
   zkServer: localhost:2181
@@ -15,5 +14,5 @@ app:
 
 logging:
   level:
-    root: error
-    cn.ipman.rpcman: info
+    root: info
+    cn.ipman.rpcman: debug

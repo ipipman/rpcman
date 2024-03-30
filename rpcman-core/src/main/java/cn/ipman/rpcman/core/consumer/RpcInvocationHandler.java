@@ -75,7 +75,6 @@ public class RpcInvocationHandler implements InvocationHandler {
                 return filterResult;
             }
         }
-
         return result;
     }
 
@@ -83,12 +82,14 @@ public class RpcInvocationHandler implements InvocationHandler {
     private static Object castResponseToResult(Method method, RpcResponse<?> rpcResponse) {
         if (rpcResponse.isStatus()) {
             // 处理方法,返回类型
-            Object data = rpcResponse.getData();
-            return TypeUtils.castMethodResult(method, data);
+            return TypeUtils.castMethodResult(method, rpcResponse.getData());
         } else {
-            // 调用异常时处理
-            Exception ex = rpcResponse.getEx();
-            throw new RuntimeException(ex);
+            Exception exception = rpcResponse.getEx();
+            if (exception instanceof RpcException ex) {
+                throw ex; // RpcException是Runtime异常, 可以直接throw
+            }
+            // 调用未知异常时
+            throw new RpcException(rpcResponse.getEx(), RpcException.UnknownEx);
         }
     }
 

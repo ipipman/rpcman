@@ -89,7 +89,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                     // 这样调用Provider时, 通过动态代理实现远程调用
                     f.set(bean, consumer);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new RpcException(e);
                 }
             });
         }

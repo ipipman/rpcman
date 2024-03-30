@@ -5,6 +5,7 @@ import java.util.Map;
 
 public interface UserService {
 
+
     User findById(int id);
 
     User findById(int id, String name);
@@ -20,9 +21,7 @@ public interface UserService {
     String getName(int id);
 
     int[] getIds();
-
     long[] getLongIds();
-
     int[] getIds(int[] ids);
 
     User[] findUsers(User[] users);
@@ -32,4 +31,12 @@ public interface UserService {
     Map<String, User> getMap(Map<String, User> userMap);
 
     Boolean getFlag(boolean flag);
+
+    User findById(long id);
+
+    User ex(boolean flag);
+
+//    User find(int timeout);
+//
+//    void setTimeoutPorts(String timeoutPorts);
 }
