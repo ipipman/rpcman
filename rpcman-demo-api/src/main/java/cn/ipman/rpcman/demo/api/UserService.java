@@ -21,7 +21,9 @@ public interface UserService {
     String getName(int id);
 
     int[] getIds();
+
     long[] getLongIds();
+
     int[] getIds(int[] ids);
 
     User[] findUsers(User[] users);
@@ -36,7 +38,7 @@ public interface UserService {
 
     User ex(boolean flag);
 
-//    User find(int timeout);
-//
+    User find(int timeout);
+
 //    void setTimeoutPorts(String timeoutPorts);
 }

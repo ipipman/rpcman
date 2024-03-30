@@ -11,6 +11,8 @@ app:
   namespace: public
   env: dev
   version: 1.0
+  retries: 2
+  timeout: 1000
 
 logging:
   level:

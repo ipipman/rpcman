@@ -32,9 +32,14 @@ public class RpcmanDemoConsumerApplication {
     @RpcConsumer
     OrderService orderService;
 
-    @RequestMapping("/")
+    @RequestMapping("/api/")
     public User findBy(@RequestParam("id") int id) {
         return userService.findById(id);
+    }
+
+    @RequestMapping("/find/")
+    public User find(@RequestParam("timeout") int timeout) {
+        return userService.find(timeout);
     }
 
     public static void main(String[] args) {
@@ -44,32 +49,32 @@ public class RpcmanDemoConsumerApplication {
     @Bean
     public ApplicationRunner consumerRunner() {
         return x -> {
-
-            // 常规int类型，返回User对象
-            System.out.println("Case 1. >>===[常规int类型，返回User对象]===");
-            User user = userService.findById(1);
-            System.out.println("RPC result userService.findById(1) = " + user);
-
-            // 测试方法重载，同名方法，参数不同
-            System.out.println("Case 2. >>===[测试方法重载，同名方法，参数不同===");
-            User user1 = userService.findById(1, "ipman");
-            System.out.println("RPC result userService.findById(1, \"ipman\") = " + user1);
-
-            // 测试返回字符串
-            System.out.println("Case 3. >>===[测试返回字符串]===");
-            System.out.println("userService.getName() = " + userService.getName());
-
-            // 测试重载方法返回字符串
-            System.out.println("Case 4. >>===[测试重载方法返回字符串]===");
-            System.out.println("userService.getName(123) = " + userService.getName(123));
-
-            // 测试local toString方法
-            System.out.println("Case 5. >>===[测试local toString方法]===");
-            System.out.println("userService.toString() = " + userService.toString());
-
+//
+//            // 常规int类型，返回User对象
+//            System.out.println("Case 1. >>===[常规int类型，返回User对象]===");
+//            User user = userService.findById(1);
+//            System.out.println("RPC result userService.findById(1) = " + user);
+//
+//            // 测试方法重载，同名方法，参数不同
+//            System.out.println("Case 2. >>===[测试方法重载，同名方法，参数不同===");
+//            User user1 = userService.findById(1, "ipman");
+//            System.out.println("RPC result userService.findById(1, \"ipman\") = " + user1);
+//
+//            // 测试返回字符串
+//            System.out.println("Case 3. >>===[测试返回字符串]===");
+//            System.out.println("userService.getName() = " + userService.getName());
+//
+//            // 测试重载方法返回字符串
+//            System.out.println("Case 4. >>===[测试重载方法返回字符串]===");
+//            System.out.println("userService.getName(123) = " + userService.getName(123));
+//
+//            // 测试local toString方法
+//            System.out.println("Case 5. >>===[测试local toString方法]===");
+//            System.out.println("userService.toString() = " + userService.toString());
+//
             // 测试long类型
             System.out.println("Case 6. >>===[常规int类型，返回User对象]===");
-            System.out.println("userService.getId(10) = " + userService.getId(10));
+            System.out.println("userService.getId(10) = " + userService.getId(10L));
 
             // 测试long+float类型
             System.out.println("Case 7. >>===[测试long+float类型]===");
@@ -135,6 +140,14 @@ public class RpcmanDemoConsumerApplication {
                 System.out.println(" ===> exception: " + e.getMessage());
             }
 
+            System.out.println("Case 18. >>===[测试服务端抛出一个超时重试后成功的场景]===");
+            // 超时设置的【漏斗原则】
+            // A 2000 -> B 1500 -> C 1200 -> D 1000
+            long start = System.currentTimeMillis();
+            userService.find(500);
+            // userService.find(1100);
+            System.out.println("userService.find take "
+                    + (System.currentTimeMillis() - start) + " ms");
 
         };
     }

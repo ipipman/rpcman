@@ -1,5 +1,8 @@
+# 用于测试超时重试
+GET http://localhost:8088/find/?timeout=1100
 
-GET http://localhost:8088/?id=101
+### 用于测试LoadBanlance
+GET http://localhost:8088/api/?id=101
 
 
 ### 获取用户信息

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
+import java.net.SocketTimeoutException;
 import java.util.*;
 
 
@@ -25,14 +26,16 @@ public class RpcInvocationHandler implements InvocationHandler {
     Class<?> service;
     RpcContext rpcContext;
     List<InstanceMeta> providers;
-
-    HttpInvoker httpInvoker = new OkHttpInvoker();
+    HttpInvoker httpInvoker;
 
 
     public RpcInvocationHandler(Class<?> service, RpcContext rpcContext, List<InstanceMeta> providers) {
         this.service = service;
         this.rpcContext = rpcContext;
         this.providers = providers;
+        int timeout = Integer.parseInt(rpcContext.getParameters()
+                .getOrDefault("app.timeout", "1000"));
+        this.httpInvoker = new OkHttpInvoker(timeout);
     }
 
     @Override
@@ -47,35 +50,50 @@ public class RpcInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
-        // 前置过滤器
-        for (Filter filter : this.rpcContext.getFilters()) {
-            Object preResult = filter.preFilter(rpcRequest);
-            // preResult == null 代表被过滤
-            if (preResult != null) {
-                log.info(filter.getClass().getName() + " ==> preFilter:" + preResult);
-                return preResult;
+        // 重试次数
+        int retries = Integer.parseInt(rpcContext.getParameters()
+                .getOrDefault("app.retries", "1"));
+
+        while (retries -- > 0) {
+            log.info(" ===> retries: " + retries);
+            try {
+                // [Filter Before] 前置过滤器
+                for (Filter filter : this.rpcContext.getFilters()) {
+                    Object preResult = filter.preFilter(rpcRequest);
+                    // preResult == null 代表被过滤
+                    if (preResult != null) {
+                        log.info(filter.getClass().getName() + " ==> preFilter:" + preResult);
+                        return preResult;
+                    }
+                }
+
+                // 获取路由,通过负载均衡选取一个代理的url
+                List<InstanceMeta> instances = rpcContext.getRouter().route(this.providers);
+                InstanceMeta instance = rpcContext.getLoadBalancer().choose(instances);
+                log.debug("loadBalancer.choose(urls) ==> " + instance);
+
+                // 请求 Provider
+                RpcResponse<?> rpcResponse = this.httpInvoker.post(rpcRequest, instance.toHttpUrl());
+                Object result = castResponseToResult(method, rpcResponse);
+
+                // [Filter After] 后置过滤器, 这里拿到的可能不是最终值, 需要再设计一下
+                for (Filter filter : this.rpcContext.getFilters()) {
+                    Object filterResult = filter.postFilter(rpcRequest, rpcResponse, result);
+                    // filterResult == null 代表不过滤
+                    if (filterResult != null) {
+                        log.info(filter.getClass().getName() + " ==> postFilter:" + filterResult);
+                        return filterResult;
+                    }
+                }
+                return result;
+            } catch (RuntimeException ex) {
+                // 如果不是超时异常,就直接throw
+                if (!(ex.getCause() instanceof SocketTimeoutException)) {
+                    throw ex;
+                }
             }
         }
-
-        // 获取路由,通过负载均衡选取一个代理的url
-        List<InstanceMeta> instances = rpcContext.getRouter().route(this.providers);
-        InstanceMeta instance = rpcContext.getLoadBalancer().choose(instances);
-        log.debug("loadBalancer.choose(urls) ==> " + instance);
-
-        // 请求 Provider
-        RpcResponse<?> rpcResponse = this.httpInvoker.post(rpcRequest, instance.toHttpUrl());
-        Object result = castResponseToResult(method, rpcResponse);
-
-        // 后置过滤器, 这里拿到的可能不是最终值, 需要再设计一下
-        for (Filter filter : this.rpcContext.getFilters()) {
-            Object filterResult = filter.postFilter(rpcRequest, rpcResponse, result);
-            // filterResult == null 代表不过滤
-            if (filterResult != null) {
-                log.info(filter.getClass().getName() + " ==> postFilter:" + filterResult);
-                return filterResult;
-            }
-        }
-        return result;
+        return null;
     }
 
     @Nullable

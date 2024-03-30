@@ -25,13 +25,13 @@ public class OkHttpInvoker implements HttpInvoker {
 
     OkHttpClient client;
 
-    public OkHttpInvoker() {
+    public OkHttpInvoker(int timeout) {
         // 用okHttp进行远程传输
         this.client = new OkHttpClient.Builder()
                 .connectionPool(new ConnectionPool(16, 60, TimeUnit.SECONDS))
-                .readTimeout(1, TimeUnit.SECONDS)
-                .writeTimeout(1, TimeUnit.SECONDS)
-                .connectTimeout(1, TimeUnit.SECONDS)
+                .readTimeout(timeout, TimeUnit.MILLISECONDS)
+                .writeTimeout(timeout, TimeUnit.MILLISECONDS)
+                .connectTimeout(timeout, TimeUnit.MILLISECONDS)
                 .build();
 
     }
@@ -48,8 +48,8 @@ public class OkHttpInvoker implements HttpInvoker {
             String respJson = Objects.requireNonNull(client.newCall(request).execute().body()).string();
             log.debug(" ===> respJson = " + respJson);
             return JSON.parseObject(respJson, RpcResponse.class);
-        } catch (IOException e) {
-            log.error("okHttp post error:", e);
+        } catch (Exception e) {
+            //log.error("okHttp post error:", e);
             throw new RpcException(e);
         }
     }

@@ -46,6 +46,12 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     @Value("${app.version}")
     private String version;
 
+    @Value("${app.retries}")
+    private int retries;
+
+    @Value("${app.timeout}")
+    private int timeout;
+
     public void start() {
 
         // 获取路由和负载均衡Bean
@@ -60,6 +66,8 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         rpcContext.setRouter(router);
         rpcContext.setLoadBalancer(loadBalancer);
         rpcContext.setFilters(filters);
+        rpcContext.getParameters().put("app.retries", String.valueOf(retries));
+        rpcContext.getParameters().put("app.timeout", String.valueOf(timeout));
 
         // 获取Spring容器中所有的Bean
         String[] names = applicationContext.getBeanDefinitionNames();
