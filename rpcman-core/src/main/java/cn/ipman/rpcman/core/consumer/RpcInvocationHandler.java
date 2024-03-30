@@ -103,12 +103,14 @@ public class RpcInvocationHandler implements InvocationHandler {
                 } catch (Exception e) {
                     // 故障的规则统计和隔离
                     // 每一次异常, 记录一次, 统计30s的异常数.
-                    SlidingTimeWindow window = windows.computeIfAbsent(url, k -> new SlidingTimeWindow());
-                    window.record(System.currentTimeMillis());
-                    log.debug("instance {} in windows with {}", url, window.getSum());
-                    // 规则发生10次, 就做故障隔离, 摘除节点
-                    if (window.getSum() >= 10) {
-                        isolate(instance);
+                    synchronized (windows) {
+                        SlidingTimeWindow window = windows.computeIfAbsent(url, k -> new SlidingTimeWindow());
+                        window.record(System.currentTimeMillis());
+                        log.debug("instance {} in windows with {}", url, window.getSum());
+                        // 规则发生10次, 就做故障隔离, 摘除节点
+                        if (window.getSum() >= 10) {
+                            isolate(instance);
+                        }
                     }
                     throw e;
                 }
