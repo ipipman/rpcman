@@ -10,6 +10,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +41,7 @@ public class ProviderInvoker {
             Method method = meta.getMethod();
 
             // 参数类型转换
-            Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
+            Object[] args = processArgs(request.getArgs(), method.getParameterTypes(), method.getGenericParameterTypes());
             // 传入方法参数,通过反射 调用目标provider方法
             Object result = method.invoke(meta.getServiceImpl(), args);
 
@@ -57,12 +58,12 @@ public class ProviderInvoker {
         return rpcResponse;
     }
 
-    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
+    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes, Type[] genericParameterTypes) {
         if (args == null || args.length == 0) return args;
         // 参数类型转换
         Object[] actualArgs = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
-            actualArgs[i] = TypeUtils.cast(args[i], parameterTypes[i]);
+            actualArgs[i] = TypeUtils.cast(args[i], parameterTypes[i], genericParameterTypes[i]);
         }
         return actualArgs;
     }

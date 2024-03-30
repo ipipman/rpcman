@@ -56,14 +56,12 @@ public class NettyInboundHandler extends ChannelInboundHandlerAdapter {
                     log.debug("netty server 接收请求体: " + rpcRequest);
                     RpcResponse<?> rpcResponse = providerInvoker.invoke(rpcRequest);
                     log.debug("netty server 返回请求体: " + rpcResponse);
-
-                    // Server返回体
+                    // 添加Server的返回体
                     String result = JSON.toJSONString(rpcResponse);
                     response = new DefaultFullHttpResponse(HTTP_1_1, OK,
                             Unpooled.wrappedBuffer(result.getBytes(StandardCharsets.UTF_8)));
                     response.headers().set("Content-Type", "application/json");
                     response.headers().setInt("Content-Length", response.content().readableBytes());
-
                 } else {
                     response = new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN);
                 }

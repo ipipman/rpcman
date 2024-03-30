@@ -35,6 +35,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     // 容器上下文
     private ApplicationContext applicationContext;
+
     // 注册中心
     private RegistryCenter rc;
 

@@ -33,8 +33,8 @@ public class TypeUtils {
                     log.debug("keyType  : " + keyType);
                     log.debug("valueType: " + valueType);
                     jsonResult.forEach((key1, value1) -> {
-                        Object key = cast(key1, keyType);
-                        Object value = cast(value1, valueType);
+                        Object key = cast(key1, keyType, null);
+                        Object value = cast(value1, valueType, null);
                         resultMap.put(key, value);
                     });
                 }
@@ -53,7 +53,7 @@ public class TypeUtils {
                     if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
                         Array.set(resultArray, i, array[i]);
                     } else {
-                        Object castObject = cast(array[i], componentType);
+                        Object castObject = cast(array[i], componentType, null);
                         Array.set(resultArray, i, castObject);
                     }
                 }
@@ -69,7 +69,7 @@ public class TypeUtils {
                     Type actualType = parameterizedType.getActualTypeArguments()[0];
                     log.debug(actualType.toString());
                     for (Object o : array) {
-                        resultList.add(cast(o, (Class<?>) actualType));
+                        resultList.add(cast(o, (Class<?>) actualType, null));
                     }
                 } else {
                     resultList.addAll(Arrays.asList(array));
@@ -80,16 +80,30 @@ public class TypeUtils {
             }
         } else {
             // 其它基础类型, 如: int, string..
-            return cast(data, method.getReturnType());
+            return cast(data, method.getReturnType(), null);
         }
     }
 
-    public static Object cast(Object origin, Class<?> type) {
+    public static Object cast(Object origin, Class<?> type, Type genericType) {
         if (origin == null) return null;
         Class<?> aClass = origin.getClass();
 
         // 如果要转换的类型,已经是它的原始类型,就直接返回
         if (type.isAssignableFrom(aClass)) {
+            // 处理 JsonArray<JsonObject> -> List<Pojo>
+            if (genericType != null && List.class.isAssignableFrom(type))
+                if (origin instanceof JSONArray jsonArray) {
+                    Object[] array = jsonArray.toArray();
+                    List<Object> paramList = new ArrayList<>(array.length);
+                    if (genericType instanceof ParameterizedType parameterizedType) {
+                        Type actualType = parameterizedType.getActualTypeArguments()[0];
+                        log.debug(actualType.toString());
+                        for (Object o : array) {
+                            paramList.add(cast(o, (Class<?>) actualType, null));
+                        }
+                        return paramList;
+                    }
+                }
             return origin;
         }
 
@@ -105,7 +119,7 @@ public class TypeUtils {
                 if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
                     Array.set(resultArray, i, Array.get(origin, i));
                 } else {
-                    Object castObject = cast(Array.get(origin, i), componentType);
+                    Object castObject = cast(Array.get(origin, i), componentType, null);
                     Array.set(resultArray, i, castObject);
                 }
             }
@@ -113,7 +127,7 @@ public class TypeUtils {
         }
 
         // 参数序列化,Map -> Object
-        if (origin instanceof @SuppressWarnings("rawtypes") HashMap map) {
+        if (origin instanceof @SuppressWarnings("rawtypes")HashMap map) {
             @SuppressWarnings("unchecked")
             JSONObject jsonObject = new JSONObject(map);
             return jsonObject.toJavaObject(type);

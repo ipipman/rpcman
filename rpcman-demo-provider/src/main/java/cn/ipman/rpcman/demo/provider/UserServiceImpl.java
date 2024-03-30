@@ -82,6 +82,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getList(List<User> userList) {
+        User user = userList.get(0);
+        System.out.println(user.getId());
+        System.out.println(user.getName());
         return userList;
     }
 
@@ -102,7 +105,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User ex(boolean flag) {
-        if(flag) throw new RuntimeException("just throw an exception");
+        if (flag) throw new RuntimeException("just throw an exception");
         return new User(100, "ipman-100");
     }
 

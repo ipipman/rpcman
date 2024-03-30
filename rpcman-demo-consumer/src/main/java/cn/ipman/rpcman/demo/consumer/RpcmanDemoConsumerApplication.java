@@ -49,29 +49,29 @@ public class RpcmanDemoConsumerApplication {
     @Bean
     public ApplicationRunner consumerRunner() {
         return x -> {
-//
-//            // 常规int类型，返回User对象
-//            System.out.println("Case 1. >>===[常规int类型，返回User对象]===");
-//            User user = userService.findById(1);
-//            System.out.println("RPC result userService.findById(1) = " + user);
-//
-//            // 测试方法重载，同名方法，参数不同
-//            System.out.println("Case 2. >>===[测试方法重载，同名方法，参数不同===");
-//            User user1 = userService.findById(1, "ipman");
-//            System.out.println("RPC result userService.findById(1, \"ipman\") = " + user1);
-//
-//            // 测试返回字符串
-//            System.out.println("Case 3. >>===[测试返回字符串]===");
-//            System.out.println("userService.getName() = " + userService.getName());
-//
-//            // 测试重载方法返回字符串
-//            System.out.println("Case 4. >>===[测试重载方法返回字符串]===");
-//            System.out.println("userService.getName(123) = " + userService.getName(123));
-//
-//            // 测试local toString方法
-//            System.out.println("Case 5. >>===[测试local toString方法]===");
-//            System.out.println("userService.toString() = " + userService.toString());
-//
+
+            // 常规int类型，返回User对象
+            System.out.println("Case 1. >>===[常规int类型，返回User对象]===");
+            User user = userService.findById(1);
+            System.out.println("RPC result userService.findById(1) = " + user);
+
+            // 测试方法重载，同名方法，参数不同
+            System.out.println("Case 2. >>===[测试方法重载，同名方法，参数不同===");
+            User user1 = userService.findById(1, "ipman");
+            System.out.println("RPC result userService.findById(1, \"ipman\") = " + user1);
+
+            // 测试返回字符串
+            System.out.println("Case 3. >>===[测试返回字符串]===");
+            System.out.println("userService.getName() = " + userService.getName());
+
+            // 测试重载方法返回字符串
+            System.out.println("Case 4. >>===[测试重载方法返回字符串]===");
+            System.out.println("userService.getName(123) = " + userService.getName(123));
+
+            // 测试local toString方法
+            System.out.println("Case 5. >>===[测试local toString方法]===");
+            System.out.println("userService.toString() = " + userService.toString());
+
             // 测试long类型
             System.out.println("Case 6. >>===[常规int类型，返回User对象]===");
             System.out.println("userService.getId(10) = " + userService.getId(10L));
@@ -101,15 +101,15 @@ public class RpcmanDemoConsumerApplication {
             // 测试参数和返回值都是List类型
             System.out.println("Case 11. >>===[测试参数和返回值都是List类型]===");
             List<User> list = userService.getList(List.of(
-                    new User(100, "KK100"),
-                    new User(101, "KK101")));
+                    new User(100, "ipman-100"),
+                    new User(101, "ipman-101")));
             list.forEach(System.out::println);
 
             // 测试参数和返回值都是Map类型
             System.out.println("Case 12. >>===[测试参数和返回值都是Map类型]===");
             Map<String, User> map = new HashMap<>();
-            map.put("A200", new User(200, "ipman200"));
-            map.put("A201", new User(201, "ipman201"));
+            map.put("A200", new User(200, "ipman-200"));
+            map.put("A201", new User(201, "ipman-201"));
             userService.getMap(map).forEach(
                     (k, v) -> System.out.println(k + " -> " + v)
             );
