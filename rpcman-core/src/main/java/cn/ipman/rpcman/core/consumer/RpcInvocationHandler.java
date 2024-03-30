@@ -7,7 +7,6 @@ import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import cn.ipman.rpcman.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
-import okio.Timeout;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;

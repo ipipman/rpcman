@@ -45,7 +45,7 @@ public class SlidingTimeWindow {
      * @param millis 秒
      */
     public synchronized void record(long millis) {
-        log.debug("window before: " + this.toString());
+        log.debug("window before: " + this);
         log.debug("window.record(" + millis + ")");
         long ts = millis / 1000;
         if (_start_ts == -1L) {
@@ -68,7 +68,7 @@ public class SlidingTimeWindow {
             }
         }
         this.sum = this.ringBuffer.sum();
-        log.debug("window after: " + this.toString());
+        log.debug("window after: " + this);
     }
 
     private void initRing(long ts) {
