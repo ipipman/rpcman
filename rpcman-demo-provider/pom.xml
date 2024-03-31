@@ -72,6 +72,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>3.2.3</version>
                 <configuration>
+                    <classifier>boot</classifier>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

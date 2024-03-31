@@ -56,12 +56,12 @@
             <scope>test</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>cn.ipman</groupId>-->
-<!--            <artifactId>rpcman-demo-provider</artifactId>-->
-<!--            <version>0.0.1-SNAPSHOT</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>cn.ipman</groupId>
+            <artifactId>rpcman-demo-provider</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.jacoco</groupId>

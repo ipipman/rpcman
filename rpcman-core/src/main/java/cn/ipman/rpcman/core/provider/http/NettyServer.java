@@ -32,6 +32,7 @@ public class NettyServer {
 
     public NettyServer(int port, ProviderInvoker providerInvoker) {
         this.port = port;
+        System.out.println("====> netty port = " + port);
         this.providerInvoker = providerInvoker;
     }
 
@@ -48,7 +49,7 @@ public class NettyServer {
 
     public void runNettyThread() throws Throwable {
         EventLoopGroup boosGroup = new NioEventLoopGroup(5);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(3000);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(1000);
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.option(ChannelOption.SO_BACKLOG, 512) // 连接队列大小
