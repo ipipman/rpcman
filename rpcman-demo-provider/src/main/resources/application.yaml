@@ -11,7 +11,7 @@ app:
   namespace: public
   env: dev
   version: 1.0
-  metas: "{dc: 'bk', gray: 'true', unit: 'B001'}"
+  metas: "{dc: 'bk', gray: 'false', unit: 'B001'}"
 
 
 logging:

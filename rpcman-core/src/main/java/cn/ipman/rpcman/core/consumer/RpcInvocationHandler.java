@@ -7,12 +7,12 @@ import cn.ipman.rpcman.core.governance.SlidingTimeWindow;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import cn.ipman.rpcman.core.util.TypeUtils;
+import io.netty.handler.timeout.ReadTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
 import java.net.SocketTimeoutException;
-import java.nio.channels.ClosedChannelException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -148,13 +148,11 @@ public class RpcInvocationHandler implements InvocationHandler {
                 }
                 return result;
             } catch (RuntimeException ex) {
-                // 如果不是超时异常,就直接throw
-                if (!(ex.getCause() instanceof SocketTimeoutException
-                        || ex.getCause() instanceof ClosedChannelException)) {
+                // 如果不是超时类异常,就直接throw
+                if (!(ex.getCause() instanceof SocketTimeoutException)
+                        && !(ex.getCause() instanceof ReadTimeoutException)) {
                     throw ex;
                 }
-            } catch (Exception ex){
-                ex.printStackTrace();
             }
         }
         return null;
