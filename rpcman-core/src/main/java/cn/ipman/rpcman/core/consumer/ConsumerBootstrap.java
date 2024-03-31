@@ -52,6 +52,9 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     @Value("${app.timeout}")
     private int timeout;
 
+    @Value("${app.useNetty}")
+    private boolean useNetty;
+
     public void start() {
 
         // 获取路由和负载均衡Bean
@@ -68,6 +71,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         rpcContext.setFilters(filters);
         rpcContext.getParameters().put("app.retries", String.valueOf(retries));
         rpcContext.getParameters().put("app.timeout", String.valueOf(timeout));
+        rpcContext.getParameters().put("app.useNetty", String.valueOf(useNetty));
 
         // 获取Spring容器中所有的Bean
         String[] names = applicationContext.getBeanDefinitionNames();

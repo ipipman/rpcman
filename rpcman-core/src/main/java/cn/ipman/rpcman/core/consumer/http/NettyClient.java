@@ -4,9 +4,7 @@ import cn.ipman.rpcman.core.api.RpcException;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.consumer.HttpInvoker;
-import cn.ipman.rpcman.core.provider.http.NettyServerInboundHandler;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -21,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -33,16 +30,6 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class NettyClient implements HttpInvoker {
 
-    public static void main(String[] args) {
-        RpcRequest request = new RpcRequest();
-        request.setService("cn.ipman.rpcman.demo.api.UserService");
-        request.setArgs(new Object[]{1});
-        request.setMethodSign("findById@1_int");
-
-        NettyClient client = new NettyClient();
-        client.post(request, "http://192.168.31.232:9081/");
-
-    }
 
     @Override
     public RpcResponse<?> post(RpcRequest rpcRequest, String url) {
@@ -53,13 +40,15 @@ public class NettyClient implements HttpInvoker {
             b.channel(NioSocketChannel.class);
             b.option(ChannelOption.SO_KEEPALIVE, true);
             b.handler(new LoggingHandler(LogLevel.INFO));
+
+            NettyClientInboundHandler clientInboundHandler = new NettyClientInboundHandler();
             b.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
-                protected void initChannel(SocketChannel ch) throws Exception {
+                protected void initChannel(SocketChannel ch) {
                     ChannelPipeline p = ch.pipeline();
                     p.addLast(new HttpClientCodec()); // request/response HTTP编解码
                     p.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); // 传输内容最大长度
-                    p.addLast(new NettyClientInboundHandler()); // 请求处理器
+                    p.addLast(clientInboundHandler); // 请求处理器
                 }
             });
 
@@ -85,7 +74,7 @@ public class NettyClient implements HttpInvoker {
             channel.writeAndFlush(request).sync();
             channel.closeFuture().sync();
 
-
+            return clientInboundHandler.getRpcResponse();
         } catch (RuntimeException e) {
             log.error("Provider连接错误:", e);
             throw new RpcException(e);
@@ -94,6 +83,17 @@ public class NettyClient implements HttpInvoker {
         } finally {
             workerGroup.shutdownGracefully();
         }
-        return null;
+    }
+
+    public static void main(String[] args) {
+        RpcRequest request = new RpcRequest();
+        request.setService("cn.ipman.rpcman.demo.api.UserService");
+        request.setArgs(new Object[]{1});
+        request.setMethodSign("findById@1_int");
+        // client to...
+        NettyClient client = new NettyClient();
+        RpcResponse<?> response = client.post(request, "http://192.168.31.232:9081/");
+        System.out.println(response);
+
     }
 }

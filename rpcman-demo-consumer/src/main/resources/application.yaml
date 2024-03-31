@@ -13,6 +13,7 @@ app:
   version: 1.0
   retries: 2
   timeout: 1000
+  useNetty: false
 
 logging:
   level:

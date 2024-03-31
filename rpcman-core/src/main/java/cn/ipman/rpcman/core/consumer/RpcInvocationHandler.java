@@ -1,6 +1,7 @@
 package cn.ipman.rpcman.core.consumer;
 
 import cn.ipman.rpcman.core.api.*;
+import cn.ipman.rpcman.core.consumer.http.NettyClient;
 import cn.ipman.rpcman.core.consumer.http.OkHttpInvoker;
 import cn.ipman.rpcman.core.governance.SlidingTimeWindow;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
@@ -41,12 +42,23 @@ public class RpcInvocationHandler implements InvocationHandler {
         this.service = service;
         this.rpcContext = rpcContext;
         this.providers = providers;
-        int timeout = Integer.parseInt(rpcContext.getParameters()
-                .getOrDefault("app.timeout", "1000"));
-        this.httpInvoker = new OkHttpInvoker(timeout);
+        // 初始化httpClient端
+        initHttpInvoker();
         // 定时探活Provider的运行状态 , 单线程, 延迟10s执行, 每60s执行一次
         this.executorService = Executors.newScheduledThreadPool(1);
         this.executorService.scheduleWithFixedDelay(this::halfOpen, 10, 60, TimeUnit.SECONDS);
+    }
+
+    private void initHttpInvoker() {
+        int timeout = Integer.parseInt(rpcContext.getParameters()
+                .getOrDefault("app.timeout", "1000"));
+        boolean useNetty = Boolean.parseBoolean(rpcContext.getParameters()
+                .getOrDefault("app.useNetty", "false"));
+        if (useNetty) {
+            this.httpInvoker = new NettyClient();
+        } else {
+            this.httpInvoker = new OkHttpInvoker(timeout);
+        }
     }
 
     @Override
