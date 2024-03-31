@@ -4,6 +4,7 @@ import cn.ipman.rpcman.core.api.Filter;
 import cn.ipman.rpcman.core.api.LoadBalancer;
 import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.api.Router;
+import cn.ipman.rpcman.core.cluster.GrayRouter;
 import cn.ipman.rpcman.core.cluster.RoundRibonLoadBalancer;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
@@ -30,6 +31,9 @@ public class ConsumerConfig {
     @Value("${rpcman.providers}")
     String services;
 
+    @Value("${app.grayRatio}")
+    private int grayRatio;
+
     @Bean
     public ConsumerBootstrap createConsumerBootstrap() {
         return new ConsumerBootstrap();
@@ -52,9 +56,8 @@ public class ConsumerConfig {
     }
 
     @Bean
-    @SuppressWarnings("rawtypes")
-    public Router loadRouter() {
-        return Router.Default;
+    public Router<InstanceMeta> loadRouter() {
+        return new GrayRouter(grayRatio);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

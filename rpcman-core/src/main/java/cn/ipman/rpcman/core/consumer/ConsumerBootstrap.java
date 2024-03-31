@@ -55,6 +55,9 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     @Value("${app.useNetty}")
     private boolean useNetty;
 
+    @Value("${app.grayRatio}")
+    private int grayRatio;
+
     public void start() {
 
         // 获取路由和负载均衡Bean
@@ -69,9 +72,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         rpcContext.setRouter(router);
         rpcContext.setLoadBalancer(loadBalancer);
         rpcContext.setFilters(filters);
-        rpcContext.getParameters().put("app.retries", String.valueOf(retries));
-        rpcContext.getParameters().put("app.timeout", String.valueOf(timeout));
+        rpcContext.getParameters().put("app.retries", String.valueOf(retries));     // client超时重试
+        rpcContext.getParameters().put("app.timeout", String.valueOf(timeout));     // client超时时间ms
         rpcContext.getParameters().put("app.useNetty", String.valueOf(useNetty));
+        // rpcContext.getParameters().put("app.grayRatio", String.valueOf(grayRatio)); // 灰度发布
 
         // 获取Spring容器中所有的Bean
         String[] names = applicationContext.getBeanDefinitionNames();
