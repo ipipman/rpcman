@@ -1,6 +1,5 @@
 package cn.ipman.rpcman.core.util;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,13 +18,20 @@ import java.util.*;
 @Slf4j
 public class TypeUtils {
 
+
     public static Object castMethodResult(Method method, Object data) {
         Class<?> type = method.getReturnType();
+        Type genericReturnType = method.getGenericReturnType();
+        return castGeneric(data, type, genericReturnType);
+    }
+
+    public static Object castGeneric(Object data, Class<?> type, Type genericReturnType) {
+        log.debug("method.getReturnType() = " + type);
+        log.debug("method.getGenericReturnType() = " + genericReturnType);
         if (data instanceof JSONObject jsonResult) {
-            // 如: Object -> Map<k, v>
+            // 如: Object -> Map<?, ?>
             if (Map.class.isAssignableFrom(type)) {
                 Map<Object, Object> resultMap = new HashMap<>();
-                Type genericReturnType = method.getGenericReturnType();
                 log.debug(genericReturnType.toString());
                 if (genericReturnType instanceof ParameterizedType parameterizedType) {
                     Class<?> keyType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
@@ -33,8 +39,8 @@ public class TypeUtils {
                     log.debug("keyType  : " + keyType);
                     log.debug("valueType: " + valueType);
                     jsonResult.forEach((key1, value1) -> {
-                        Object key = cast(key1, keyType, null);
-                        Object value = cast(value1, valueType, null);
+                        Object key = cast(key1, keyType);
+                        Object value = cast(value1, valueType);
                         resultMap.put(key, value);
                     });
                 }
@@ -43,8 +49,8 @@ public class TypeUtils {
             // 如: jsonObject -> Pojo
             return jsonResult.toJavaObject(type);
 
-        } else if (data instanceof JSONArray jsonArray) {
-            Object[] array = jsonArray.toArray();
+        } else if (data instanceof @SuppressWarnings("rawtypes") List list) {
+            Object[] array = list.toArray();
             if (type.isArray()) {
                 // 如: array -> int[]{1,2,3}
                 Class<?> componentType = type.getComponentType();
@@ -53,7 +59,7 @@ public class TypeUtils {
                     if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
                         Array.set(resultArray, i, array[i]);
                     } else {
-                        Object castObject = cast(array[i], componentType, null);
+                        Object castObject = cast(array[i], componentType);
                         Array.set(resultArray, i, castObject);
                     }
                 }
@@ -62,14 +68,12 @@ public class TypeUtils {
             } else if (List.class.isAssignableFrom(type)) {
                 // 如: List<?>
                 List<Object> resultList = new ArrayList<>(array.length);
-                Type genericReturnType = method.getGenericReturnType();
                 log.debug(genericReturnType.toString());
                 if (genericReturnType instanceof ParameterizedType parameterizedType) {
-                    // TODO:
                     Type actualType = parameterizedType.getActualTypeArguments()[0];
                     log.debug(actualType.toString());
                     for (Object o : array) {
-                        resultList.add(cast(o, (Class<?>) actualType, null));
+                        resultList.add(cast(o, (Class<?>) actualType));
                     }
                 } else {
                     resultList.addAll(Arrays.asList(array));
@@ -80,30 +84,16 @@ public class TypeUtils {
             }
         } else {
             // 其它基础类型, 如: int, string..
-            return cast(data, method.getReturnType(), null);
+            return cast(data, type);
         }
     }
 
-    public static Object cast(Object origin, Class<?> type, Type genericType) {
+    public static Object cast(Object origin, Class<?> type) {
         if (origin == null) return null;
         Class<?> aClass = origin.getClass();
 
         // 如果要转换的类型,已经是它的原始类型,就直接返回
         if (type.isAssignableFrom(aClass)) {
-            // 处理 JsonArray<JsonObject> -> List<Pojo>
-            if (genericType != null && List.class.isAssignableFrom(type))
-                if (origin instanceof JSONArray jsonArray) {
-                    Object[] array = jsonArray.toArray();
-                    List<Object> paramList = new ArrayList<>(array.length);
-                    if (genericType instanceof ParameterizedType parameterizedType) {
-                        Type actualType = parameterizedType.getActualTypeArguments()[0];
-                        log.debug(actualType.toString());
-                        for (Object o : array) {
-                            paramList.add(cast(o, (Class<?>) actualType, null));
-                        }
-                        return paramList;
-                    }
-                }
             return origin;
         }
 
@@ -119,7 +109,7 @@ public class TypeUtils {
                 if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
                     Array.set(resultArray, i, Array.get(origin, i));
                 } else {
-                    Object castObject = cast(Array.get(origin, i), componentType, null);
+                    Object castObject = cast(Array.get(origin, i), componentType);
                     Array.set(resultArray, i, castObject);
                 }
             }
@@ -127,7 +117,7 @@ public class TypeUtils {
         }
 
         // 参数序列化,Map -> Object
-        if (origin instanceof @SuppressWarnings("rawtypes")HashMap map) {
+        if (origin instanceof @SuppressWarnings("rawtypes") HashMap map) {
             @SuppressWarnings("unchecked")
             JSONObject jsonObject = new JSONObject(map);
             return jsonObject.toJavaObject(type);

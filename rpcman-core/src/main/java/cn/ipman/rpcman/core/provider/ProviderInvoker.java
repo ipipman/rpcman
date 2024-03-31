@@ -65,7 +65,7 @@ public class ProviderInvoker {
         // 参数类型转换
         Object[] actualArgs = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
-            actualArgs[i] = TypeUtils.cast(args[i], parameterTypes[i], genericParameterTypes[i]);
+            actualArgs[i] = TypeUtils.castGeneric(args[i], parameterTypes[i], genericParameterTypes[i]);
         }
         return actualArgs;
     }

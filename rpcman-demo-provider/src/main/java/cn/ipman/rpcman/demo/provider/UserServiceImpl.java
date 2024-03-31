@@ -93,6 +93,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Map<String, User> getMap(Map<String, User> userMap) {
+        if (userMap.containsKey("A200")) {
+            User user = userMap.get("A200");
+            System.out.println(user.getId());
+            System.out.println(user.getName());
+        }
         return userMap;
     }
 

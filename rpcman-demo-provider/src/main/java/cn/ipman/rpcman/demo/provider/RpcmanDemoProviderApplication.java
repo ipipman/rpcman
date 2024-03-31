@@ -2,7 +2,6 @@ package cn.ipman.rpcman.demo.provider;
 
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
-import cn.ipman.rpcman.core.provider.ProviderBootstrap;
 import cn.ipman.rpcman.core.provider.ProviderConfig;
 import cn.ipman.rpcman.core.provider.ProviderInvoker;
 import cn.ipman.rpcman.demo.api.UserService;
