@@ -83,7 +83,7 @@ public class ZkRegistryCenter implements RegistryCenter {
         try {
             // 创建服务的持久化节点
             if (client.checkExists().forPath(servicePath) == null) {
-                client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, "service".getBytes());
+                client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, service.toMetas().getBytes());
             }
             // 创建实例的临时性节点
             // instancePath = rpman/cn.ipman.rpcman.demo.api.UserService/127.0.0.1_8081
@@ -134,7 +134,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             String[] ipPort = node.split("_");
             InstanceMeta instanceMeta = InstanceMeta.http(ipPort[0], Integer.valueOf(ipPort[1]));
             log.debug(" fetchAll instance:{}", instanceMeta.toHttpUrl());
-            // 拿到Metas配置, 机房、单元、灰度等
+            // 拿到service节点上的Metas配置, 机房、单元、灰度等
             String nodePath = servicePath + "/" + node;
             byte[] bytes;
             try {

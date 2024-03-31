@@ -47,7 +47,7 @@ public class InstanceMeta {
     }
 
     public String toMetas() {
-        // 机房、灰度、单元
+        // 实体的元数据,机房、灰度、单元
         return JSON.toJSONString(this.getParameters());
     }
 }
