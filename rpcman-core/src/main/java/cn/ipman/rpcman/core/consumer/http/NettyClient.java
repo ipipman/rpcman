@@ -83,7 +83,6 @@ public class NettyClient implements HttpInvoker {
             channel.closeFuture().sync();
 
             return clientInboundHandler.getRpcResponse();
-
         } catch (Exception e) {
             log.error("Provider连接错误:", e);
             throw new RpcException(e);

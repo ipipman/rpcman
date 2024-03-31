@@ -11,8 +11,12 @@ app:
   namespace: public
   env: dev
   version: 1.0
+  metas: "{dc: 'bk', gray: 'false', unit: 'B001'}"
+#    gray: false # 是否灰度
+#    dc: bj # 机房
+#    unit: B001
 
 logging:
   level:
     root: info
-    cn.ipman.rpcman: debug
+    cn.ipman.rpcman: info

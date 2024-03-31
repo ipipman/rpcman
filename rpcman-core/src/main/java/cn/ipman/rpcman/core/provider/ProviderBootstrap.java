@@ -62,6 +62,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @Value("${app.version}")
     private String version;
 
+    @Value("#{${app.metas}}")
+    Map<String, String> metas;
+
     @PostConstruct
     @SneakyThrows
     public void init() {
@@ -85,6 +88,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
         } else {
             this.instance = InstanceMeta.http(ip, Integer.parseInt(port));
         }
+        // 添加机房、灰度、单元配置
+        instance.getParameters().putAll(metas);
         // 启动注册中心连接,开始注册
         this.rc.start();
         this.skeleton.keySet().forEach(this::registerService);

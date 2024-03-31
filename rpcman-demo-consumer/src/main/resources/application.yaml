@@ -12,10 +12,10 @@ app:
   env: dev
   version: 1.0
   retries: 2
-  timeout: 500
+  timeout: 2000
   useNetty: false
 
 logging:
   level:
     root: error
-    cn.ipman.rpcman: debug
+    cn.ipman.rpcman: info

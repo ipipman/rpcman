@@ -6,6 +6,7 @@ import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.meta.ServiceMeta;
 import cn.ipman.rpcman.core.registry.ChangedListener;
 import cn.ipman.rpcman.core.registry.Event;
+import com.alibaba.fastjson.JSON;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
@@ -16,6 +17,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,7 +89,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             // instancePath = rpman/cn.ipman.rpcman.demo.api.UserService/127.0.0.1_8081
             String instancePath = servicePath + "/" + instance.toRcPath();
             log.info(" ===> register to zk:" + instancePath);
-            client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
+            client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, instance.toMetas().getBytes());
 
         } catch (Exception ex) {
             throw new RpcException(ex);
@@ -120,16 +122,30 @@ public class ZkRegistryCenter implements RegistryCenter {
             List<String> nodes = client.getChildren().forPath(servicePath);
             log.info(" ===> fetchAll to zk:" + servicePath);
             nodes.forEach(x -> log.info("fetchAll nodes={}", x));
-            return mapInstances(nodes);
+            return mapInstances(servicePath, nodes);
         } catch (Exception ex) {
             throw new RpcException(ex);
         }
     }
 
-    private static List<InstanceMeta> mapInstances(List<String> nodes) {
-        return nodes.stream().map(x -> {
-            String[] ipPort = x.split("_");
-            return InstanceMeta.http(ipPort[0], Integer.valueOf(ipPort[1]));
+    @SuppressWarnings("unchecked")
+    private List<InstanceMeta> mapInstances(String servicePath, List<String> nodes) {
+        return nodes.stream().map(node -> {
+            String[] ipPort = node.split("_");
+            InstanceMeta instanceMeta = InstanceMeta.http(ipPort[0], Integer.valueOf(ipPort[1]));
+            log.debug(" fetchAll instance:{}", instanceMeta.toHttpUrl());
+            // 拿到Metas配置, 机房、单元、灰度等
+            String nodePath = servicePath + "/" + node;
+            byte[] bytes;
+            try {
+                bytes = client.getData().forPath(nodePath);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            HashMap<String, String> metas = JSON.parseObject(new String(bytes), HashMap.class);
+            metas.forEach((k, v) -> System.out.println("providers metas ==> " + k + " -> " + v));
+            instanceMeta.setParameters(metas);
+            return instanceMeta;
         }).collect(Collectors.toList());
     }
 
