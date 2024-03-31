@@ -23,6 +23,7 @@ public class NettyClientInboundHandler extends SimpleChannelInboundHandler<FullH
 
     private RpcResponse<?> rpcResponse;
 
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse fullHttpResponse) {
         ByteBuf buf = fullHttpResponse.content();
@@ -33,11 +34,11 @@ public class NettyClientInboundHandler extends SimpleChannelInboundHandler<FullH
         ctx.close();
     }
 
-
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("netty client error:", cause);
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        // super.exceptionCaught(ctx, cause);
         ctx.close();
+        throw new Exception(cause);
     }
 
     @Override

@@ -53,6 +53,8 @@ public class ProviderInvoker {
         } catch (IllegalAccessException e) {
             // Provider反射调用时异常
             rpcResponse.setEx(new RpcException(e.getMessage()));
+        } catch (Exception e) {
+            rpcResponse.setEx(new RpcException(e.getMessage()));
         }
         log.debug("RpcResponse rpcResponse={}", request);
         return rpcResponse;

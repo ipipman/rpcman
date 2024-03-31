@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
 import java.net.SocketTimeoutException;
+import java.nio.channels.ClosedChannelException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -55,7 +56,7 @@ public class RpcInvocationHandler implements InvocationHandler {
         boolean useNetty = Boolean.parseBoolean(rpcContext.getParameters()
                 .getOrDefault("app.useNetty", "false"));
         if (useNetty) {
-            this.httpInvoker = new NettyClient();
+            this.httpInvoker = new NettyClient(timeout);
         } else {
             this.httpInvoker = new OkHttpInvoker(timeout);
         }
@@ -148,9 +149,12 @@ public class RpcInvocationHandler implements InvocationHandler {
                 return result;
             } catch (RuntimeException ex) {
                 // 如果不是超时异常,就直接throw
-                if (!(ex.getCause() instanceof SocketTimeoutException)) {
+                if (!(ex.getCause() instanceof SocketTimeoutException
+                        || ex.getCause() instanceof ClosedChannelException)) {
                     throw ex;
                 }
+            } catch (Exception ex){
+                ex.printStackTrace();
             }
         }
         return null;

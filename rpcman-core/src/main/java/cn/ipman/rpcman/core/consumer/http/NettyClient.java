@@ -15,11 +15,12 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Description for this class
@@ -30,6 +31,11 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class NettyClient implements HttpInvoker {
 
+    int timeout;
+
+    public NettyClient(int timeout) {
+        this.timeout = timeout;
+    }
 
     @Override
     public RpcResponse<?> post(RpcRequest rpcRequest, String url) {
@@ -40,12 +46,14 @@ public class NettyClient implements HttpInvoker {
             b.channel(NioSocketChannel.class);
             b.option(ChannelOption.SO_KEEPALIVE, true);
             b.handler(new LoggingHandler(LogLevel.INFO));
+            b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout); // 连接超时
 
             NettyClientInboundHandler clientInboundHandler = new NettyClientInboundHandler();
             b.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) {
                     ChannelPipeline p = ch.pipeline();
+                    p.addLast(new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS)); // 读超时
                     p.addLast(new HttpClientCodec()); // request/response HTTP编解码
                     p.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); // 传输内容最大长度
                     p.addLast(clientInboundHandler); // 请求处理器
@@ -75,10 +83,9 @@ public class NettyClient implements HttpInvoker {
             channel.closeFuture().sync();
 
             return clientInboundHandler.getRpcResponse();
-        } catch (RuntimeException e) {
+
+        } catch (Exception e) {
             log.error("Provider连接错误:", e);
-            throw new RpcException(e);
-        } catch (URISyntaxException | InterruptedException e) {
             throw new RpcException(e);
         } finally {
             workerGroup.shutdownGracefully();
@@ -91,7 +98,7 @@ public class NettyClient implements HttpInvoker {
         request.setArgs(new Object[]{1});
         request.setMethodSign("findById@1_int");
         // client to...
-        NettyClient client = new NettyClient();
+        NettyClient client = new NettyClient(10);
         RpcResponse<?> response = client.post(request, "http://192.168.31.232:9081/");
         System.out.println(response);
 
