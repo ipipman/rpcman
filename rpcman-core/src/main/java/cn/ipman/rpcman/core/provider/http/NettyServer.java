@@ -68,7 +68,7 @@ public class NettyServer {
                             ChannelPipeline p = ch.pipeline();
                             p.addLast(new HttpServerCodec()); // request/response HTTP编解码
                             p.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); // 传输内容最大长度
-                            p.addLast(new NettyInboundHandler(providerInvoker)); // 请求处理器
+                            p.addLast(new NettyServerInboundHandler(providerInvoker)); // 请求处理器
                         }
                     });
             String ip = InetAddress.getLocalHost().getHostAddress();

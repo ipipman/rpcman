@@ -10,7 +10,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
-import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,11 +31,11 @@ import static java.lang.Character.toLowerCase;
  * @Date 2024/3/24 16:24
  */
 @Slf4j
-public class NettyInboundHandler extends ChannelInboundHandlerAdapter {
+public class NettyServerInboundHandler extends ChannelInboundHandlerAdapter {
 
     ProviderInvoker providerInvoker;
 
-    public NettyInboundHandler(ProviderInvoker providerInvoker) {
+    public NettyServerInboundHandler(ProviderInvoker providerInvoker) {
         this.providerInvoker = providerInvoker;
     }
 

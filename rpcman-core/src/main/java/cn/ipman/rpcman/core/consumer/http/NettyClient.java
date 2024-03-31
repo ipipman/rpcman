@@ -1,0 +1,99 @@
+package cn.ipman.rpcman.core.consumer.http;
+
+import cn.ipman.rpcman.core.api.RpcException;
+import cn.ipman.rpcman.core.api.RpcRequest;
+import cn.ipman.rpcman.core.api.RpcResponse;
+import cn.ipman.rpcman.core.consumer.HttpInvoker;
+import cn.ipman.rpcman.core.provider.http.NettyServerInboundHandler;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import lombok.extern.slf4j.Slf4j;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * Description for this class
+ *
+ * @Author IpMan
+ * @Date 2024/3/31 15:40
+ */
+@Slf4j
+public class NettyClient implements HttpInvoker {
+
+    public static void main(String[] args) {
+        RpcRequest request = new RpcRequest();
+        request.setService("cn.ipman.rpcman.demo.api.UserService");
+        request.setArgs(new Object[]{1});
+        request.setMethodSign("findById@1_int");
+
+        NettyClient client = new NettyClient();
+        client.post(request, "http://192.168.31.232:9081/");
+
+    }
+
+    @Override
+    public RpcResponse<?> post(RpcRequest rpcRequest, String url) {
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        try {
+            Bootstrap b = new Bootstrap();
+            b.group(workerGroup);
+            b.channel(NioSocketChannel.class);
+            b.option(ChannelOption.SO_KEEPALIVE, true);
+            b.handler(new LoggingHandler(LogLevel.INFO));
+            b.handler(new ChannelInitializer<SocketChannel>() {
+                @Override
+                protected void initChannel(SocketChannel ch) throws Exception {
+                    ChannelPipeline p = ch.pipeline();
+                    p.addLast(new HttpClientCodec()); // request/response HTTP编解码
+                    p.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); // 传输内容最大长度
+                    p.addLast(new NettyClientInboundHandler()); // 请求处理器
+                }
+            });
+
+            // Start the client.
+            URI uri = new URI(url);
+            String host = uri.getHost();
+            FullHttpRequest request = new DefaultFullHttpRequest(
+                    HttpVersion.HTTP_1_1, HttpMethod.POST, uri.getRawPath());
+
+            // 构建HTTP请求体
+            request.headers().set(HttpHeaderNames.HOST, host);
+            request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+            request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP);
+            request.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
+
+            // body
+            ByteBuf buf = Unpooled.copiedBuffer(JSON.toJSONString(rpcRequest), StandardCharsets.UTF_8);
+            request.headers().set(HttpHeaderNames.CONTENT_LENGTH, buf.readableBytes());
+            request.content().clear().writeBytes(buf);
+
+            // 发送http请求
+            Channel channel = b.connect(uri.getHost(), uri.getPort()).sync().channel();
+            channel.writeAndFlush(request).sync();
+            channel.closeFuture().sync();
+
+
+        } catch (RuntimeException e) {
+            log.error("Provider连接错误:", e);
+            throw new RpcException(e);
+        } catch (URISyntaxException | InterruptedException e) {
+            throw new RpcException(e);
+        } finally {
+            workerGroup.shutdownGracefully();
+        }
+        return null;
+    }
+}
