@@ -22,10 +22,9 @@ import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static java.lang.Character.toLowerCase;
 
 /**
- * Description for this class
+ * Netty Server 请求处理器
  *
  * @Author IpMan
  * @Date 2024/3/24 16:24

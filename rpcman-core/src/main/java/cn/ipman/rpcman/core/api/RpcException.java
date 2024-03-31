@@ -1,6 +1,7 @@
 package cn.ipman.rpcman.core.api;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * RPC框架统一异常类
@@ -9,6 +10,8 @@ import lombok.Data;
  * @Date 2024/3/30 14:00
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
+@SuppressWarnings("unused")
 public class RpcException extends RuntimeException {
 
     private String errCode;

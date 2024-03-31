@@ -9,11 +9,12 @@ import lombok.SneakyThrows;
 import java.lang.reflect.Method;
 
 /**
- * Description for this class
+ * Mock RPC 调用和返回,用Filter实现
  *
  * @Author IpMan
  * @Date 2024/3/23 21:04
  */
+@SuppressWarnings("unused")
 public class MockFilter implements Filter {
 
     @SneakyThrows

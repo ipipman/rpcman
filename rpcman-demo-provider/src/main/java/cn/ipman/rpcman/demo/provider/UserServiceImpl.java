@@ -3,6 +3,7 @@ package cn.ipman.rpcman.demo.provider;
 import cn.ipman.rpcman.core.annotation.RpcProvider;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ import java.util.Map;
 @RpcProvider
 public class UserServiceImpl implements UserService {
 
-    @Autowired
+    @Setter(onMethod_ = {@Autowired})
     Environment environment;
 
     @Override
@@ -132,6 +133,7 @@ public class UserServiceImpl implements UserService {
         return new User(1001, "ipman-" + port);
     }
 
+    @SuppressWarnings("all")
     public void setTimeoutPorts(String timeoutPorts) {
         this.timeoutPorts = timeoutPorts;
     }

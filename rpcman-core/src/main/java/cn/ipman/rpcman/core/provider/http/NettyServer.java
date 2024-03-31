@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.InetAddress;
 
 /**
- * Netty Server
+ * Netty Server BootStrap
  *
  * @Author IpMan
  * @Date 2024/3/24 16:01
@@ -65,7 +65,7 @@ public class NettyServer {
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        protected void initChannel(SocketChannel ch) throws Exception {
+                        protected void initChannel(SocketChannel ch) {
                             ChannelPipeline p = ch.pipeline();
                             p.addLast(new HttpServerCodec()); // request/response HTTP编解码
                             p.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); // 传输内容最大长度

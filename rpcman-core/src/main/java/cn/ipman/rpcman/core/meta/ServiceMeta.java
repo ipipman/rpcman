@@ -23,7 +23,7 @@ public class ServiceMeta {
     private String name; //cn.ip
     private String version;
 
-    private Map<String, String> parameters = new HashMap<>();
+    private final Map<String, String> parameters = new HashMap<>();
 
     public String toPath() {
         return String.format("%s_%s_%s_%s_%s", app, namespace, env, name, version);

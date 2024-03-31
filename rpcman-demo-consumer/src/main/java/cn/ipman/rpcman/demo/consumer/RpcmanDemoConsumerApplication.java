@@ -27,6 +27,7 @@ public class RpcmanDemoConsumerApplication {
     @RpcConsumer
     UserService userService;
 
+    @SuppressWarnings("unused")
     @RpcConsumer
     OrderService orderService;
 
