@@ -17,4 +17,4 @@ app:
 logging:
   level:
     root: info
-    cn.ipman.rpcman: info
+    cn.ipman.rpcman: debug
