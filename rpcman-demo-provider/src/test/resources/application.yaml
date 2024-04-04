@@ -1,7 +1,6 @@
 server:
   port: 8080
 
-
 rpcman:
   zk:
     zkServer: localhost:2181
@@ -12,8 +11,7 @@ rpcman:
     namespace: public
     env: dev
     version: 1.0
-    useNetty: true # open port = server.port + 1000
-
+    use-netty: true # open port = server.port + 1000
 
   provider:
     metas:

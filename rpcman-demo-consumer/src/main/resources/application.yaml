@@ -12,15 +12,15 @@ rpcman:
     namespace: public
     env: dev
     version: 1.0
-    useNetty: false
+    use-netty: false
 
   consumer:
     retries: 2
     timeout: 200
-    grayRatio: 33 # 灰度百分比 0-100
-    faultLimit: 10 # 30s 内10次错误则隔离
-    halfOpenInitialDelay: 10000 # 半开启初始延迟
-    halfOpenDelay: 60000
+    gray-ratio: 33 # 灰度百分比 0-100
+    fault-limit: 10 # 30s 内10次错误则隔离
+    half-open-initial-delay: 10000 # 半开启初始延迟
+    half-open-delay: 60000
 
 logging:
   level:

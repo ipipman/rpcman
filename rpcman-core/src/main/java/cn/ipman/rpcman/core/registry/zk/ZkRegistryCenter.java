@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Description for this class
  * 基于Zookeeper实现的注册中心
  *
  * @Author IpMan

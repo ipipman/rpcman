@@ -26,6 +26,7 @@ public class ParameterFilter implements Filter {
 
     @Override
     public Object postFilter(RpcRequest request, RpcResponse<?> response, Object result) {
+        RpcContext.ContextParameters.get().clear();
         return null;
     }
 }

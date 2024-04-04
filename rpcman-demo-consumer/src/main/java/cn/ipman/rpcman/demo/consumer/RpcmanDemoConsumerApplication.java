@@ -162,6 +162,5 @@ public class RpcmanDemoConsumerApplication {
         String message = userService.echoParameter(Key_Message);
         System.out.println(" ===> echo parameter from c->p->c: " + Key_Version + " -> " + version);
         System.out.println(" ===> echo parameter from c->p->c: " + Key_Message + " -> " + message);
-        RpcContext.ContextParameters.get().clear();
     }
 }

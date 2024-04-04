@@ -3,8 +3,6 @@ package cn.ipman.rpcman.core.config;
 import cn.ipman.rpcman.core.api.*;
 import cn.ipman.rpcman.core.cluster.GrayRouter;
 import cn.ipman.rpcman.core.cluster.RoundRibonLoadBalancer;
-import cn.ipman.rpcman.core.config.AppConfigProperties;
-import cn.ipman.rpcman.core.config.ConsumerConfigProperties;
 import cn.ipman.rpcman.core.consumer.ConsumerBootstrap;
 import cn.ipman.rpcman.core.filter.ParameterFilter;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
