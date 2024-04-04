@@ -3,12 +3,14 @@ package cn.ipman.rpcman.core.provider;
 import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.provider.http.NettyServer;
 import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
+import cn.ipman.rpcman.core.transport.SpringBootTransport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 
 
@@ -22,6 +24,7 @@ import org.springframework.core.annotation.Order;
 
 @Configuration
 @Slf4j
+@Import({SpringBootTransport.class})
 public class ProviderConfig {
 
     @Value("${server.port}")

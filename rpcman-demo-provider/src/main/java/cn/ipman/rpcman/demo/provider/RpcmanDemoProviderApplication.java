@@ -3,7 +3,7 @@ package cn.ipman.rpcman.demo.provider;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.provider.ProviderConfig;
-import cn.ipman.rpcman.core.provider.ProviderInvoker;
+import cn.ipman.rpcman.core.transport.SpringBootTransport;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;
 import lombok.Setter;
@@ -32,15 +32,6 @@ public class RpcmanDemoProviderApplication {
     }
 
     @Setter(onMethod_ = {@Autowired})
-    private ProviderInvoker providerInvoker;
-
-    @RequestMapping(value = "/")
-    public RpcResponse<Object> invoke(@RequestBody RpcRequest request) {
-        return providerInvoker.invoke(request);
-    }
-
-
-    @Setter(onMethod_ = {@Autowired})
     private UserService userService;
 
     @RequestMapping("/ports")
@@ -60,6 +51,8 @@ public class RpcmanDemoProviderApplication {
         return x -> testAll();
     }
 
+    @Setter(onMethod_ = {@Autowired})
+    SpringBootTransport transport;
 
     private void testAll() {
         //  test 1 parameter method
@@ -69,8 +62,8 @@ public class RpcmanDemoProviderApplication {
         request.setMethodSign("findById@1_int");
         request.setArgs(new Object[]{100});
 
-        RpcResponse<Object> rpcResponse = providerInvoker.invoke(request);
-        System.out.println("return : "+rpcResponse.getData());
+        RpcResponse<Object> rpcResponse = transport.invoke(request);
+        System.out.println("return : " + rpcResponse.getData());
 
         // test 2 parameters method
         System.out.println("Provider Case 2. >>===[基本测试：2个参数]===");
@@ -79,8 +72,8 @@ public class RpcmanDemoProviderApplication {
         request1.setMethodSign("findById@2_int_java.lang.String");
         request1.setArgs(new Object[]{100, "ipman"});
 
-        RpcResponse<Object> rpcResponse1 = providerInvoker.invoke(request1);
-        System.out.println("return : "+rpcResponse1.getData());
+        RpcResponse<Object> rpcResponse1 = transport.invoke(request1);
+        System.out.println("return : " + rpcResponse1.getData());
 
         // test 3 for List<User> method&parameter
         System.out.println("Provider Case 3. >>===[复杂测试：参数类型为List<User>]===");
@@ -90,9 +83,9 @@ public class RpcmanDemoProviderApplication {
         List<User> userList = new ArrayList<>();
         userList.add(new User(100, "ipman-100"));
         userList.add(new User(101, "ipman-101"));
-        request3.setArgs(new Object[]{ userList });
-        RpcResponse<Object> rpcResponse3 = providerInvoker.invoke(request3);
-        System.out.println("return : "+rpcResponse3.getData());
+        request3.setArgs(new Object[]{userList});
+        RpcResponse<Object> rpcResponse3 = transport.invoke(request3);
+        System.out.println("return : " + rpcResponse3.getData());
 
         // test 4 for Map<String, User> method&parameter
         System.out.println("Provider Case 4. >>===[复杂测试：参数类型为Map<String, User>]===");
@@ -102,9 +95,9 @@ public class RpcmanDemoProviderApplication {
         Map<String, User> userMap = new HashMap<>();
         userMap.put("P100", new User(100, "ipman-100"));
         userMap.put("P101", new User(101, "ipman-101"));
-        request4.setArgs(new Object[]{ userMap });
-        RpcResponse<Object> rpcResponse4 = providerInvoker.invoke(request4);
-        System.out.println("return : "+rpcResponse4.getData());
+        request4.setArgs(new Object[]{userMap});
+        RpcResponse<Object> rpcResponse4 = transport.invoke(request4);
+        System.out.println("return : " + rpcResponse4.getData());
     }
 
 }
