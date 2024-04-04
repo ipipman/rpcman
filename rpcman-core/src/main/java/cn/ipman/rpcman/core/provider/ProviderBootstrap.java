@@ -83,13 +83,12 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void start() {
         // 获取provider实例, 注册到 zookeeper
         String ip = InetAddress.getLocalHost().getHostAddress();
+        // metas =  // 添加机房、灰度、单元配置
         if (useNetty) {
-            this.instance = InstanceMeta.http(ip, Integer.parseInt(port) + 1000);
+            this.instance = InstanceMeta.http(ip, Integer.parseInt(port) + 1000).addParams(this.metas);
         } else {
-            this.instance = InstanceMeta.http(ip, Integer.parseInt(port));
+            this.instance = InstanceMeta.http(ip, Integer.parseInt(port)).addParams(this.metas);
         }
-        // 添加机房、灰度、单元配置
-        instance.getParameters().putAll(metas);
         // 启动注册中心连接,开始注册
         this.rc.start();
         this.skeleton.keySet().forEach(this::registerService);

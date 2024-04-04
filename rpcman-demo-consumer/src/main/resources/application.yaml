@@ -14,7 +14,10 @@ app:
   retries: 2
   timeout: 200
   useNetty: true
-  grayRatio: 10 # 灰度百分比 0-100
+  grayRatio: 33 # 灰度百分比 0-100
+  faultLimit: 10 # 30s 内10次错误则隔离
+  halfOpenInitialDelay: 10000 # 半开启初始延迟
+  halfOpenDelay: 60000
 
 logging:
   level:

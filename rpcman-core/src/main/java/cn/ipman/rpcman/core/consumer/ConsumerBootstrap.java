@@ -58,31 +58,27 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     @Value("${app.grayRatio}")
     private int grayRatio;
 
+    @Value("${app.faultLimit}")
+    private int faultLimit;
+
+    @Value("${app.halfOpenInitialDelay}")
+    private int halfOpenInitialDelay;
+
+    @Value("${app.halfOpenDelay}")
+    private int halfOpenDelay;
+
+
     public void start() {
 
-        // 获取路由和负载均衡Bean
-        @SuppressWarnings("unchecked")
-        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
-        @SuppressWarnings("unchecked")
-        LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
-        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
-
-        RpcContext rpcContext = new RpcContext();
-        rpcContext.setRouter(router);
-        rpcContext.setLoadBalancer(loadBalancer);
-        rpcContext.setFilters(filters);
-        rpcContext.getParameters().put("app.retries", String.valueOf(retries));     // client超时重试
-        rpcContext.getParameters().put("app.timeout", String.valueOf(timeout));     // client超时时间ms
-        rpcContext.getParameters().put("app.useNetty", String.valueOf(useNetty));
-        // rpcContext.getParameters().put("app.grayRatio", String.valueOf(grayRatio)); // 灰度发布
+        RpcContext rpcContext = createContext();
 
         // 获取Spring容器中所有的Bean
         String[] names = applicationContext.getBeanDefinitionNames();
         for (String name : names) {
             // 根据Bean的名称,获取实例如: rpcmanDemoConsumerApplication
             Object bean = applicationContext.getBean(name);
-            if (!name.contains("rpcmanDemoConsumerApplication")) continue;
+            // debug -> if (!name.contains("rpcmanDemoConsumerApplication")) continue;
 
             // 通过Java反射获取标记 @RpcConsumer 注解的类成员,
             // 如:cn.ipman.rpcman.demo.consumer.RpcmanDemoConsumerApplication.userService
@@ -92,24 +88,49 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 Class<?> service = f.getType();
                 // 获取成员类实例的类名,如:cn.ipman.rpcman.demo.api.UserService
                 String serviceName = service.getCanonicalName();
-                Object consumer = stub.get(serviceName);
-                if (consumer == null) {
-                    // 给成员类实例添加Java动态代理
-                    consumer = createFromRegistry(service, rpcContext, rc);
-                    stub.put(serviceName, consumer);
-                }
-                // 设置可操作权限
-                f.setAccessible(true);
+                log.info(" ===> " + f.getName());
                 try {
+                    Object consumer = stub.get(serviceName);
+                    if (consumer == null) {
+                        // 给成员类实例添加Java动态代理
+                        consumer = createFromRegistry(service, rpcContext, rc);
+                        stub.put(serviceName, consumer);
+                    }
+                    // 设置可操作权限
+                    f.setAccessible(true);
                     // 将动态代理后的Provider类, 重新注入如到Spring容器中
                     // 这样调用Provider时, 通过动态代理实现远程调用
                     f.set(bean, consumer);
-                } catch (IllegalAccessException e) {
-                    throw new RpcException(e);
+                } catch (Exception ex) {
+                    log.warn(" ==> Field[{}.{}] create consumer failed.", serviceName, f.getName());
+                    log.error("Ignore and print it as: ", ex);
                 }
             });
         }
     }
+
+    private RpcContext createContext() {
+        // 获取路由和负载均衡Bean
+        @SuppressWarnings("unchecked")
+        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
+        @SuppressWarnings("unchecked")
+        LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
+        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
+
+        RpcContext rpcContext = new RpcContext();
+        rpcContext.setRouter(router);
+        rpcContext.setLoadBalancer(loadBalancer);
+        rpcContext.setFilters(filters);
+        rpcContext.getParameters().put("app.retries", String.valueOf(retries));     // client超时重试
+        rpcContext.getParameters().put("app.timeout", String.valueOf(timeout));     // client超时时间ms
+        rpcContext.getParameters().put("app.useNetty", String.valueOf(useNetty));   // 是否用netty做为client
+        // rpcContext.getParameters().put("app.grayRatio", String.valueOf(grayRatio)); // 灰度发布
+        rpcContext.getParameters().put("app.halfOpenInitialDelay", String.valueOf(halfOpenInitialDelay)); // 半开重试时间间隔
+        rpcContext.getParameters().put("app.faultLimit", String.valueOf(faultLimit)); // client失败重试多少次后进入隔离区
+        rpcContext.getParameters().put("app.halfOpenDelay", String.valueOf(halfOpenDelay)); // 半开延迟执行时间
+        return rpcContext;
+    }
+
 
     private Object createFromRegistry(Class<?> service, RpcContext rpcContext, RegistryCenter rc) {
         String serviceName = service.getCanonicalName();

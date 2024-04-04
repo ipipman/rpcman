@@ -43,11 +43,18 @@ public class RpcInvocationHandler implements InvocationHandler {
         this.service = service;
         this.rpcContext = rpcContext;
         this.providers = providers;
+
         // 初始化httpClient端
         initHttpInvoker();
+
         // 定时探活Provider的运行状态 , 单线程, 延迟10s执行, 每60s执行一次
         this.executorService = Executors.newScheduledThreadPool(1);
-        this.executorService.scheduleWithFixedDelay(this::halfOpen, 10, 60, TimeUnit.SECONDS);
+        int halfOpenInitialDelay = Integer.parseInt(rpcContext.getParameters()
+                .getOrDefault("consumer.halfOpenInitialDelay", "10000"));
+        int halfOpenDelay = Integer.parseInt(rpcContext.getParameters()
+                .getOrDefault("consumer.halfOpenDelay", "60000"));
+        this.executorService.scheduleWithFixedDelay(this::halfOpen, halfOpenInitialDelay,
+                halfOpenDelay, TimeUnit.MILLISECONDS);
     }
 
     private void initHttpInvoker() {
@@ -74,9 +81,12 @@ public class RpcInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
-        // 重试次数
+        // 默认重试次数
         int retries = Integer.parseInt(rpcContext.getParameters()
-                .getOrDefault("app.retries", "1"));
+                .getOrDefault("consumer.retries", "1"));
+        // 最大重试次数后进入隔离区
+        int faultLimit = Integer.parseInt(rpcContext.getParameters()
+                .getOrDefault("consumer.faultLimit", "10"));
 
         while (retries-- > 0) {
             log.info(" ===> retries: " + retries);
@@ -120,7 +130,7 @@ public class RpcInvocationHandler implements InvocationHandler {
                         window.record(System.currentTimeMillis());
                         log.debug("instance {} in windows with {}", url, window.getSum());
                         // 规则发生10次, 就做故障隔离, 摘除节点
-                        if (window.getSum() >= 10) {
+                        if (window.getSum() >= faultLimit) {
                             isolate(instance);
                         }
                     }
@@ -132,8 +142,8 @@ public class RpcInvocationHandler implements InvocationHandler {
                     if (!providers.contains(instance)) {
                         isolateProviders.remove(instance);
                         providers.add(instance);
-                        log.debug("instance {} is recovered, isolatedProviders={}, providers={}",
-                                instance, isolateProviders, providers);
+                        log.debug("instance {} is recovered, isolatedProviders={}, providers={}"
+                                , instance, isolateProviders, providers);
                     }
                 }
 
@@ -183,12 +193,12 @@ public class RpcInvocationHandler implements InvocationHandler {
             // 处理方法,返回类型
             return TypeUtils.castMethodResult(method, rpcResponse.getData());
         } else {
-            Exception exception = rpcResponse.getEx();
-            if (exception instanceof RpcException ex) {
-                throw ex; // RpcException是Runtime异常, 可以直接throw
+            RpcException exception = rpcResponse.getEx();
+            if (exception != null) {
+                log.error("response error.", exception);
+                throw exception;
             }
-            // 调用未知异常时
-            throw new RpcException(rpcResponse.getEx(), RpcException.UnknownEx);
+            return null;
         }
     }
 

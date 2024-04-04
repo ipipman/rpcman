@@ -17,8 +17,8 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -128,7 +128,6 @@ public class ZkRegistryCenter implements RegistryCenter {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private List<InstanceMeta> mapInstances(String servicePath, List<String> nodes) {
         return nodes.stream().map(node -> {
             String[] ipPort = node.split("_");
@@ -142,9 +141,11 @@ public class ZkRegistryCenter implements RegistryCenter {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            HashMap<String, String> metas = JSON.parseObject(new String(bytes), HashMap.class);
-            metas.forEach((k, v) -> System.out.println("providers metas ==> " + k + " -> " + v));
-            instanceMeta.setParameters(metas);
+            Map<String, Object> metas = JSON.parseObject(new String(bytes));
+            metas.forEach((k, v) -> {
+                System.out.println("providers metas ==> " + k + " -> " + v);
+                instanceMeta.getParameters().put(k, v == null ? null : v.toString());
+            });
             return instanceMeta;
         }).collect(Collectors.toList());
     }

@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User ex(boolean flag) {
-        if (flag) throw new RuntimeException("just throw an exception");
+        if (flag) throw new RuntimeException("看下能不能抛出异常: just throw an exception");
         return new User(100, "ipman-100");
     }
 
