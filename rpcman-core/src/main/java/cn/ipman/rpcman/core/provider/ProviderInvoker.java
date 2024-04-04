@@ -1,5 +1,6 @@
 package cn.ipman.rpcman.core.provider;
 
+import cn.ipman.rpcman.core.api.RpcContext;
 import cn.ipman.rpcman.core.api.RpcException;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
@@ -31,6 +32,11 @@ public class ProviderInvoker {
 
     public RpcResponse<Object> invoke(RpcRequest request) {
         log.debug(" ===> ProviderInvoker.invoke(request:{})", request);
+        // 隐式传参
+        if (!request.getParams().isEmpty()) {
+            request.getParams().forEach(RpcContext::setContextParameter);
+        }
+
         RpcResponse<Object> rpcResponse = new RpcResponse<>();
         // 根据类包名,获取容器的类实例
         List<ProviderMeta> providerMetas = this.skeleton.get(request.getService());
@@ -54,7 +60,11 @@ public class ProviderInvoker {
             // Provider反射调用和参数时异常
             rpcResponse.setEx(new RpcException(e.getMessage()));
         } catch (Exception e) {
+            log.error(" ===> ProviderInvoker.invoke() unknown error:", e);
             rpcResponse.setEx(new RpcException(e.getMessage()));
+        } finally {
+            // 清除RpcContext中ThreadLocal的隐式参数的
+            RpcContext.ContextParameters.get().clear();
         }
         log.debug(" ===> ProviderInvoker.invoke() = {}", rpcResponse);
         return rpcResponse;

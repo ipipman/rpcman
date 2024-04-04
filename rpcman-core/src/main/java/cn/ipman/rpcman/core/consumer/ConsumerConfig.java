@@ -6,6 +6,7 @@ import cn.ipman.rpcman.core.api.RegistryCenter;
 import cn.ipman.rpcman.core.api.Router;
 import cn.ipman.rpcman.core.cluster.GrayRouter;
 import cn.ipman.rpcman.core.cluster.RoundRibonLoadBalancer;
+import cn.ipman.rpcman.core.filter.ParameterFilter;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +69,8 @@ public class ConsumerConfig {
 
     @Bean
     public Filter filterDefault() {
-        return Filter.Default;
+        // return Filter.Default;
+        return new ParameterFilter();
     }
 
 

@@ -24,5 +24,24 @@ public class RpcContext {
 
     private Map<String, String> parameters = new HashMap<>();
 
+    public static ThreadLocal<Map<String, String>> ContextParameters = ThreadLocal.withInitial(HashMap::new);
+
+
+    // rpc.color = gray
+    // rpc.trace_id
+    // gw -> service1 ->  service2(跨线程传递) ...
+    // http headers
+
+    public static void setContextParameter(String key, String value) {
+        ContextParameters.get().put(key, value);
+    }
+
+    public static String getContextParameter(String key) {
+        return ContextParameters.get().get(key);
+    }
+
+    public static void removeContextParameter(String key) {
+        ContextParameters.get().remove(key);
+    }
 
 }

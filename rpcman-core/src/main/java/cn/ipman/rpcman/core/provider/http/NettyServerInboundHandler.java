@@ -13,6 +13,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
@@ -87,8 +88,14 @@ public class NettyServerInboundHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("netty server error:", cause);
-        ctx.close();
+        if (cause instanceof SocketException se) {
+            if (se.getMessage().equals("Connection reset")) {
+                ctx.close();
+            }
+        } else {
+            log.error("netty server error:", cause);
+            ctx.close();
+        }
     }
 
     @Override

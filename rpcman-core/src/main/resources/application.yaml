@@ -2,3 +2,4 @@ logging:
   level:
     root: info
     cn.ipman.rpcmanc: debug
+    io.netty: info

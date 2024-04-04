@@ -1,6 +1,7 @@
 package cn.ipman.rpcman.demo.consumer;
 
 import cn.ipman.rpcman.core.annotation.RpcConsumer;
+import cn.ipman.rpcman.core.api.RpcContext;
 import cn.ipman.rpcman.core.consumer.ConsumerConfig;
 import cn.ipman.rpcman.demo.api.OrderService;
 import cn.ipman.rpcman.demo.api.User;
@@ -150,5 +151,17 @@ public class RpcmanDemoConsumerApplication {
         // userService.find(1100);
         System.out.println("userService.find take "
                 + (System.currentTimeMillis() - start) + " ms");
+
+
+        System.out.println("Case 19. >>===[测试通过Context跨消费者和提供者进行传参]===");
+        String Key_Version = "rpc.version";
+        String Key_Message = "rpc.message";
+        RpcContext.setContextParameter(Key_Version, "v8");
+        RpcContext.setContextParameter(Key_Message, "this is a test message");
+        String version = userService.echoParameter(Key_Version);
+        String message = userService.echoParameter(Key_Message);
+        System.out.println(" ===> echo parameter from c->p->c: " + Key_Version + " -> " + version);
+        System.out.println(" ===> echo parameter from c->p->c: " + Key_Message + " -> " + message);
+        RpcContext.ContextParameters.get().clear();
     }
 }

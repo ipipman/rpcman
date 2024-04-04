@@ -18,3 +18,4 @@ logging:
   level:
     root: info
     cn.ipman.rpcman: debug
+    io.netty: info

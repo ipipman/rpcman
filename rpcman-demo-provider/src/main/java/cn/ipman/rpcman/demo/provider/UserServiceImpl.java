@@ -1,6 +1,7 @@
 package cn.ipman.rpcman.demo.provider;
 
 import cn.ipman.rpcman.core.annotation.RpcProvider;
+import cn.ipman.rpcman.core.api.RpcContext;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;
 import lombok.Setter;
@@ -137,6 +138,13 @@ public class UserServiceImpl implements UserService {
     @SuppressWarnings("all")
     public void setTimeoutPorts(String timeoutPorts) {
         this.timeoutPorts = timeoutPorts;
+    }
+
+    @Override
+    public String echoParameter(String key) {
+        System.out.println(" ====>> RpcContext.ContextParameters: ");
+        RpcContext.ContextParameters.get().forEach((k, v) -> System.out.println(k + " -> " + v));
+        return RpcContext.getContextParameter(key);
     }
 
 }
