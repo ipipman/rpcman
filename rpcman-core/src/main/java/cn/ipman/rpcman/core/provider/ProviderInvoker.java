@@ -30,7 +30,7 @@ public class ProviderInvoker {
     }
 
     public RpcResponse<Object> invoke(RpcRequest request) {
-        log.debug("RpcRequest request={}", request);
+        log.debug(" ===> ProviderInvoker.invoke(request:{})", request);
         RpcResponse<Object> rpcResponse = new RpcResponse<>();
         // 根据类包名,获取容器的类实例
         List<ProviderMeta> providerMetas = this.skeleton.get(request.getService());
@@ -50,13 +50,13 @@ public class ProviderInvoker {
         } catch (InvocationTargetException e) {
             // Provider反射时异常处理, TODO 返回反射目标类的异常
             rpcResponse.setEx(new RpcException(e.getTargetException().getMessage()));
-        } catch (IllegalAccessException e) {
-            // Provider反射调用时异常
+        } catch (IllegalAccessException | IllegalArgumentException e) {
+            // Provider反射调用和参数时异常
             rpcResponse.setEx(new RpcException(e.getMessage()));
         } catch (Exception e) {
             rpcResponse.setEx(new RpcException(e.getMessage()));
         }
-        log.debug("RpcResponse rpcResponse={}", request);
+        log.debug(" ===> ProviderInvoker.invoke() = {}", rpcResponse);
         return rpcResponse;
     }
 
