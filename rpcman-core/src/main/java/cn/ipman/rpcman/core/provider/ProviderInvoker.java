@@ -29,7 +29,7 @@ public class ProviderInvoker {
         this.skeleton = providerBootstrap.getSkeleton();
     }
 
-    public RpcResponse<?> invoke(RpcRequest request) {
+    public RpcResponse<Object> invoke(RpcRequest request) {
         log.debug("RpcRequest request={}", request);
         RpcResponse<Object> rpcResponse = new RpcResponse<>();
         // 根据类包名,获取容器的类实例

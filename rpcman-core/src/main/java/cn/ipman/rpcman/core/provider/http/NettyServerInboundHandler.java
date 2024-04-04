@@ -52,7 +52,7 @@ public class NettyServerInboundHandler extends ChannelInboundHandlerAdapter {
                 if (rpcRequest != null) {
                     // Provider Invoker
                     log.debug("netty server 接收请求体: " + rpcRequest);
-                    RpcResponse<?> rpcResponse = providerInvoker.invoke(rpcRequest);
+                    RpcResponse<Object> rpcResponse = providerInvoker.invoke(rpcRequest);
                     log.debug("netty server 返回请求体: " + rpcResponse);
                     // 添加Server的返回体
                     String result = JSON.toJSONString(rpcResponse);
