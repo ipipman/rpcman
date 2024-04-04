@@ -5,13 +5,14 @@
 
     <groupId>cn.ipman</groupId>
     <artifactId>rpcman</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
 
     <name>rpcman</name>
     <description>rpcman</description>
     <packaging>pom</packaging>
 
     <properties>
+        <revision>0.0.3-SNAPSHOT</revision>
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.tagret>17</maven.compiler.tagret>

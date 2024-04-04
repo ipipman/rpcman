@@ -5,12 +5,12 @@
 	<parent>
 		<groupId>cn.ipman</groupId>
 		<artifactId>rpcman</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.3-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>rpcman-demo-api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>rpcman-demo-api</name>
 	<description>rpcman-demo-api</description>
 
