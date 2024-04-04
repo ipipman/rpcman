@@ -37,10 +37,10 @@ public class ZkRegistryCenter implements RegistryCenter {
     @SuppressWarnings("deprecation")
     private TreeCache cache = null;
 
-    @Value("${rpcman.zkServer}")
+    @Value("${rpcman.zk.zkServer:localhost:2181}")
     String servers;
 
-    @Value("${rpcman.zkRoot}")
+    @Value("${rpcman.zk.zkRoot:rpcman}")
     String root;
 
     @Override

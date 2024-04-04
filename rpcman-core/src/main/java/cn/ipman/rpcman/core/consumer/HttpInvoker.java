@@ -4,7 +4,7 @@ import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 
 /**
- * Description for this class
+ * Interface for http invoke.
  *
  * @Author IpMan
  * @Date 2024/3/23 12:19

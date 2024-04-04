@@ -2,7 +2,7 @@ package cn.ipman.rpcman.demo.provider;
 
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
-import cn.ipman.rpcman.core.provider.ProviderConfig;
+import cn.ipman.rpcman.core.config.ProviderConfig;
 import cn.ipman.rpcman.core.transport.SpringBootTransport;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;

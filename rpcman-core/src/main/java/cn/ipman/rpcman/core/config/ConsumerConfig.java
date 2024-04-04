@@ -1,8 +1,11 @@
-package cn.ipman.rpcman.core.consumer;
+package cn.ipman.rpcman.core.config;
 
 import cn.ipman.rpcman.core.api.*;
 import cn.ipman.rpcman.core.cluster.GrayRouter;
 import cn.ipman.rpcman.core.cluster.RoundRibonLoadBalancer;
+import cn.ipman.rpcman.core.config.AppConfigProperties;
+import cn.ipman.rpcman.core.config.ConsumerConfigProperties;
+import cn.ipman.rpcman.core.consumer.ConsumerBootstrap;
 import cn.ipman.rpcman.core.filter.ParameterFilter;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
@@ -11,9 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 
 import java.util.List;
@@ -28,46 +31,17 @@ import java.util.List;
  */
 @Configuration
 @Slf4j
+@Import({AppConfigProperties.class, ConsumerConfigProperties.class})
 public class ConsumerConfig {
 
-    @Value("${rpcman.providers}")
-    String services;
-
-    @Value("${app.grayRatio:0}")
-    private int grayRatio;
-
-    @Value("${app.id:app1}")
-    private String app;
-
-    @Value("${app.namespace:public}")
-    private String namespace;
-
-    @Value("${app.env:dev}")
-    private String env;
-
-    @Value("${app.version:0.0.1-SNAPSHOT}")
-    private String version;
-
-    @Value("${app.useNetty:false}")
-    private boolean useNetty;
-
-    @Value("${app.retries:1}")
-    private int retries;
-
-    @Value("${app.timeout:1000}")
-    private int timeout;
-
-    @Value("${app.faultLimit:10}")
-    private int faultLimit;
-
-    @Value("${app.halfOpenInitialDelay:10000}")
-    private int halfOpenInitialDelay;
-
-    @Value("${app.halfOpenDelay:60000}")
-    private int halfOpenDelay;
+    @Value("${rpcman.providers:}")
+    String[] services;
 
     @Setter(onMethod_ = {@Autowired})
-    ApplicationContext applicationContext;
+    private AppConfigProperties appConfigProperties;
+
+    @Setter(onMethod_ = {@Autowired})
+    private ConsumerConfigProperties consumerConfigProperties;
 
     @Bean
     public ConsumerBootstrap createConsumerBootstrap() {
@@ -91,7 +65,7 @@ public class ConsumerConfig {
 
     @Bean
     public Router<InstanceMeta> loadRouter() {
-        return new GrayRouter(grayRatio);
+        return new GrayRouter(consumerConfigProperties.getGrayRatio());
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
@@ -112,16 +86,17 @@ public class ConsumerConfig {
         context.setRouter(router);
         context.setLoadBalancer(loadBalancer);
         context.setFilters(filters);
-        context.getParameters().put("app.id", app);
-        context.getParameters().put("app.namespace", namespace);
-        context.getParameters().put("app.env", env);
-        context.getParameters().put("app.version", version);
-        context.getParameters().put("app.retries", String.valueOf(retries));
-        context.getParameters().put("app.timeout", String.valueOf(timeout));
-        context.getParameters().put("app.useNetty", String.valueOf(useNetty));
-        context.getParameters().put("app.halfOpenInitialDelay", String.valueOf(halfOpenInitialDelay));
-        context.getParameters().put("app.faultLimit", String.valueOf(faultLimit));
-        context.getParameters().put("app.halfOpenDelay", String.valueOf(halfOpenDelay));
+        context.getParameters().put("app.id", appConfigProperties.getId());
+        context.getParameters().put("app.namespace", appConfigProperties.getNamespace());
+        context.getParameters().put("app.env", appConfigProperties.getEnv());
+        context.getParameters().put("app.version", appConfigProperties.getVersion());
+        context.getParameters().put("app.useNetty", String.valueOf(appConfigProperties.getUseNetty()));
+
+        context.getParameters().put("consumer.retries", String.valueOf(consumerConfigProperties.getRetries()));
+        context.getParameters().put("consumer.timeout", String.valueOf(consumerConfigProperties.getTimeout()));
+        context.getParameters().put("consumer.faultLimit", String.valueOf(consumerConfigProperties.getFaultLimit()));
+        context.getParameters().put("consumer.halfOpenInitialDelay", String.valueOf(consumerConfigProperties.getHalfOpenInitialDelay()));
+        context.getParameters().put("consumer.halfOpenDelay", String.valueOf(consumerConfigProperties.getHalfOpenDelay()));
         return context;
     }
 

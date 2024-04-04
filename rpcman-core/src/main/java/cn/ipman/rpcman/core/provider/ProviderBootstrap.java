@@ -2,6 +2,8 @@ package cn.ipman.rpcman.core.provider;
 
 import cn.ipman.rpcman.core.annotation.RpcProvider;
 import cn.ipman.rpcman.core.api.RegistryCenter;
+import cn.ipman.rpcman.core.config.AppConfigProperties;
+import cn.ipman.rpcman.core.config.ProviderConfigProperties;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.meta.ProviderMeta;
 import cn.ipman.rpcman.core.meta.ServiceMeta;
@@ -11,7 +13,6 @@ import jakarta.annotation.PreDestroy;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.LinkedMultiValueMap;
@@ -35,38 +36,22 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     // 容器上下文
     private ApplicationContext applicationContext;
-
     // 注册中心
     private RegistryCenter rc;
-
     // 方法名 -> [sign1, sign2]
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
-
+    // Provider服务实例信息
+    private String port;
     private InstanceMeta instance;
 
-    private String port;
+    private AppConfigProperties appProperties;
+    private ProviderConfigProperties providerProperties;
 
-    private Boolean useNetty;
-
-    private String app;
-
-    private String namespace;
-
-    private String env;
-
-    private String version;
-
-    private Map<String, String> metas;
-
-    public ProviderBootstrap(String port, String app, String namespace, String env,
-                             Map<String, String> metas, String version, Boolean useNetty) {
+    public ProviderBootstrap(String port, AppConfigProperties appConfigProperties,
+                             ProviderConfigProperties providerConfigProperties) {
         this.port = port;
-        this.useNetty = useNetty;
-        this.app = app;
-        this.namespace = namespace;
-        this.env = env;
-        this.metas = metas;
-        this.version = version;
+        this.appProperties = appConfigProperties;
+        this.providerProperties = providerConfigProperties;
     }
 
     @PostConstruct
@@ -88,10 +73,11 @@ public class ProviderBootstrap implements ApplicationContextAware {
         // 获取provider实例, 注册到 zookeeper
         String ip = InetAddress.getLocalHost().getHostAddress();
         // metas =  // 添加机房、灰度、单元配置
-        if (useNetty) {
-            this.instance = InstanceMeta.http(ip, Integer.parseInt(port) + 1000).addParams(this.metas);
+        if (appProperties.getUseNetty()) {
+            this.instance = InstanceMeta.http(ip, Integer.parseInt(port) + 1000)
+                    .addParams(providerProperties.getMetas());
         } else {
-            this.instance = InstanceMeta.http(ip, Integer.parseInt(port)).addParams(this.metas);
+            this.instance = InstanceMeta.http(ip, Integer.parseInt(port)).addParams(providerProperties.getMetas());
         }
         // 启动注册中心连接,开始注册
         this.rc.start();
@@ -109,14 +95,22 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private void unregisterService(String service) {
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .name(service).app(app).namespace(namespace).env(env).version(version)
+                .name(service)
+                .app(appProperties.getId())
+                .namespace(appProperties.getNamespace())
+                .env(appProperties.getEnv())
+                .version(appProperties.getVersion())
                 .build();
         rc.unregister(serviceMeta, this.instance);
     }
 
     private void registerService(String service) {
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .name(service).app(app).namespace(namespace).env(env).version(version)
+                .name(service)
+                .app(appProperties.getId())
+                .namespace(appProperties.getNamespace())
+                .env(appProperties.getEnv())
+                .version(appProperties.getVersion())
                 .build();
         rc.register(serviceMeta, this.instance);
     }

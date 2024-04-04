@@ -3,15 +3,22 @@ server:
   useNetty: true # open port = server.port + 1000
 
 rpcman:
-  zkServer: localhost:2181
-  zkRoot: rpcman
+  zk:
+    zkServer: localhost:2181
+    zkRoot: rpcman
 
-app:
-  id: app1
-  namespace: public
-  env: dev
-  version: 1.0
-  metas: "{dc: 'bk', gray: 'false', unit: 'B001'}"
+  app:
+    id: app1
+    namespace: public
+    env: dev
+    version: 1.0
+    useNetty: true
+
+  provider:
+    metas:
+      dc: bj
+      gray: false
+      unit: B001
 
 
 logging:

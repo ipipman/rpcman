@@ -2,7 +2,7 @@ package cn.ipman.rpcman.demo.consumer;
 
 import cn.ipman.rpcman.core.annotation.RpcConsumer;
 import cn.ipman.rpcman.core.api.RpcContext;
-import cn.ipman.rpcman.core.consumer.ConsumerConfig;
+import cn.ipman.rpcman.core.config.ConsumerConfig;
 import cn.ipman.rpcman.demo.api.OrderService;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;

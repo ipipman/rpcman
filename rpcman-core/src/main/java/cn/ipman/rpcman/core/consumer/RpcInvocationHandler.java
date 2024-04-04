@@ -59,9 +59,9 @@ public class RpcInvocationHandler implements InvocationHandler {
 
     private void initHttpInvoker() {
         int timeout = Integer.parseInt(rpcContext.getParameters()
-                .getOrDefault("app.timeout", "1000"));
+                .getOrDefault("consumer.timeout", "1000"));
         boolean useNetty = Boolean.parseBoolean(rpcContext.getParameters()
-                .getOrDefault("app.useNetty", "false"));
+                .getOrDefault("consumer.useNetty", "false"));
         if (useNetty) {
             this.httpInvoker = new NettyClient(timeout);
         } else {
