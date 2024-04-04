@@ -5,6 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
+/**
+ * RPC 响应体
+ *
+ * @Author IpMan
+ * @Date 2024/3/9 20:07
+ */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

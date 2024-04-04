@@ -26,6 +26,9 @@ public class RpcContext {
 
     public static ThreadLocal<Map<String, String>> ContextParameters = ThreadLocal.withInitial(HashMap::new);
 
+    public String param(String key) {
+        return parameters.get(key);
+    }
 
     // rpc.color = gray
     // rpc.trace_id

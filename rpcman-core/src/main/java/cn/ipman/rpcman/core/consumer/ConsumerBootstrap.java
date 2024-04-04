@@ -7,7 +7,6 @@ import cn.ipman.rpcman.core.meta.ServiceMeta;
 import cn.ipman.rpcman.core.util.MethodUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -34,44 +33,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Map<String, Object> stub = new HashMap<>();
 
-    @Value("${app.id}")
-    private String app;
-
-    @Value("${app.namespace}")
-    private String namespace;
-
-    @Value("${app.env}")
-    private String env;
-
-    @Value("${app.version}")
-    private String version;
-
-    @Value("${app.retries}")
-    private int retries;
-
-    @Value("${app.timeout}")
-    private int timeout;
-
-    @Value("${app.useNetty}")
-    private boolean useNetty;
-
-    @Value("${app.grayRatio}")
-    private int grayRatio;
-
-    @Value("${app.faultLimit}")
-    private int faultLimit;
-
-    @Value("${app.halfOpenInitialDelay}")
-    private int halfOpenInitialDelay;
-
-    @Value("${app.halfOpenDelay}")
-    private int halfOpenDelay;
-
-
     public void start() {
 
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
-        RpcContext rpcContext = createContext();
+        RpcContext rpcContext = applicationContext.getBean(RpcContext.class);
 
         // 获取Spring容器中所有的Bean
         String[] names = applicationContext.getBeanDefinitionNames();
@@ -109,33 +74,15 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         }
     }
 
-    private RpcContext createContext() {
-        // 获取路由和负载均衡Bean
-        @SuppressWarnings("unchecked")
-        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
-        @SuppressWarnings("unchecked")
-        LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
-        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
-
-        RpcContext rpcContext = new RpcContext();
-        rpcContext.setRouter(router);
-        rpcContext.setLoadBalancer(loadBalancer);
-        rpcContext.setFilters(filters);
-        rpcContext.getParameters().put("app.retries", String.valueOf(retries));     // client超时重试
-        rpcContext.getParameters().put("app.timeout", String.valueOf(timeout));     // client超时时间ms
-        rpcContext.getParameters().put("app.useNetty", String.valueOf(useNetty));   // 是否用netty做为client
-        // rpcContext.getParameters().put("app.grayRatio", String.valueOf(grayRatio)); // 灰度发布
-        rpcContext.getParameters().put("app.halfOpenInitialDelay", String.valueOf(halfOpenInitialDelay)); // 半开重试时间间隔
-        rpcContext.getParameters().put("app.faultLimit", String.valueOf(faultLimit)); // client失败重试多少次后进入隔离区
-        rpcContext.getParameters().put("app.halfOpenDelay", String.valueOf(halfOpenDelay)); // 半开延迟执行时间
-        return rpcContext;
-    }
-
 
     private Object createFromRegistry(Class<?> service, RpcContext rpcContext, RegistryCenter rc) {
         String serviceName = service.getCanonicalName();
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .name(serviceName).app(app).namespace(namespace).env(env).version(version)
+                .name(serviceName)
+                .app(rpcContext.param("app.id"))
+                .namespace(rpcContext.param("app.namespace"))
+                .env(rpcContext.param("app.env"))
+                .version(rpcContext.param("app.version"))
                 .build();
         List<InstanceMeta> providers = rc.fetchAll(serviceMeta);
         log.debug("  ===> map to providers");

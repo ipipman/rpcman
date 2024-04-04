@@ -21,7 +21,7 @@ public class SpringBootTransport {
     @Setter(onMethod_ = {@Autowired})
     private ProviderInvoker providerInvoker;
 
-    @RequestMapping("/rpcman/")
+    @RequestMapping("/rpcman")
     public RpcResponse<Object> invoke(@RequestBody RpcRequest request) {
         return providerInvoker.invoke(request);
     }

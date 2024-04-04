@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Description for this class
  * RPC请求体结构, 定义生产者借口、方法、方法参数
  * 用于RPCMan框架启动时生产者注册,以及运行时调用
  *

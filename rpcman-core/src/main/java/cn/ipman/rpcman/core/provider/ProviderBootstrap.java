@@ -44,26 +44,30 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private InstanceMeta instance;
 
-    @Value("${server.port}")
     private String port;
 
-    @Value("${server.useNetty}")
     private Boolean useNetty;
 
-    @Value("${app.id}")
     private String app;
 
-    @Value("${app.namespace}")
     private String namespace;
 
-    @Value("${app.env}")
     private String env;
 
-    @Value("${app.version}")
     private String version;
 
-    @Value("#{${app.metas}}")
-    Map<String, String> metas;
+    private Map<String, String> metas;
+
+    public ProviderBootstrap(String port, String app, String namespace, String env,
+                             Map<String, String> metas, String version, Boolean useNetty) {
+        this.port = port;
+        this.useNetty = useNetty;
+        this.app = app;
+        this.namespace = namespace;
+        this.env = env;
+        this.metas = metas;
+        this.version = version;
+    }
 
     @PostConstruct
     @SneakyThrows

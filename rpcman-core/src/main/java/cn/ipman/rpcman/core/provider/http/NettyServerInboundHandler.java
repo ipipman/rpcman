@@ -47,7 +47,7 @@ public class NettyServerInboundHandler extends ChannelInboundHandlerAdapter {
         try {
             String uri = fullHttpRequest.uri();
 
-            if ("/rpcman/".equals(uri)) {
+            if ("/rpcman".equals(uri)) {
                 // 获取body, 转换成RpcRequest
                 String requestBody = buf.toString(CharsetUtil.UTF_8);
                 RpcRequest rpcRequest = JSON.parseObject(requestBody, RpcRequest.class);

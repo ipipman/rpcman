@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 
+import java.util.Map;
+
 
 /**
  * Description for this class
@@ -27,15 +29,30 @@ import org.springframework.core.annotation.Order;
 @Import({SpringBootTransport.class})
 public class ProviderConfig {
 
-    @Value("${server.port}")
+    @Value("${server.useNetty:false}")
+    private Boolean useNetty;
+
+    @Value("${server.port:8081}")
     private String port;
 
-    @Value("${server.useNetty}")
-    private Boolean useNetty;
+    @Value("${app.id:app1}")
+    private String app;
+
+    @Value("${app.namespace:public}")
+    private String namespace;
+
+    @Value("${app.env:dev}")
+    private String env;
+
+    @Value("${app.version:0.0.1-SNAPSHOT}")
+    private String version;
+
+    @Value("#{${app.metas:{dc:'bj',gray:'false',unit:'B001'}}}")
+    Map<String, String> metas;
 
     @Bean
     ProviderBootstrap providerBootstrap() {
-        return new ProviderBootstrap();
+        return new ProviderBootstrap(port, app, namespace, env, metas, version, useNetty);
     }
 
     @Bean
