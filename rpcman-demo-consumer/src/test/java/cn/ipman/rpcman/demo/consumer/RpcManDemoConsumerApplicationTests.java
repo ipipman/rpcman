@@ -38,20 +38,28 @@ public class RpcManDemoConsumerApplicationTests {
         System.out.println(" ================================ ");
         System.out.println(" ================================ ");
         context1 = SpringApplication.run(RpcmanDemoProviderApplication.class,
-                "--server.port=8084", "--server.useNetty=true",
-                "--rpcman.server=localhost:2182", "--logging.level.cn.ipman=debug",
-                "--app.metas={dc:'bj',gray:'false',unit:'B001'}");
+                "--server.port=8084",
+                "--logging.level.cn.ipman=debug",
+                "--rpcman.app.useNetty=true",
+                "--rpcman.zk.server=localhost:2182",
+                "--rpcman.provider.metas.dc=bj",
+                "--rpcman.provider.metas.gray=false",
+                "--rpcman.provider.metas.unit=B002"
+        );
 
         System.out.println(" ================================ ");
         System.out.println(" ============  8085 ============= ");
         System.out.println(" ================================ ");
         System.out.println(" ================================ ");
         context2 = SpringApplication.run(RpcmanDemoProviderApplication.class,
-                "--server.port=8086", "--server.useNetty=true",
-                "--rpcman.server=localhost:2182", "--logging.level.cn.ipman=debug",
-                "--app.metas={dc:'bj',gray:'false',unit:'B001'}");
-
-
+                "--server.port=8085",
+                "--logging.level.cn.ipman=debug",
+                "--rpcman.app.useNetty=true",
+                "--rpcman.zk.server=localhost:2182",
+                "--rpcman.provider.metas.dc=bj",
+                "--rpcman.provider.metas.gray=false",
+                "--rpcman.provider.metas.unit=B002"
+        );
     }
 
     @Test
@@ -62,7 +70,7 @@ public class RpcManDemoConsumerApplicationTests {
     @AfterAll
     static void destroy() {
         SpringApplication.exit(context1, () -> 1);
-//        SpringApplication.exit(context2, () -> 1);
+        SpringApplication.exit(context2, () -> 1);
         zkServer.stop();
     }
 }

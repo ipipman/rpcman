@@ -1,6 +1,5 @@
 server:
   port: 8080
-  useNetty: true # open port = server.port + 1000
 
 rpcman:
   zk:
@@ -12,7 +11,7 @@ rpcman:
     namespace: public
     env: dev
     version: 1.0
-    useNetty: true
+    useNetty: true # open port = server.port + 1000
 
   provider:
     metas:

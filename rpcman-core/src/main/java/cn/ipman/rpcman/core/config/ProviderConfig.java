@@ -1,8 +1,6 @@
 package cn.ipman.rpcman.core.config;
 
 import cn.ipman.rpcman.core.api.RegistryCenter;
-import cn.ipman.rpcman.core.config.AppConfigProperties;
-import cn.ipman.rpcman.core.config.ProviderConfigProperties;
 import cn.ipman.rpcman.core.provider.ProviderBootstrap;
 import cn.ipman.rpcman.core.provider.ProviderInvoker;
 import cn.ipman.rpcman.core.provider.http.NettyServer;
@@ -34,9 +32,6 @@ import java.util.Map;
 @Slf4j
 @Import({AppConfigProperties.class, ProviderConfigProperties.class, SpringBootTransport.class})
 public class ProviderConfig {
-
-    @Value("${server.useNetty:false}")
-    private Boolean useNetty;
 
     @Value("${server.port:8081}")
     private String port;
@@ -75,7 +70,7 @@ public class ProviderConfig {
 
     @Bean(initMethod = "start")
     public NettyServer nettyServer(@Autowired ProviderInvoker providerInvoker) {
-        if (useNetty)
+        if (appConfigProperties.getUseNetty())
             return new NettyServer(Integer.parseInt(port) + 1000, providerInvoker);
         return null;
     }
