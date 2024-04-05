@@ -2,12 +2,15 @@ package cn.ipman.rpcman.demo.consumer;
 
 import cn.ipman.rpcman.core.test.TestZKServer;
 import cn.ipman.rpcman.demo.provider.RpcmanDemoProviderApplication;
+import lombok.Setter;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 
 /**
  * Description for this class
@@ -15,7 +18,8 @@ import org.springframework.context.ApplicationContext;
  * @Author IpMan
  * @Date 2024/3/26 22:22
  */
-@SpringBootTest(classes = {RpcmanDemoConsumerApplication.class})
+@SpringBootTest(classes = {RpcmanDemoConsumerApplication.class},
+        properties = {"spring.config.location=classpath:/application-test.yaml"})
 public class RpcManDemoConsumerApplicationTests {
 
     static ApplicationContext context1;
@@ -24,8 +28,12 @@ public class RpcManDemoConsumerApplicationTests {
 
     static TestZKServer zkServer = new TestZKServer(2183);
 
+    @Setter(onMethod_ = {@Autowired})
+    private Environment environment;
+
     @BeforeAll
     static void init() {
+
         System.out.println(" ================================ ");
         System.out.println(" =========== Mock ZK 2183 ======= ");
         System.out.println(" ================================ ");
@@ -64,6 +72,7 @@ public class RpcManDemoConsumerApplicationTests {
 
     @Test
     void contextLoads() {
+        System.out.println("rpcman.zk.zkServer=>" + environment.getProperty("rpcman.zk.zkServer"));
         System.out.println("consumer running ... ");
     }
 
