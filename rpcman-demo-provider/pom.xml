@@ -6,12 +6,12 @@
     <parent>
         <groupId>cn.ipman</groupId>
         <artifactId>rpcman</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
+        <version>${rpcman.version}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>rpcman-demo-provider</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>${rpcman.version}</version>
     <name>rpcman-demo-provider</name>
     <description>rpcman-demo-provider</description>
 
@@ -36,13 +36,13 @@
         <dependency>
             <groupId>cn.ipman</groupId>
             <artifactId>rpcman-demo-api</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${rpcman.version}</version>
         </dependency>
 
         <dependency>
             <groupId>cn.ipman</groupId>
             <artifactId>rpcman-core</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${rpcman.version}</version>
         </dependency>
 
         <dependency>
