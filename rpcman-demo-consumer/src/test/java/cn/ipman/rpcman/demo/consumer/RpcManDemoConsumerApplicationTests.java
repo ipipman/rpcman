@@ -22,12 +22,12 @@ public class RpcManDemoConsumerApplicationTests {
 
     static ApplicationContext context2;
 
-    static TestZKServer zkServer = new TestZKServer();
+    static TestZKServer zkServer = new TestZKServer(2183);
 
     @BeforeAll
     static void init() {
         System.out.println(" ================================ ");
-        System.out.println(" =========== Mock ZK ============ ");
+        System.out.println(" =========== Mock ZK 2183 ======= ");
         System.out.println(" ================================ ");
         System.out.println(" ================================ ");
 
@@ -41,7 +41,7 @@ public class RpcManDemoConsumerApplicationTests {
                 "--server.port=8085",
                 "--logging.level.cn.ipman=debug",
                 "--rpcman.app.useNetty=true",
-                "--rpcman.zk.server=localhost:2182",
+                "--rpcman.zk.zkServer=localhost:2183",
                 "--rpcman.provider.metas.dc=bj",
                 "--rpcman.provider.metas.gray=false",
                 "--rpcman.provider.metas.unit=B002"
@@ -55,7 +55,7 @@ public class RpcManDemoConsumerApplicationTests {
                 "--server.port=8087",
                 "--logging.level.cn.ipman=debug",
                 "--rpcman.app.useNetty=true",
-                "--rpcman.zk.server=localhost:2182",
+                "--rpcman.zk.zkServer=localhost:2183",
                 "--rpcman.provider.metas.dc=bj",
                 "--rpcman.provider.metas.gray=false",
                 "--rpcman.provider.metas.unit=B002"

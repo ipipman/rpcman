@@ -15,14 +15,23 @@ public class TestZKServer {
 
     TestingCluster cluster;
 
+    int port = 2182;
+
+    public TestZKServer(){
+    }
+
+    public TestZKServer(int port) {
+        this.port = port;
+    }
+
     @SneakyThrows
     public void start() {
         // 模拟ZooKeeper服务端
-        InstanceSpec instanceSpec = new InstanceSpec(null, 2182,
+        InstanceSpec instanceSpec = new InstanceSpec(null, port,
                 -1, -1, true,
                 -1, -1, -1);
         cluster = new TestingCluster(instanceSpec);
-        System.out.println("TestingZooKeeperServer starting ...");
+        System.out.println("TestingZooKeeperServer starting ... port=" + port);
         cluster.start();
         cluster.getServers().forEach(s -> System.out.println(s.getInstanceSpec()));
         System.out.println("TestingZooKeeperServer started.");
