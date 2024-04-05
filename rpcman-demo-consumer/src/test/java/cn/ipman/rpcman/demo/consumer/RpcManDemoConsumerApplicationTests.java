@@ -34,11 +34,11 @@ public class RpcManDemoConsumerApplicationTests {
         zkServer.start();
 
         System.out.println(" ================================ ");
-        System.out.println(" ============  8084 ============= ");
+        System.out.println(" ============  8085 ============= ");
         System.out.println(" ================================ ");
         System.out.println(" ================================ ");
         context1 = SpringApplication.run(RpcmanDemoProviderApplication.class,
-                "--server.port=8084",
+                "--server.port=8085",
                 "--logging.level.cn.ipman=debug",
                 "--rpcman.app.useNetty=true",
                 "--rpcman.zk.server=localhost:2182",
@@ -48,11 +48,11 @@ public class RpcManDemoConsumerApplicationTests {
         );
 
         System.out.println(" ================================ ");
-        System.out.println(" ============  8085 ============= ");
+        System.out.println(" ============  8087 ============= ");
         System.out.println(" ================================ ");
         System.out.println(" ================================ ");
         context2 = SpringApplication.run(RpcmanDemoProviderApplication.class,
-                "--server.port=8085",
+                "--server.port=8087",
                 "--logging.level.cn.ipman=debug",
                 "--rpcman.app.useNetty=true",
                 "--rpcman.zk.server=localhost:2182",
