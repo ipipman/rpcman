@@ -16,25 +16,4 @@ jobs:
                   distribution: "adopt" # jdk发行版
                   cache: maven        # 包管理工具
             - run: mvn clean package --file pom.xml  # 执行打包命令
-            - name: copy dist fil with scp           # 开始上传jar包 
-              uses: wlixcc/SFTP-Deploy-Action@v1.2.4 # 老朋友了，上一篇的前端包也是用这个上传的
-              with:
-                  server: ${{ secrets.REMOTE_HOST }}  # 主机地址，下文再出如何配置
-                  username: 'root'                    # 主机账号                             
-                  password: ${{ secrets.REMOTE_PASSWORD }} # 密码
-                  port: 22                                 # 端口 默认22                      
-                  local_path: './rpcman-demo-provider/target/rpcman-demo-provider-0.0.1-SNAPSHOT-boot.jar' # 指定你要上传的文件
-                  remote_path: '/root/jar'                                 # 上传到哪儿
-                  sftp_only: true
-            - name: Deploy
-              uses: matheusvanzan/sshpass-action@v2        # 接下来进行运行jar包
-              with:
-                  host: ${{ secrets.REMOTE_HOST }}        # 和上面一样，不再重复
-                  user: 'root'
-                  port: 22
-                  pass: ${{ secrets.REMOTE_PASSWORD }}
-                  run: |                                  # 这里是要执行的后续命令
-                    cd /root/jar
-                    ps -ef | grep rpcman-demo-provider-0.0.1-SNAPSHOT-boot.jar | grep -v grep | awk '{print $2}' | xargs kill -9   
-                    nohup java -jar rpcman-demo-provider-0.0.1-SNAPSHOT-boot.jar --spring.profiles.active=formal > nohup.out &
-                    pwd
+           
