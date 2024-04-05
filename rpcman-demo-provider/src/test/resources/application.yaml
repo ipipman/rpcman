@@ -3,7 +3,7 @@ server:
 
 rpcman:
   zk:
-    zkServer: localhost:2181
+    zkServer: localhost:2182
     zkRoot: rpcman
 
   app:
