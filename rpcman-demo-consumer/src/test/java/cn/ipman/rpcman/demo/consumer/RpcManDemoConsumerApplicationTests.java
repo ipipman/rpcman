@@ -19,7 +19,7 @@ import org.springframework.core.env.Environment;
  * @Date 2024/3/26 22:22
  */
 @SpringBootTest(classes = {RpcmanDemoConsumerApplication.class},
-        properties = {"spring.config.location=classpath:/application-test.yaml"})
+        properties = {"rpcman.zk.zkServer=localhost:2183"})
 public class RpcManDemoConsumerApplicationTests {
 
     static ApplicationContext context1;
