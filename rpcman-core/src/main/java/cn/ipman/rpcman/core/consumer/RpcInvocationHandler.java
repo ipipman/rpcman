@@ -31,10 +31,10 @@ public class RpcInvocationHandler implements InvocationHandler {
 
     Class<?> service;
     RpcContext rpcContext;
+    HttpInvoker httpInvoker;
     final List<InstanceMeta> providers;
     final List<InstanceMeta> isolateProviders = new ArrayList<>();
     final List<InstanceMeta> halfOpenProviders = new ArrayList<>();
-    HttpInvoker httpInvoker;
     final Map<String, SlidingTimeWindow> windows = new HashMap<>();
     ScheduledExecutorService executorService;
 
