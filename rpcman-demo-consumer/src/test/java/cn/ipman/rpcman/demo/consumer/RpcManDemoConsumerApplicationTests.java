@@ -51,7 +51,8 @@ public class RpcManDemoConsumerApplicationTests {
                 "--rpcman.zk.zkServer=localhost:2183",
                 "--rpcman.provider.metas.dc=bj",
                 "--rpcman.provider.metas.gray=false",
-                "--rpcman.provider.metas.unit=B002"
+                "--rpcman.provider.metas.unit=B002",
+                "--rpcman.provider.metas.tc=35"
         );
 
         System.out.println(" ================================ ");
@@ -65,7 +66,8 @@ public class RpcManDemoConsumerApplicationTests {
                 "--rpcman.zk.zkServer=localhost:2183",
                 "--rpcman.provider.metas.dc=bj",
                 "--rpcman.provider.metas.gray=false",
-                "--rpcman.provider.metas.unit=B002"
+                "--rpcman.provider.metas.unit=B002",
+                "--rpcman.provider.metas.tc=35"
         );
     }
 
