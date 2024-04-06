@@ -2,7 +2,6 @@ package cn.ipman.rpcman.demo.consumer;
 
 import cn.ipman.rpcman.core.test.TestZKServer;
 import cn.ipman.rpcman.demo.provider.RpcmanDemoProviderApplication;
-import lombok.Setter;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,7 @@ public class RpcManDemoConsumerApplicationTests {
 
     static TestZKServer zkServer = new TestZKServer(2183);
 
-    @Setter(onMethod_ = {@Autowired})
+    @Autowired
     private Environment environment;
 
     @BeforeAll

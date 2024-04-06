@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>cn.ipman</groupId>
+        <groupId>io.github.ipipman</groupId>
         <artifactId>rpcman</artifactId>
         <version>${rpcman.version}</version>
         <relativePath>../pom.xml</relativePath>
@@ -28,13 +28,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>cn.ipman</groupId>
+            <groupId>io.github.ipipman</groupId>
             <artifactId>rpcman-demo-api</artifactId>
             <version>${rpcman.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>cn.ipman</groupId>
+            <groupId>io.github.ipipman</groupId>
             <artifactId>rpcman-core</artifactId>
             <version>${rpcman.version}</version>
         </dependency>
@@ -57,7 +57,7 @@
         </dependency>
 
         <dependency>
-            <groupId>cn.ipman</groupId>
+            <groupId>io.github.ipipman</groupId>
             <artifactId>rpcman-demo-provider</artifactId>
             <version>${rpcman.version}</version>
             <scope>test</scope>

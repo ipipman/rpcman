@@ -6,7 +6,6 @@ import cn.ipman.rpcman.core.provider.ProviderInvoker;
 import cn.ipman.rpcman.core.provider.http.NettyServer;
 import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
 import cn.ipman.rpcman.core.transport.SpringBootTransport;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,10 +33,10 @@ public class ProviderConfig {
     @Value("${server.port:8081}")
     private String port;
 
-    @Setter(onMethod_ = {@Autowired})
+    @Autowired
     private AppConfigProperties appConfigProperties;
 
-    @Setter(onMethod_ = {@Autowired})
+    @Autowired
     private ProviderConfigProperties providerConfigProperties;
 
     @Bean

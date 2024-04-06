@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>cn.ipman</groupId>
+        <groupId>io.github.ipipman</groupId>
         <artifactId>rpcman</artifactId>
         <version>${rpcman.version}</version>
         <relativePath>../pom.xml</relativePath>
@@ -34,13 +34,13 @@
         </dependency>
 
         <dependency>
-            <groupId>cn.ipman</groupId>
+            <groupId>io.github.ipipman</groupId>
             <artifactId>rpcman-demo-api</artifactId>
             <version>${rpcman.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>cn.ipman</groupId>
+            <groupId>io.github.ipipman</groupId>
             <artifactId>rpcman-core</artifactId>
             <version>${rpcman.version}</version>
         </dependency>

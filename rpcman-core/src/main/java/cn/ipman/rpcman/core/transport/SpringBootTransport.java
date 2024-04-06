@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SpringBootTransport {
 
-    @Setter(onMethod_ = {@Autowired})
+    @Autowired
     private ProviderInvoker providerInvoker;
 
     @RequestMapping("/rpcman")

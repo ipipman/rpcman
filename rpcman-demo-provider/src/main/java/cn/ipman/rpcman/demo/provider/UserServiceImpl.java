@@ -4,7 +4,6 @@ import cn.ipman.rpcman.core.annotation.RpcProvider;
 import cn.ipman.rpcman.core.api.RpcContext;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,7 @@ import java.util.Map;
 @RpcProvider
 public class UserServiceImpl implements UserService {
 
-    @Setter(onMethod_ = {@Autowired})
+    @Autowired
     Environment environment;
 
     @Override

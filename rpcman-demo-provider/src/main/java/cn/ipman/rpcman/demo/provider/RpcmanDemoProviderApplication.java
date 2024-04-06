@@ -6,7 +6,6 @@ import cn.ipman.rpcman.core.config.ProviderConfig;
 import cn.ipman.rpcman.core.transport.SpringBootTransport;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -31,7 +30,7 @@ public class RpcmanDemoProviderApplication {
         SpringApplication.run(RpcmanDemoProviderApplication.class, args);
     }
 
-    @Setter(onMethod_ = {@Autowired})
+    @Autowired
     private UserService userService;
 
     @RequestMapping("/ports")
@@ -51,7 +50,7 @@ public class RpcmanDemoProviderApplication {
         return x -> testAll();
     }
 
-    @Setter(onMethod_ = {@Autowired})
+    @Autowired
     SpringBootTransport transport;
 
     private void testAll() {

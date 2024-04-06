@@ -7,7 +7,6 @@ import cn.ipman.rpcman.core.consumer.ConsumerBootstrap;
 import cn.ipman.rpcman.core.filter.ParameterFilter;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import cn.ipman.rpcman.core.registry.zk.ZkRegistryCenter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,10 +34,10 @@ public class ConsumerConfig {
     @Value("${rpcman.providers:}")
     String[] services;
 
-    @Setter(onMethod_ = {@Autowired})
+    @Autowired
     private AppConfigProperties appConfigProperties;
 
-    @Setter(onMethod_ = {@Autowired})
+    @Autowired
     private ConsumerConfigProperties consumerConfigProperties;
 
     @Bean
