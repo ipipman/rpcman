@@ -277,3 +277,165 @@ $ mvn clean test  启动测试
 3. 有节点在一段时间内异常 (这个实例上有很多服务,其中个别服务比如说)、没有宕机,甚至其他服务一直好使, ==> 故障隔离
    1. 探活好了,就可以做故障恢复, full open
    2. 每次定时探活就放一笔流量进来 half open
+
+
+
+首先创建一个滑动窗口类,用来记录一段时间内,失败的次数
+
+这个滑动窗口工具类可以直接使用:  new SlidingTimeWindow() 使用
+
+默认是ring的默认长度是30, 表示30s内共存储了30个1s, 这个长度会随着时间(按秒)进行滑动,  用数据表示: [0,0,1,0...] ,其中s上元素0代表provider没有异常, 1 代表provider异常, 通过 window.getSum() 可以获取30s内共失败了多少次
+
+```java
+package cn.ipman.rpcman.core.governance;
+
+import lombok.ToString;
+
+/**
+ * Ring Buffer implement based on an int array.
+ *
+ * @Author IpMan
+ * @Date 2024/3/30 19:52
+ */
+@ToString
+public class RingBuffer {
+
+    final int size;
+    final int[] ring;
+
+    public RingBuffer(int _size) {
+        // check size > 0
+        this.size = _size;
+        this.ring = new int[this.size];
+    }
+
+    public int sum() {
+        int _sum = 0;
+        for (int i = 0; i < this.size; i++) {
+            _sum += ring[i];
+        }
+        return _sum;
+    }
+
+    public void reset() {
+        for (int i = 0; i < this.size; i++) {
+            ring[i] = 0;
+        }
+    }
+
+    public void reset(int index, int step) {
+        for (int i = index; i < index + step; i++) {
+            ring[i % this.size] = 0;
+        }
+    }
+
+    public void incr(int index, int delta) {
+        ring[index % this.size] += delta;
+    }
+}
+```
+
+
+
+```java
+package cn.ipman.rpcman.core.governance;
+
+import lombok.Getter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * SlidingTimeWindow implement based on RingBuffer and TS(timestamp).
+ * Use TS/1000->SecondNumber to mapping an index slot in a RingBuffer.
+ *
+ * @Author IpMan
+ * @Date 2024/3/30 19:52
+ */
+@Getter
+@ToString
+@Slf4j
+public class SlidingTimeWindow {
+
+    public static final int DEFAULT_SIZE = 30;
+
+    private final int size;
+    private final RingBuffer ringBuffer;
+    private int sum = 0;
+
+    // private int _start_mark = -1;
+    // private int _prev_mark  = -1;
+    private int _curr_mark = -1;
+
+    private long _start_ts = -1L;
+    //   private long _prev_ts  = -1L;
+    private long _curr_ts = -1L;
+
+    public SlidingTimeWindow() {
+        this(DEFAULT_SIZE);
+    }
+
+    public SlidingTimeWindow(int _size) {
+        this.size = _size;
+        this.ringBuffer = new RingBuffer(this.size);
+    }
+
+    /**
+     * record current ts millis.
+     *
+     * @param millis 秒
+     */
+    public synchronized void record(long millis) {
+        log.debug("window before: " + this);
+        log.debug("window.record(" + millis + ")");
+        long ts = millis / 1000;
+        if (_start_ts == -1L) {
+            initRing(ts);
+        } else {   // TODO  Prev 是否需要考虑
+            if (ts == _curr_ts) {
+                log.debug("window ts:" + ts + ", curr_ts:" + _curr_ts + ", size:" + size);
+                this.ringBuffer.incr(_curr_mark, 1);
+            } else if (ts > _curr_ts && ts < _curr_ts + size) {
+                int offset = (int) (ts - _curr_ts);
+                log.debug("window ts:" + ts + ", curr_ts:" + _curr_ts + ", size:" + size + ", offset:" + offset);
+                this.ringBuffer.reset(_curr_mark + 1, offset);
+                this.ringBuffer.incr(_curr_mark + offset, 1);
+                _curr_ts = ts;
+                _curr_mark = (_curr_mark + offset) % size;
+            } else if (ts >= _curr_ts + size) {
+                log.debug("window ts:" + ts + ", curr_ts:" + _curr_ts + ", size:" + size);
+                this.ringBuffer.reset();
+                initRing(ts);
+            }
+        }
+        this.sum = this.ringBuffer.sum();
+        log.debug("window after: " + this);
+    }
+
+    public int calcSum() {
+        long ts = System.currentTimeMillis() / 1000;
+        if(ts > _curr_ts && ts < _curr_ts + size) {
+            int offset = (int)(ts - _curr_ts);
+            log.debug("calc sum for window ts:" + ts + ", curr_ts:" + _curr_ts + ", size:" + size + ", offset:" + offset);
+            this.ringBuffer.reset(_curr_mark + 1, offset);
+            _curr_ts = ts;
+            _curr_mark = (_curr_mark + offset) % size;
+        } else if(ts >= _curr_ts + size) {
+            log.debug("calc sum for window ts:" + ts + ", curr_ts:" + _curr_ts + ", size:" + size);
+            this.ringBuffer.reset();
+            initRing(ts);
+        }
+        log.debug("calc sum for window:" + this);
+        return ringBuffer.sum();
+    }
+
+    private void initRing(long ts) {
+        log.debug("window initRing ts:" + ts);
+        this._start_ts = ts;
+        this._curr_ts = ts;
+        this._curr_mark = 0;
+        this.ringBuffer.incr(0, 1);
+    }
+
+}
+```
+
