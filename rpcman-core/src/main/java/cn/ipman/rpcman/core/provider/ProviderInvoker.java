@@ -4,6 +4,7 @@ import cn.ipman.rpcman.core.api.RpcContext;
 import cn.ipman.rpcman.core.api.RpcException;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
+import cn.ipman.rpcman.core.governance.SlidingTimeWindow;
 import cn.ipman.rpcman.core.meta.ProviderMeta;
 import cn.ipman.rpcman.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +13,13 @@ import org.springframework.util.MultiValueMap;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import static cn.ipman.rpcman.core.api.RpcException.ExceedLimitEx;
+
 
 /**
  * Description for this class
@@ -26,8 +32,17 @@ public class ProviderInvoker {
 
     private final MultiValueMap<String, ProviderMeta> skeleton;
 
+    private final int trafficControl; // = 20;
+    // todo 1201 : 改成map，针对不同的服务用不同的流控值
+    // todo 1202 : 对多个节点是共享一个数值，，，把这个map放到redis
+
+    final Map<String, SlidingTimeWindow> windows = new HashMap<>();
+    final Map<String, String> metas;
+
     public ProviderInvoker(ProviderBootstrap providerBootstrap) {
         this.skeleton = providerBootstrap.getSkeleton();
+        this.metas = providerBootstrap.getProviderProperties().getMetas();
+        this.trafficControl = Integer.parseInt(metas.getOrDefault("tc", "20"));
     }
 
     public RpcResponse<Object> invoke(RpcRequest request) {
@@ -38,8 +53,21 @@ public class ProviderInvoker {
         }
 
         RpcResponse<Object> rpcResponse = new RpcResponse<>();
+        String service = request.getService();
+        // 添加流量控制, 默认30s内大于20次访问,被限流
+        synchronized (windows) {
+            SlidingTimeWindow window = windows.computeIfAbsent(service, k -> new SlidingTimeWindow());
+            if (window.calcSum() >= trafficControl) {
+                System.out.println("trafficControl to ==> " + service);
+                throw new RpcException("service " + service + " invoked in 30s/[" +
+                        window.getSum() + "] larger than tpsLimit = " + trafficControl, ExceedLimitEx);
+            }
+            window.record(System.currentTimeMillis());
+            log.debug("service {} in window with {}", service, window.getSum());
+        }
+
         // 根据类包名,获取容器的类实例
-        List<ProviderMeta> providerMetas = this.skeleton.get(request.getService());
+        List<ProviderMeta> providerMetas = this.skeleton.get(service);
         try {
             String methodSign = request.getMethodSign();
             // 从元数据里获取类方法

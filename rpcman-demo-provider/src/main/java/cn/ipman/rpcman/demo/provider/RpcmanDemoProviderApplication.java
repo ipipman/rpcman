@@ -1,5 +1,6 @@
 package cn.ipman.rpcman.demo.provider;
 
+import cn.ipman.rpcman.core.api.RpcException;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
 import cn.ipman.rpcman.core.config.ProviderConfig;
@@ -97,6 +98,21 @@ public class RpcmanDemoProviderApplication {
         request4.setArgs(new Object[]{userMap});
         RpcResponse<Object> rpcResponse4 = transport.invoke(request4);
         System.out.println("return : " + rpcResponse4.getData());
+
+        // test 5 for traffic control
+        System.out.println("Provider Case 5. >>===[复杂测试：测试流量并发控制]===");
+//        for (int i = 0; i < 20; i++) {
+//            try {
+//                Thread.sleep(1000);
+//                RpcResponse<Object> r = transport.invoke(request);
+//                System.out.println(i + " ***>>> " + r.getData());
+//            } catch (RpcException e) {
+//                // ignore
+//                System.out.println(i + " ***>>> " + e.getMessage() + " -> " + e.getErrCode());
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
     }
 
 }
