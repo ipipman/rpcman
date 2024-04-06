@@ -42,8 +42,14 @@ public class ZkRegistryCenter implements RegistryCenter {
     @Value("${rpcman.zk.zkRoot:rpcman}")
     String root;
 
+    private boolean running = false;
+
     @Override
     public void start() {
+        if (running) {
+            log.info(" ===> zk client has started to server[" + servers + "/" + root + "], ignored.");
+            return;
+        }
         // baseSleepTimeMs：初始的sleep时间，用于计算之后的每次重试的sleep时间，
         //          计算公式：当前sleep时间=baseSleepTimeMs*Math.max(1, random.nextInt(1<<(retryCount+1)))
         // maxRetries：最大重试次数
@@ -61,13 +67,17 @@ public class ZkRegistryCenter implements RegistryCenter {
                 .retryPolicy(retryPolicy)
                 .build();
 
+        log.info(" ===> zk client starting to server[ " + servers + "/" + root + " ]");
         // 启动zk实例
         client.start();
-        log.info(" ===> zk client starting to server[ " + servers + "/" + root + " ]");
     }
 
     @Override
     public void stop() {
+        if (!running) {
+            log.info(" ===> zk client isn't running to server[" + servers + "/" + root + "], ignored.");
+            return;
+        }
         if (cache != null) {
             unsubscribe(); // 关闭订阅
         }

@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class RpcmanDemoProviderApplicationTests {
 
-    static TestZKServer zkServer = new TestZKServer();
+    static TestZKServer zkServer = new TestZKServer(2182);
 
     @BeforeAll
     static void init() {
