@@ -167,12 +167,18 @@ public class ZkRegistryCenter implements RegistryCenter {
                 .setCacheData(true)
                 .setMaxDepth(2) // 监听节点层级深度为2
                 .build();
-        cache.getListenable().addListener((curator, event) -> {
-            // 监听zookeeper节点变化
-            log.info(" ===> zk subscribe event: " + event);
-            List<InstanceMeta> nodes = fetchAll(service);
-            listener.fire(new Event(nodes));
-        });
+        cache.getListenable().addListener(
+                (curator, event) -> {
+                    // 防止节点并发变更,导致节点监听存在的并发安全问题
+                    synchronized (ZkRegistryCenter.class) {
+                        if (running) {
+                            // 监听zookeeper节点变化
+                            log.info(" ===> zk subscribe event: " + event);
+                            List<InstanceMeta> nodes = fetchAll(service);
+                            listener.fire(new Event(nodes));
+                        }
+                    }
+                });
         cache.start();
     }
 
