@@ -1,12 +1,24 @@
-#### Github Actions
-
-..
+#### Github Actions [待详细补充]
 
 
 
+<img src="https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-04-06-155635.png" alt="image-20240406235632838" style="height:600px" />
 
 
-#### Maven Central Deploy
+
+<img src="https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-04-06-155622.png" alt="image-20240406235538963" style="width:800px" />
+
+
+
+
+
+
+
+
+
+
+
+#### Maven Central Deploy [待详细补充]
 
 
 
@@ -54,6 +66,20 @@ Maven settting.xml 配置
     </server>
 </servers>
 ```
+
+其中 {{your.gpg.xxx}} 就是 gpg --gen-key 创建密钥时的 用户名、密码
+
+其中 {{your.sonatype.xxxx}} 参考如下, 首先登录/注册 https://central.sonatype.com/publishing/deployments 的账号,创建后右侧点击 View Account
+
+
+
+![image-20240406235119248](https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-04-06-155122.png)
+
+ 点击 Generate User Token 进行生成即可
+
+![image-20240406235359378](https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-04-06-155402.png)
+
+
 
 
 
