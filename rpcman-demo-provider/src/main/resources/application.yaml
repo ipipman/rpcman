@@ -18,7 +18,7 @@ rpcman:
       dc: bj
       gray: false
       unit: B001
-      tc: 35  # 流量控制器, 默认30s内访问20次
+      tc: 300  # 流量控制器, 默认30s内访问20次
 
 
 logging:

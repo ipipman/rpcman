@@ -15,6 +15,11 @@
     <name>rpcman-demo-provider</name>
     <description>rpcman-demo-provider</description>
 
+<!--    <properties>-->
+<!--        <skip_maven_deploy>true</skip_maven_deploy>-->
+<!--    </properties>-->
+
+
     <dependencyManagement>
         <dependencies>
             <dependency>

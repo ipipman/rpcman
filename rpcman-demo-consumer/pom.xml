@@ -14,6 +14,11 @@
     <name>rpcman-demo-consumer</name>
     <description>rpcman-demo-consumer</description>
 
+    <properties>
+        <skip_maven_deploy>true</skip_maven_deploy>
+    </properties>
+
+
     <dependencyManagement>
         <dependencies>
             <dependency>
