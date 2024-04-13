@@ -1,17 +1,21 @@
 package cn.ipman.rpcman.demo.provider;
 
-import cn.ipman.rpcman.core.api.RpcException;
 import cn.ipman.rpcman.core.api.RpcRequest;
 import cn.ipman.rpcman.core.api.RpcResponse;
+import cn.ipman.rpcman.core.config.ApolloChangedListener;
 import cn.ipman.rpcman.core.config.ProviderConfig;
+import cn.ipman.rpcman.core.config.ProviderConfigProperties;
 import cn.ipman.rpcman.core.transport.SpringBootTransport;
 import cn.ipman.rpcman.demo.api.User;
 import cn.ipman.rpcman.demo.api.UserService;
+import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.context.properties.ConfigurationPropertiesRebinder;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +28,14 @@ import java.util.Map;
 @SpringBootApplication
 @RestController
 @Import({ProviderConfig.class})
+@EnableApolloConfig
 @Slf4j
 public class RpcmanDemoProviderApplication {
+
+    @Bean
+    ApolloChangedListener apolloChangedListener() {
+        return new ApolloChangedListener();
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(RpcmanDemoProviderApplication.class, args);
@@ -43,12 +53,28 @@ public class RpcmanDemoProviderApplication {
         return response;
     }
 
+    @Autowired
+    private ProviderConfigProperties providerProperties;
+
+    @RequestMapping("/metas")
+    public String meta() {
+        System.out.println(System.identityHashCode(providerProperties.getMetas()));
+        return providerProperties.getMetas().toString();
+    }
+
     /**
      * 在Spring容器启动后,模拟调用Provider
      */
     @Bean
-    public ApplicationRunner providerRun() {
-        return x -> testAll();
+    public ApplicationRunner providerRun(@Autowired ApplicationContext context) {
+        return x -> {
+            System.out.println(" =====> providerProperties.getMetas()");
+            providerProperties.getMetas().forEach((k, v) -> System.out.println(k + ":" + v));
+
+            ConfigurationPropertiesRebinder reBinder = context.getBean(ConfigurationPropertiesRebinder.class);
+            System.out.println(reBinder);
+            testAll();
+        };
     }
 
     @Autowired
