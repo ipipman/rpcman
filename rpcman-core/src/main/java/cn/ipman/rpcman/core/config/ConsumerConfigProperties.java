@@ -29,4 +29,6 @@ public class ConsumerConfigProperties {
 
     private int grayRatio = 0;
 
+    private Boolean useNetty = false;
+
 }

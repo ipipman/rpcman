@@ -1,5 +1,6 @@
 package cn.ipman.rpcman.core.api;
 
+import cn.ipman.rpcman.core.config.ConsumerConfigProperties;
 import cn.ipman.rpcman.core.meta.InstanceMeta;
 import lombok.Data;
 
@@ -23,6 +24,8 @@ public class RpcContext {
     LoadBalancer<InstanceMeta> loadBalancer;
 
     private Map<String, String> parameters = new HashMap<>();
+
+    private ConsumerConfigProperties consumerProperties;
 
     public static ThreadLocal<Map<String, String>> ContextParameters = ThreadLocal.withInitial(HashMap::new);
 

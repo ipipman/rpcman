@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -26,8 +28,8 @@ import java.util.List;
  * @Author IpMan
  * @Date 2024/3/10 19:49
  */
-@Configuration
 @Slf4j
+@Configuration
 @Import({AppConfigProperties.class, ConsumerConfigProperties.class})
 public class ConsumerConfig {
 
@@ -41,12 +43,19 @@ public class ConsumerConfig {
     private ConsumerConfigProperties consumerConfigProperties;
 
     @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "apollo.bootstrap", value = "enabled")
+    ApolloChangedListener consumer_apolloChangedListener() {
+        return new ApolloChangedListener();
+    }
+
+    @Bean
     public ConsumerBootstrap createConsumerBootstrap() {
         return new ConsumerBootstrap();
     }
 
     @Bean
-    @Order(Integer.MIN_VALUE) // 让ProviderBootstrap执行顺序提前,避免Consumer依赖时找不到Provider
+    @Order(Integer.MIN_VALUE + 1) // 让ProviderBootstrap执行顺序提前,避免Consumer依赖时找不到Provider
     public ApplicationRunner consumerBootstrapRunner(@Autowired ConsumerBootstrap consumerBootstrap) {
         return x -> {
             log.info("createConsumerBootstrap starting...");
@@ -88,12 +97,8 @@ public class ConsumerConfig {
         context.getParameters().put("app.env", appConfigProperties.getEnv());
         context.getParameters().put("app.version", appConfigProperties.getVersion());
         context.getParameters().put("app.useNetty", String.valueOf(appConfigProperties.getUseNetty()));
-
-        context.getParameters().put("consumer.retries", String.valueOf(consumerConfigProperties.getRetries()));
-        context.getParameters().put("consumer.timeout", String.valueOf(consumerConfigProperties.getTimeout()));
-        context.getParameters().put("consumer.faultLimit", String.valueOf(consumerConfigProperties.getFaultLimit()));
-        context.getParameters().put("consumer.halfOpenInitialDelay", String.valueOf(consumerConfigProperties.getHalfOpenInitialDelay()));
-        context.getParameters().put("consumer.halfOpenDelay", String.valueOf(consumerConfigProperties.getHalfOpenDelay()));
+        // 重试、超时等配置
+        context.setConsumerProperties(consumerConfigProperties);
         return context;
     }
 

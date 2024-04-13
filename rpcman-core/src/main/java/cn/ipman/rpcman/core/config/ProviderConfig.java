@@ -25,22 +25,17 @@ import org.springframework.core.annotation.Order;
  * @Date 2024/3/9 20:07
  */
 
-@Configuration
 @Slf4j
+@Configuration
 @Import({AppConfigProperties.class, ProviderConfigProperties.class, SpringBootTransport.class})
 public class ProviderConfig {
 
     @Value("${server.port:8081}")
     private String port;
 
-    @Autowired
-    private AppConfigProperties appConfigProperties;
-
-    @Autowired
-    private ProviderConfigProperties providerConfigProperties;
-
     @Bean
-    ProviderBootstrap providerBootstrap() {
+    ProviderBootstrap providerBootstrap(@Autowired AppConfigProperties appConfigProperties,
+                                        @Autowired ProviderConfigProperties providerConfigProperties) {
         return new ProviderBootstrap(port, appConfigProperties, providerConfigProperties);
     }
 
@@ -66,7 +61,8 @@ public class ProviderConfig {
     }
 
     @Bean(initMethod = "start")
-    public NettyServer nettyServer(@Autowired ProviderInvoker providerInvoker) {
+    public NettyServer nettyServer(@Autowired AppConfigProperties appConfigProperties,
+                                   @Autowired ProviderInvoker providerInvoker) {
         if (appConfigProperties.getUseNetty())
             return new NettyServer(Integer.parseInt(port) + 1000, providerInvoker);
         return null;

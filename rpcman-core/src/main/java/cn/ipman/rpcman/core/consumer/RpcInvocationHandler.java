@@ -49,19 +49,15 @@ public class RpcInvocationHandler implements InvocationHandler {
 
         // 定时探活Provider的运行状态 , 单线程, 延迟10s执行, 每60s执行一次
         this.executorService = Executors.newScheduledThreadPool(1);
-        int halfOpenInitialDelay = Integer.parseInt(rpcContext.getParameters()
-                .getOrDefault("consumer.halfOpenInitialDelay", "10000"));
-        int halfOpenDelay = Integer.parseInt(rpcContext.getParameters()
-                .getOrDefault("consumer.halfOpenDelay", "60000"));
+        int halfOpenDelay = rpcContext.getConsumerProperties().getHalfOpenDelay();
+        int halfOpenInitialDelay = rpcContext.getConsumerProperties().getHalfOpenInitialDelay();
         this.executorService.scheduleWithFixedDelay(this::halfOpen, halfOpenInitialDelay,
                 halfOpenDelay, TimeUnit.MILLISECONDS);
     }
 
     private void initHttpInvoker() {
-        int timeout = Integer.parseInt(rpcContext.getParameters()
-                .getOrDefault("consumer.timeout", "1000"));
-        boolean useNetty = Boolean.parseBoolean(rpcContext.getParameters()
-                .getOrDefault("consumer.useNetty", "false"));
+        int timeout = rpcContext.getConsumerProperties().getTimeout();
+        boolean useNetty = rpcContext.getConsumerProperties().getUseNetty();
         if (useNetty) {
             this.httpInvoker = new NettyClient(timeout);
         } else {
@@ -82,11 +78,10 @@ public class RpcInvocationHandler implements InvocationHandler {
         rpcRequest.setArgs(args);
 
         // 默认重试次数
-        int retries = Integer.parseInt(rpcContext.getParameters()
-                .getOrDefault("consumer.retries", "1"));
+        int retries = rpcContext.getConsumerProperties().getRetries();
         // 最大重试次数后进入隔离区
-        int faultLimit = Integer.parseInt(rpcContext.getParameters()
-                .getOrDefault("consumer.faultLimit", "10"));
+        int faultLimit = rpcContext.getConsumerProperties().getFaultLimit();
+
 
         while (retries-- > 0) {
             log.info(" ===> retries: " + retries);
