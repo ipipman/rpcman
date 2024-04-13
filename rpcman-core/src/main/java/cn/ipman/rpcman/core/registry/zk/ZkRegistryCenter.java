@@ -42,7 +42,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     @Value("${rpcman.zk.zkRoot:rpcman}")
     String root;
 
-    private final boolean running = false;
+    private boolean running = false;
 
     @Override
     public void start() {
@@ -69,7 +69,9 @@ public class ZkRegistryCenter implements RegistryCenter {
 
         log.info(" ===> zk client starting to server[ " + servers + "/" + root + " ]");
         // 启动zk实例
+        running = true;
         client.start();
+
     }
 
     @Override
@@ -155,6 +157,7 @@ public class ZkRegistryCenter implements RegistryCenter {
                 System.out.println("providers metas ==> " + k + " -> " + v);
                 instanceMeta.getParameters().put(k, v == null ? null : v.toString());
             });
+            log.info("xxxx => " + JSON.toJSONString(instanceMeta));
             return instanceMeta;
         }).collect(Collectors.toList());
     }

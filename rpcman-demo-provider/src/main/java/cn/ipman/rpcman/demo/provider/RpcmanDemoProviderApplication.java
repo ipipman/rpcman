@@ -32,10 +32,10 @@ import java.util.Map;
 @Slf4j
 public class RpcmanDemoProviderApplication {
 
-    @Bean
-    ApolloChangedListener apolloChangedListener() {
-        return new ApolloChangedListener();
-    }
+//    @Bean
+//    ApolloChangedListener apolloChangedListener() {
+//        return new ApolloChangedListener();
+//    }
 
     public static void main(String[] args) {
         SpringApplication.run(RpcmanDemoProviderApplication.class, args);

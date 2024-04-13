@@ -110,6 +110,12 @@
             <version>4.1.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.ctrip.framework.apollo</groupId>
+            <artifactId>apollo-mockserver</artifactId>
+            <version>${apollo.version}</version>
+        </dependency>
+
     </dependencies>
 
 </project>

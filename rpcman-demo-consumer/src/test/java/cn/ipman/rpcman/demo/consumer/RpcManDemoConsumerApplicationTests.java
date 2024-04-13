@@ -2,6 +2,8 @@ package cn.ipman.rpcman.demo.consumer;
 
 import cn.ipman.rpcman.core.test.TestZKServer;
 import cn.ipman.rpcman.demo.provider.RpcmanDemoProviderApplication;
+import com.ctrip.framework.apollo.mockserver.ApolloTestingServer;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,7 +20,7 @@ import org.springframework.core.env.Environment;
  * @Date 2024/3/26 22:22
  */
 @SpringBootTest(classes = {RpcmanDemoConsumerApplication.class},
-        properties = {"rpcman.zk.zkServer=localhost:2183"})
+         properties = {"rpcman.zk.zkServer=localhost:2183"})
 public class RpcManDemoConsumerApplicationTests {
 
     static ApplicationContext context1;
@@ -27,18 +29,28 @@ public class RpcManDemoConsumerApplicationTests {
 
     static TestZKServer zkServer = new TestZKServer(2183);
 
+    static ApolloTestingServer apollo = new ApolloTestingServer();
+
     @Autowired
     private Environment environment;
 
     @BeforeAll
+    @SneakyThrows
     static void init() {
 
         System.out.println(" ================================ ");
         System.out.println(" =========== Mock ZK 2183 ======= ");
         System.out.println(" ================================ ");
         System.out.println(" ================================ ");
-
         zkServer.start();
+
+        System.out.println(" ====================================== ");
+        System.out.println(" ====================================== ");
+        System.out.println(" ===========     mock apollo    ======= ");
+        System.out.println(" ====================================== ");
+        System.out.println(" ====================================== ");
+        apollo.start();
+
 
         System.out.println(" ================================ ");
         System.out.println(" ============  8085 ============= ");
@@ -79,8 +91,13 @@ public class RpcManDemoConsumerApplicationTests {
 
     @AfterAll
     static void destroy() {
+        System.out.println(" ===========     close spring context     ======= ");
         SpringApplication.exit(context1, () -> 1);
         SpringApplication.exit(context2, () -> 1);
+        System.out.println(" ===========     stop zookeeper server    ======= ");
         zkServer.stop();
+        System.out.println(" ===========     stop apollo mockserver   ======= ");
+        apollo.close();
+        System.out.println(" ===========     destroy in after all     ======= ");
     }
 }
