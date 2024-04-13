@@ -15,8 +15,8 @@ rpcman:
     use-netty: false
 
   consumer:
-    retries: 2
-    timeout: 200
+    retries: 3
+    timeout: 300
     gray-ratio: 33 # 灰度百分比 0-100
     fault-limit: 10 # 30s 内10次错误则隔离
     half-open-initial-delay: 10000 # 半开启初始延迟

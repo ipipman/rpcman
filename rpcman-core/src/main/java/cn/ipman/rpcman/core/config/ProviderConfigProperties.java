@@ -22,5 +22,4 @@ public class ProviderConfigProperties {
     // for provider
     Map<String, String> metas = new HashMap<>();
 
-
 }

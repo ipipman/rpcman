@@ -17,7 +17,7 @@ rpcman:
     metas:
       dc: bj
       gray: false
-      unit: B001
+      unit: B002
       tc: 300  # 流量控制器, 默认30s内访问20次
 
 

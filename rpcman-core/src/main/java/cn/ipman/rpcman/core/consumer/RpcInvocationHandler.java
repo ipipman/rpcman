@@ -57,6 +57,7 @@ public class RpcInvocationHandler implements InvocationHandler {
 
     private void initHttpInvoker() {
         int timeout = rpcContext.getConsumerProperties().getTimeout();
+
         boolean useNetty = rpcContext.getConsumerProperties().getUseNetty();
         if (useNetty) {
             this.httpInvoker = new NettyClient(timeout);
@@ -81,7 +82,6 @@ public class RpcInvocationHandler implements InvocationHandler {
         int retries = rpcContext.getConsumerProperties().getRetries();
         // 最大重试次数后进入隔离区
         int faultLimit = rpcContext.getConsumerProperties().getFaultLimit();
-
 
         while (retries-- > 0) {
             log.info(" ===> retries: " + retries);
