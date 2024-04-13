@@ -22,6 +22,20 @@ rpcman:
     half-open-initial-delay: 10000 # 半开启初始延迟
     half-open-delay: 60000
 
+# apollo 配置中心
+app:
+  id: app
+apollo:
+  cacheDir: /opt/data/
+  cluster: default
+  meta: http://localhost:8080
+  autoUpdateInjectedSpringProperties: true # 是否自动更新
+  bootstrap:
+    enabled: true
+    namespaces: rpcman-app
+    eagerLoad:
+      enabled: false
+
 logging:
   level:
     root: info
