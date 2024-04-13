@@ -13,7 +13,7 @@ import java.util.Map;
  * @Author IpMan
  * @Date 2024/4/4 17:47
  */
-public class ParameterFilter implements Filter {
+public class ContextParameterFilter implements Filter {
 
     @Override
     public Object preFilter(RpcRequest request) {

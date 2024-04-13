@@ -42,7 +42,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     @Value("${rpcman.zk.zkRoot:rpcman}")
     String root;
 
-    private boolean running = false;
+    private final boolean running = false;
 
     @Override
     public void start() {

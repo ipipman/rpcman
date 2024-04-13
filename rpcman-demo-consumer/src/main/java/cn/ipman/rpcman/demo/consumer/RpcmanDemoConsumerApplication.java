@@ -157,10 +157,11 @@ public class RpcmanDemoConsumerApplication {
         String Key_Version = "rpc.version";
         String Key_Message = "rpc.message";
         RpcContext.setContextParameter(Key_Version, "v8");
-        RpcContext.setContextParameter(Key_Message, "this is a test message");
         String version = userService.echoParameter(Key_Version);
+        RpcContext.setContextParameter(Key_Message, "this is a test message");
         String message = userService.echoParameter(Key_Message);
         System.out.println(" ===> echo parameter from c->p->c: " + Key_Version + " -> " + version);
         System.out.println(" ===> echo parameter from c->p->c: " + Key_Message + " -> " + message);
+        // RpcContext.ContextParameters.get().clear();
     }
 }
