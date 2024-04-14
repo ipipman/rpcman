@@ -616,3 +616,193 @@ private void halfOpen() {
 
 
 
+#### 关于配置中心的集成
+
+这里使用Apollo Config 做为配置中心, 需要的参考资料: https://www.apolloconfig.com/#/zh/deployment/quick-start
+
+官方提供了apollo-quick-start.zip网盘下载方式,
+
+解压后, 需要将 `sql`  目录下的 `apolloconfigdb.sql` `apolloportaldb.sql` 初始化到你的 `mysql` 数据库中
+
+启动命令使用 `sh demo.sh start`启动
+
+```shell
+==== starting service ====
+Service logging file is ./service/apollo-service.log
+Started [26169]
+Waiting for config service startup...
+Config service started. You may visit http://localhost:8080 for service status now!
+Waiting for admin service startup.
+Admin service started
+==== starting portal ====
+Portal logging file is ./portal/apollo-portal.log
+Started [26223]
+Waiting for portal startup...
+Portal started. You can visit http://localhost:8070 now!
+```
+
+
+
+启动后, 通过访问 http://localhost:8070 ,进入Apollo 管理端
+
+核心概念 [应用 - 环境 - 集群 - Namespace - 配置],  了解更多可以根据参考资料学习
+
+![image-20240414125329633](https://ipman-blog-1304583208.cos.ap-nanjing.myqcloud.com/rpcman/2024-04-14-045332.png)
+
+
+
+
+
+
+
+##### RPC-MAN 框架集成Apollo 配置中心的具体实现如下
+
+安装pom依赖,  作者的 apollo `version` 是 `2.2.0`
+
+```java
+<dependency>
+    <groupId>com.ctrip.framework.apollo</groupId>
+    <artifactId>apollo-client</artifactId>
+    <version>${apollo.version}</version>
+</dependency>
+```
+
+
+
+在 `consumer` 端 和 `provider` 端 `application.yaml` 添加 Apollo配置
+
+```java
+# apollo 配置中心
+app:
+  id: app
+apollo:
+  cacheDir: /opt/data/
+  cluster: default
+  meta: http://localhost:8080
+  autoUpdateInjectedSpringProperties: true # 是否自动更新
+  bootstrap:
+    enabled: true
+    namespaces: rpcman-app
+    eagerLoad:
+      enabled: false
+```
+
+
+
+在 `consumer` 端 和 `provider` 端 Application 启动类开启 `@EnableApolloConfig` 配置
+
+当被Spring框架 `@Value` 注解标记的配置, 会被 Apollo 进行代理和发布更新
+
+```java
+@SpringBootApplication
+@RestController
+@Import({ProviderConfig.class})
+@EnableApolloConfig
+@Slf4j
+public class RpcmanDemoProviderApplication {
+```
+
+
+
+由于我们框架都是由 `@ConfigurationProperties`  注解在Spring环境启动时, 通过前缀匹配的方式将配置注入到一个单例类里, 如:
+
+```java
+@Data
+@Configuration
+@ConfigurationProperties(prefix = "rpcman.app")
+public class AppConfigProperties {
+
+    // for app instance
+    private String id = "app1";
+
+    private String namespace = "public";
+```
+
+
+
+**这种方式不能被 Apollo 动态代理更新 **, 这里我们需要通过监听 apollo的`ConfigChangeEvent`,当配置产生变化时, 借助 `spring-cloud-context` 的 `EnvironmentChangeEvent` 进行动态更新, 实现如下:
+
+```java
+/**
+ * 更新对应的bean的属性值
+ * 主要式存在@ConfigurationProperties注解的bean
+ *
+ * @Author IpMan
+ * @Date 2024/4/13 16:37
+ */
+@Data
+@Slf4j
+public class ApolloChangedListener implements ApplicationContextAware {
+
+    ApplicationContext applicationContext;
+
+    @ApolloConfigChangeListener({"rpcman-app"}) // listener to namespace
+    @SuppressWarnings("unused")
+    private void changeHandler(ConfigChangeEvent changeEvent) {
+        for (String key : changeEvent.changedKeys()) {
+            ConfigChange change = changeEvent.getChange(key);
+            log.info("Found change - {}", change.toString());
+        }
+
+        // 更新对应的bean的属性值,主要式存在@ConfigurationProperties注解的bean
+        this.applicationContext.publishEvent(new EnvironmentChangeEvent(changeEvent.changedKeys()));
+    }
+}
+```
+
+将 `ApolloChangedListener` 注入到 `Spring容器` 中,  `ConsumerConfig` 和 `ProviderConfig` 都需要
+
+```
+@Bean
+@ConditionalOnMissingBean
+@ConditionalOnProperty(prefix = "apollo.bootstrap", value = "enabled")
+ApolloChangedListener consumer_apolloChangedListener() {
+    return new ApolloChangedListener();
+}
+```
+
+
+
+##### 测试类中集成 Apollo Mock环境
+
+添加依赖,  作者的 apollo `version` 是 `2.2.0`
+
+```java
+<dependency>
+    <groupId>com.ctrip.framework.apollo</groupId>
+    <artifactId>apollo-mockserver</artifactId>
+    <version>${apollo.version}</version>
+</dependency>
+```
+
+```java
+// 创建 Apollo Mock Server
+static ApolloTestingServer apollo = new ApolloTestingServer();
+
+@BeforeAll
+@SneakyThrows
+static void init() {
+    ....
+
+    System.out.println(" ====================================== ");
+    System.out.println(" ====================================== ");
+    System.out.println(" ===========     mock apollo    ======= ");
+    System.out.println(" ====================================== ");
+    System.out.println(" ====================================== ");
+    apollo.start(); // 启动
+
+    ....
+}
+
+@AfterAll
+static void destroy() {
+		....
+      
+    System.out.println(" ===========     stop apollo mockserver   ======= ");
+    apollo.close(); // 关停
+    System.out.println(" ===========     destroy in after all     ======= ");
+}
+```
+
+
+

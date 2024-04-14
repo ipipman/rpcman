@@ -22,7 +22,7 @@ public class ApolloChangedListener implements ApplicationContextAware {
 
     ApplicationContext applicationContext;
 
-    @ApolloConfigChangeListener({"rpcman-app"})
+    @ApolloConfigChangeListener({"rpcman-app"}) // listener to namespace
     @SuppressWarnings("unused")
     private void changeHandler(ConfigChangeEvent changeEvent) {
         for (String key : changeEvent.changedKeys()) {
